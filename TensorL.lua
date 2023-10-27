@@ -343,69 +343,13 @@ function TensorL:transpose(dimension1, dimension2)
 	
 	if (typeof(dimension1) ~= "number") or (typeof(dimension2) ~= "number") then error("Dimensions are not numbers.") end
 	
-	local size = self:getSize()
+	local numberOfDimension = getNumberOfDimensions(self)
+
+	if (dimension1 < 1) or (dimension1 > numberOfDimension) or (dimension2 < 1) or (dimension2 > numberOfDimension) or (dimension1 == dimension2) then error("Invalid dimensions.") end
 	
 	local result = {}
 
-	-- Check if the specified dimensions are within the valid range
-	if (dimension1 < 1) or (dimension1 > size[1]) or (dimension2 < 1) or (dimension2 > size[1]) or (dimension1 == dimension2) then
-		error("Invalid dimensions for transpose.")
-	end
-
 	-- Initialize the transposed tensor with the same dimensions as the input tensor
-	for i = 1, size[1] do
-		
-		result[i] = {}
-		
-		for j = 1, #self[i] do
-			
-			result[i][j] = {}
-			
-		end
-		
-	end
-
-	-- Perform the transpose operation
-	for i = 1, size[1] do
-		
-		for j = 1, #self[i] do
-			
-			for k = 1, #self[i][j] do
-				
-				result[i][j][k] = self[i][j][k]
-				
-			end
-			
-		end
-		
-	end
-
-	-- Swap the specified dimensions
-	for i = 1, size[1] do
-		
-		for j = 1, #self[i] do
-			
-			for k = 1, #self[i][j] do
-				
-				if dimension1 ~= i and dimension2 ~= i then
-					
-					result[i][j][k] = self[i][j][k]
-					
-				elseif dimension1 == i then
-					
-					result[dimension2][j][k] = self[i][j][k]
-					
-				elseif dimension2 == i then
-					
-					result[dimension1][j][k] = self[i][j][k]
-					
-				end
-				
-			end
-			
-		end
-		
-	end
 
 	return self.new(result)
 	
