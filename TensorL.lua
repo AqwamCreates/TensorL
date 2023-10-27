@@ -146,6 +146,41 @@ local function createString(tensor)
 
 end
 
+local function tensorProduct(tensor1, tensor2)
+	
+	local dimensionArray1 = getDimensionArray(tensor1)
+	
+	local dimensionArray2 = getDimensionArray(tensor2)
+
+	for i, _ in ipairs(dimensionArray1) do if (dimensionArray1[i] ~= dimensionArray2[i]) then error("Invalid dimensions.") end end
+
+	local numberOfValues = dimensionArray1[1]
+	
+	local result = {}
+
+	if (#dimensionArray1 > 1) then
+		
+		for i = 1, numberOfValues, 1 do
+			
+			local subproduct = tensorProduct(tensor1[i], tensor2[i])
+			
+			table.insert(result, subproduct)
+			
+		end
+		
+	else
+		
+		for i = 1, numberOfValues, 1 do
+			
+			table.insert(result, tensor1[i] * tensor2[i])
+			
+		end
+		
+	end
+
+	return result
+end
+
 local function innerProduct(tensor1, tensor2)
 	
 	local dimensionArray1 = getDimensionArray(tensor1)
