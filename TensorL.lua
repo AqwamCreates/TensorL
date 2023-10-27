@@ -146,32 +146,26 @@ local function createString(tensor)
 
 end
 
-local function innerProduct(tensor1, tensor2, indices)
+local function innerProduct(tensor1, tensor2)
 	
-	local index = indices[#indices]
+	local dimensionArray = getDimensionArray(tensor1)
+	
+	local numberOfValues = dimensionArray[1]
 	
 	local result = 0
 
-	if #indices == 1 then
+	if (#dimensionArray > 1) then
 		
-		for i = 1, index do
-			
-			result = result + tensor1[i] * tensor2[i]
-			
-		end
+		for i = 1, numberOfValues, 1 do result += innerProduct(tensor1[i], tensor2[i]) end
 		
 	else
 		
-		for i = 1, index do
-			
-			indices[#indices] = i
-			
-			result = result + innerProduct(tensor1[i], tensor2[i], indices)
-		end
+		for i = 1, numberOfValues, 1 do result += (tensor1[i] * tensor2[i]) end
 		
 	end
 
 	return result
+	
 end
 
 local function createTensor(dimensionArray, initialValue)
