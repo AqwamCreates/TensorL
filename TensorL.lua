@@ -236,6 +236,35 @@ local function outerProduct(tensor1, tensor2)
 	end
 
 	return result
+	
+end
+
+local function eq(booleanTensor)
+	
+	local dimensionArray1 = getDimensionArray(booleanTensor)
+
+	local numberOfValues = dimensionArray1[1]
+
+	local result = true
+
+	if (#dimensionArray1 > 1) then
+
+		for i = 1, numberOfValues do result = eq(booleanTensor[i]) end
+
+	else
+
+		for i = 1, numberOfValues do 
+			
+			result = (result == booleanTensor[i])
+			
+			if (result == false) then return false end
+			
+		end
+
+	end
+
+	return result
+	
 end
 
 local function createTensor(dimensionArray, initialValue)
@@ -384,25 +413,19 @@ end
 
 function TensorL:__eq(other)
 	
-	local success = pcall(function() local _ = other[1][1][1] end)
+	local numberOfDimensions1 = getNumberOfDimensions(self)
+
+	local numberOfDimensions2 = getNumberOfDimensions(other)
+
+	if (numberOfDimensions1 ~= numberOfDimensions2) then return false end
 	
-	if not success then return false end
+	local operation = function(a, b) return (a == b) end
+
+	local result = applyOperation(operation, self, other)
 	
-	for dimension1 = 1, #self, 1 do
+	local isEqual = eq(result)
 
-		for dimension2 = 1, #self[dimension1], 1 do
-
-			for dimension3 = 1, #self[dimension1][dimension2], 1 do
-
-				if (self[dimension1][dimension2][dimension3] ~= other[dimension1][dimension2][dimension3]) then return false end
-
-			end
-
-		end
-
-	end
-
-	return true
+	return isEqual
 	
 end
 
