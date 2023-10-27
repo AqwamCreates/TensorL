@@ -172,6 +172,37 @@ local function innerProduct(tensor1, tensor2)
 	
 end
 
+local function outerProduct(tensor1, tensor2)
+	
+	local dimensionArray1 = getDimensionArray(tensor1)
+	
+	local dimensionArray2 = getDimensionArray(tensor2)
+
+	for i, _ in ipairs(dimensionArray1) do if dimensionArray1[i] ~= dimensionArray2[i] then error("Invalid dimensions.") end end
+
+	local numberOfValues = dimensionArray1[1]
+	
+	local result = {}
+
+	if (#dimensionArray1 > 1) then
+		
+		for i = 1, numberOfValues do result[i] = outerProduct(tensor1[i], tensor2[i]) end
+		
+	else
+		
+		for i = 1, numberOfValues do
+			
+			result[i] = {}
+			
+			for j = 1, numberOfValues do result[i][j] = tensor1[i] * tensor2[j] end
+			
+		end
+		
+	end
+
+	return result
+end
+
 local function createTensor(dimensionArray, initialValue)
 	
 	local result = {}
@@ -424,39 +455,7 @@ end
 
 function TensorL:outerProduct(other)
 
-	local success = pcall(function() local _ = other[1][1][1] end)
-
-	if not success then return error("The other value is not a tensor.") end
-
-	local size = self:getSize()
-
-	local otherSize = other:getSize()
-
-	if (size[1] ~= otherSize[2]) then error("Tensors must have the same shape for inner product.") end
-
-	for index, _ in ipairs(size) do if (size[index] ~= otherSize[index]) then error("Tensors are not the same size!") end end
-
-	local result = {}
-
-	for dimension1 = 1, size[1] do
-		
-		result[dimension1] = {}
-		
-		for dimension2 = 1, #self[dimension1] do
-			
-			result[dimension1][dimension2] = {}
-			
-			for dimension3 = 1, #self[dimension1][dimension2] do
-				
-				result[dimension1][dimension2][dimension3] = self[dimension1][dimension2][dimension3] * other[dimension1][dimension2][dimension3]
-				
-			end
-			
-		end
-		
-	end
-
-	return self.new(result)
+	return outerProduct(self, other)
 
 end
 
