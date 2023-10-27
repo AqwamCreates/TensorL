@@ -408,9 +408,11 @@ end
 
 function TensorL:isEqualTo(other)
 
-	local success = pcall(function() local _ = other[1][1][1] end)
+	local numberOfDimensions1 = getNumberOfDimensions(self)
 
-	if not success then return error("The other value is not a tensor.") end
+	local numberOfDimensions2 = getNumberOfDimensions(other)
+	
+	if (numberOfDimensions1 ~= numberOfDimensions2) then error("Invalid dimensions.") end
 
 	local operation = function(a, b) return (a == b) end
 
@@ -422,9 +424,11 @@ end
 
 function TensorL:isGreaterThan(other)
 
-	local success = pcall(function() local _ = other[1][1][1] end)
+	local numberOfDimensions1 = getNumberOfDimensions(self)
 
-	if not success then return error("The other value is not a tensor.") end
+	local numberOfDimensions2 = getNumberOfDimensions(other)
+
+	if (numberOfDimensions1 ~= numberOfDimensions2) then error("Invalid dimensions.") end
 
 	local operation = function(a, b) return (a > b) end
 
@@ -436,9 +440,11 @@ end
 
 function TensorL:isGreaterOrEqualTo(other)
 
-	local success = pcall(function() local _ = other[1][1][1] end)
+	local numberOfDimensions1 = getNumberOfDimensions(self)
 
-	if not success then return error("The other value is not a tensor.") end
+	local numberOfDimensions2 = getNumberOfDimensions(other)
+
+	if (numberOfDimensions1 ~= numberOfDimensions2) then error("Invalid dimensions.") end
 
 	local operation = function(a, b) return (a >= b) end
 
@@ -450,9 +456,11 @@ end
 
 function TensorL:isLessThan(other)
 
-	local success = pcall(function() local _ = other[1][1][1] end)
+	local numberOfDimensions1 = getNumberOfDimensions(self)
 
-	if not success then return error("The other value is not a tensor.") end
+	local numberOfDimensions2 = getNumberOfDimensions(other)
+
+	if (numberOfDimensions1 ~= numberOfDimensions2) then error("Invalid dimensions.") end
 	
 	local operation = function(a, b) return (a < b) end
 
@@ -464,9 +472,11 @@ end
 
 function TensorL:isLessOrEqualTo(other)
 
-	local success = pcall(function() local _ = other[1][1][1] end)
+	local numberOfDimensions1 = getNumberOfDimensions(self)
 
-	if not success then return error("The other value is not a tensor.") end
+	local numberOfDimensions2 = getNumberOfDimensions(other)
+
+	if (numberOfDimensions1 ~= numberOfDimensions2) then error("Invalid dimensions.") end
 
 	local operation = function(a, b) return (a <= b) end
 
