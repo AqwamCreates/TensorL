@@ -148,13 +148,17 @@ end
 
 local function innerProduct(tensor1, tensor2)
 	
-	local dimensionArray = getDimensionArray(tensor1)
+	local dimensionArray1 = getDimensionArray(tensor1)
+
+	local dimensionArray2 = getDimensionArray(tensor2)
+
+	for i, _ in ipairs(dimensionArray1) do if (dimensionArray1[i] ~= dimensionArray2[i]) then error("Invalid dimensions.") end end
 	
-	local numberOfValues = dimensionArray[1]
+	local numberOfValues = dimensionArray1[1]
 	
 	local result = 0
 
-	if (#dimensionArray > 1) then
+	if (#dimensionArray1 > 1) then
 		
 		for i = 1, numberOfValues, 1 do result += innerProduct(tensor1[i], tensor2[i]) end
 		
