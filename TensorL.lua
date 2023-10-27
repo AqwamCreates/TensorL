@@ -478,7 +478,9 @@ end
 
 function TensorL:tensorProduct(other)
 	
-	return tensorProduct(self, other)
+	local result = tensorProduct(self, other)
+	
+	return self.new(result)
 	
 end
 
@@ -489,8 +491,10 @@ function TensorL:innerProduct(other)
 end
 
 function TensorL:outerProduct(other)
+	
+	local result = outerProduct(self, other)
 
-	return outerProduct(self, other)
+	return self.create(result)
 
 end
 
