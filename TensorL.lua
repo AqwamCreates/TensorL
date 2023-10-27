@@ -146,6 +146,33 @@ local function createString(tensor)
 
 end
 
+local function innerProduct(tensor1, tensor2, indices)
+	
+	local index = indices[#indices]
+	
+	local result = 0
+
+	if #indices == 1 then
+		
+		for i = 1, index do
+			
+			result = result + tensor1[i] * tensor2[i]
+			
+		end
+		
+	else
+		
+		for i = 1, index do
+			
+			indices[#indices] = i
+			
+			result = result + innerProduct(tensor1[i], tensor2[i], indices)
+		end
+		
+	end
+
+	return result
+end
 
 local function createTensor(dimensionArray, initialValue)
 	
@@ -387,67 +414,13 @@ end
 
 function TensorL:tensorProduct(other)
 	
-	local success = pcall(function() local _ = other[1][1][1] end)
-
-	if not success then return error("The other value is not a tensor.") end
-	
-	local size = self:getSize()
-	
-	local otherSize = other:getSize()
-	
-	for index, _ in ipairs(size) do if (size[index] ~= otherSize[index]) then error("Tensors are not the same size!") end end
-
-	local result = 0
-	
-	for dimension1 = 1, size[1] do
-		
-		for dimension2 = 1, size[2] do
-			
-			for dimension3 = 1, size[3] do
-				
-				result = result + self[dimension1][dimension2][dimension3] * other[dimension1][dimension2][dimension3]
-				
-			end
-			
-		end
-		
-	end
-	
-	return result
+	return tensorProduct(self, other)
 	
 end
 
 function TensorL:innerProduct(other)
 
-	local success = pcall(function() local _ = other[1][1][1] end)
-
-	if not success then return error("The other value is not a tensor.") end
-
-	local size = self:getSize()
-
-	local otherSize = other:getSize()
-	
-	if (size[1] ~= otherSize[2]) then error("Tensors must have the same shape for inner product.") end
-
-	for index, _ in ipairs(size) do if (size[index] ~= otherSize[index]) then error("Tensors are not the same size!") end end
-
-	local result = 0
-
-	for dimension1 = 1, size[1] do
-
-		for dimension2 = 1, size[2] do
-
-			for dimension3 = 1, size[3] do
-
-				result = result + self[dimension1][dimension2][dimension3] * other[dimension1][dimension2][dimension3]
-
-			end
-
-		end
-
-	end
-
-	return result
+	return innerProduct(self, other)
 
 end
 
@@ -511,7 +484,7 @@ end
 
 function TensorL:__sub(other)
 	
-	local other = self:broadcast(other, table.unpack(self:getSize()))
+	local other = self:broadcast(other, table.unpack(self:getNumberOfDimensions()))
 
 	local operation = function(a, b) return (a - b) end
 
@@ -523,7 +496,7 @@ end
 
 function TensorL:__mul(other)
 	
-	local other = self:broadcast(other, table.unpack(self:getSize()))
+	local other = self:broadcast(other, table.unpack(self:getNumberOfDimensions()))
 
 	local operation = function(a, b) return (a * b) end
 
@@ -535,7 +508,7 @@ end
 
 function TensorL:__div(other)
 	
-	local other = self:broadcast(other, table.unpack(self:getSize()))
+	local other = self:broadcast(other, table.unpack(self:getNumberOfDimensions()))
 
 	local operation = function(a, b) return (a / b) end
 
@@ -547,7 +520,7 @@ end
 
 function TensorL:__unm(other)
 	
-	local other = self:broadcast(-1, table.unpack(self:getSize()))
+	local other = self:broadcast(-1, table.unpack(self:getNumberOfDimensions()))
 
 	local operation = function(a, b) return (a * b) end
 
