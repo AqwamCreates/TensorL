@@ -108,13 +108,17 @@ local function applyOperation(operation, tensor1, tensor2)
 
 	local result = {}
 	
-	if (#dimensionArray1 > 1) then
+	for i = 1, #tensor1 do  
 		
-		for i = 1, #tensor1 do result[i] = applyOperation(operation, tensor1[i], tensor2[i]) end
-		
-	else
-		
-		for i = 1, #tensor1 do result[i] = operation(tensor1[i], tensor2[i]) end
+		if (#dimensionArray1 > 1) then
+
+			result[i] = applyOperation(operation, tensor1[i], tensor2[i])
+
+		else
+
+			result[i] = operation(tensor1[i], tensor2[i])
+
+		end
 		
 	end
 	
@@ -175,18 +179,45 @@ local function fullSum(tensor)
 	local numberOfValues = dimensionArray[1]
 
 	local result = 0
+	
+	for i = 1, numberOfValues, 1 do 
+		
+		if (#dimensionArray > 1) then
 
-	if (#dimensionArray > 1) then
+			result += fullSum(tensor[i]) 
 
-		for i = 1, numberOfValues, 1 do result += fullSum(tensor[i]) end
+		else
 
-	else
-
-		for i = 1, numberOfValues, 1 do result += tensor[i] end
-
+			result += tensor[i]
+			
+		end
+		
+		
 	end
 	
 	return result
+	
+end
+
+local function dimensionSumRecursive(result, tensor, dimension)
+	
+	local dimensionArray = getDimensionArray(tensor)
+	
+	local numberOfDimensions = #dimensionArray
+	
+	local numberOfValues = dimensionArray[1]
+	
+	for i = 1, numberOfValues, 1 do dimensionSumRecursive(result[i], tensor[i], dimension) end
+	
+	if (numberOfDimensions == dimension) then
+		
+		for i = 1, numberOfValues, 1 do dimensionSumRecursive(result[i], tensor[i], dimension) end
+		
+	else
+		
+		for i = 1, numberOfValues, 1 do result[i] += tensor[i] end
+		
+	end
 	
 end
 
@@ -194,23 +225,39 @@ local function dimensionSum(tensor, dimension)
 	
 	local dimensionArray = getDimensionArray(tensor)
 	
-	local numberOfDimensions = #dimensionArray
+	local newDimensionArray = deepCopyTable(dimensionArray)
+	
+	dimensionArray[dimension] = 1
+	
+	local result = createTensor(newDimensionArray, 0)
 
-	local numberOfValues = dimensionArray[1]
+	for dimension1 = 1, dimensionArray[1], 1 do
 
-	local result = {}
+		for dimension2 = 1, dimensionArray[2], 1 do
 
-	if (numberOfDimensions ~= dimension) then
+			for dimension3 = 1, dimensionArray[3], 1 do
 
-		for i = 1, numberOfValues, 1 do table.insert(result, dimensionSum(tensor[i], dimension))  end
+				if (dimension == 1) then
 
-	else
-		
-		local total = 0
+					result[1][dimension2][dimension3] += tensor[dimension1][dimension2][dimension3]	
 
-		for i = 1, numberOfValues, 1 do total += tensor[i] end
-		
-		table.insert(result, total)
+				elseif (dimension == 2) then
+
+					result[dimension1][1][dimension3] += tensor[dimension1][dimension2][dimension3]
+
+				elseif (dimension == 3) then
+
+					result[dimension1][dimension2][1] += tensor[dimension1][dimension2][dimension3]
+
+				else
+
+					error("Invalid dimension.")
+
+				end 
+
+			end
+
+		end	
 
 	end
 	
@@ -222,13 +269,17 @@ local function sum(tensor, dimension)
 	
 	if not dimension then return fullSum(tensor) end
 	
-	local dimensionArray = getDimensionArray(tensor)
-	
-	local numberOfDimension = #dimensionArray
+	local numberOfDimension = getNumberOfDimensions(tensor)
 	
 	if (dimension > numberOfDimension) or (dimension < 1) then error("Invalid dimensions.") end
 	
-	return dimensionSum(tensor, dimension)
+	local reversedSequence = {}
+	
+	for i = numberOfDimension, 1, -1 do table.insert(reversedSequence, i) end
+	
+	local selectedDimension = reversedSequence[dimension]
+	
+	return dimensionSum(tensor, selectedDimension)
 	
 end
 
@@ -243,25 +294,21 @@ local function tensorProduct(tensor1, tensor2)
 	local numberOfValues = dimensionArray1[1]
 	
 	local result = {}
+	
+	for i = 1, numberOfValues, 1 do
 
-	if (#dimensionArray1 > 1) then
-		
-		for i = 1, numberOfValues, 1 do
-			
+		if (#dimensionArray1 > 1) then
+
 			local subproduct = tensorProduct(tensor1[i], tensor2[i])
-			
+
 			table.insert(result, subproduct)
-			
-		end
-		
-	else
-		
-		for i = 1, numberOfValues, 1 do
-			
+
+		else
+
 			table.insert(result, tensor1[i] * tensor2[i])
-			
+
 		end
-		
+
 	end
 
 	return result
@@ -278,14 +325,18 @@ local function innerProduct(tensor1, tensor2)
 	local numberOfValues = dimensionArray1[1]
 	
 	local result = 0
+	
+	for i = 1, numberOfValues, 1 do  
+		
+		if (#dimensionArray1 > 1) then
 
-	if (#dimensionArray1 > 1) then
-		
-		for i = 1, numberOfValues, 1 do result += innerProduct(tensor1[i], tensor2[i]) end
-		
-	else
-		
-		for i = 1, numberOfValues, 1 do result += (tensor1[i] * tensor2[i]) end
+			result += innerProduct(tensor1[i], tensor2[i])
+
+		else
+
+			result += (tensor1[i] * tensor2[i])
+
+		end
 		
 	end
 
@@ -304,21 +355,21 @@ local function outerProduct(tensor1, tensor2)
 	local numberOfValues = dimensionArray1[1]
 	
 	local result = {}
+	
+	for i = 1, numberOfValues do
 
-	if (#dimensionArray1 > 1) then
-		
-		for i = 1, numberOfValues do result[i] = outerProduct(tensor1[i], tensor2[i]) end
-		
-	else
-		
-		for i = 1, numberOfValues do
-			
+		if (#dimensionArray1 > 1) then
+
+			result[i] = outerProduct(tensor1[i], tensor2[i])
+
+		else
+
 			result[i] = {}
-			
+
 			for j = 1, numberOfValues do result[i][j] = tensor1[i] * tensor2[j] end
-			
+
 		end
-		
+
 	end
 
 	return result
@@ -558,6 +609,12 @@ end
 function TensorL:copy()
 	
 	return deepCopyTable(self)
+	
+end
+
+function TensorL:rawCopy()
+	
+	return deepCopyTable(self.Values)
 	
 end
 
