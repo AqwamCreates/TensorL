@@ -1,5 +1,27 @@
 local TensorL = {}
 
+local function createTensor(dimensionArray, initialValue)
+
+	local result = {}
+
+	if (#dimensionArray > 2) then
+
+		local remainingDimensions = {}
+
+		for i = 2, #dimensionArray do table.insert(remainingDimensions, dimensionArray[i]) end
+
+		for i = 1, dimensionArray[1] do result[i] = createTensor(remainingDimensions, initialValue) end
+
+	else
+
+		for i = 1, dimensionArray[1] do result[i] = table.create(dimensionArray[2], initialValue) end
+
+	end
+
+	return result
+
+end
+
 local function deepCopyTable(original, copies)
 
 	copies = copies or {}
@@ -146,6 +168,70 @@ local function createString(tensor)
 
 end
 
+local function fullSum(tensor)
+	
+	local dimensionArray = getDimensionArray(tensor)
+
+	local numberOfValues = dimensionArray[1]
+
+	local result = 0
+
+	if (#dimensionArray > 1) then
+
+		for i = 1, numberOfValues, 1 do result += fullSum(tensor[i]) end
+
+	else
+
+		for i = 1, numberOfValues, 1 do result += tensor[i] end
+
+	end
+	
+	return result
+	
+end
+
+local function dimensionSum(tensor, dimension)
+	
+	local dimensionArray = getDimensionArray(tensor)
+	
+	local numberOfDimensions = #dimensionArray
+
+	local numberOfValues = dimensionArray[1]
+
+	local result = {}
+
+	if (numberOfDimensions ~= dimension) then
+
+		for i = 1, numberOfValues, 1 do table.insert(result, dimensionSum(tensor[i], dimension))  end
+
+	else
+		
+		local total = 0
+
+		for i = 1, numberOfValues, 1 do total += tensor[i] end
+		
+		table.insert(result, total)
+
+	end
+	
+	return result
+	
+end
+
+local function sum(tensor, dimension)
+	
+	if not dimension then return fullSum(tensor) end
+	
+	local dimensionArray = getDimensionArray(tensor)
+	
+	local numberOfDimension = #dimensionArray
+	
+	if (dimension > numberOfDimension) or (dimension < 1) then error("Invalid dimensions.") end
+	
+	return dimensionSum(tensor, dimension)
+	
+end
+
 local function tensorProduct(tensor1, tensor2)
 	
 	local dimensionArray1 = getDimensionArray(tensor1)
@@ -267,25 +353,11 @@ local function eq(booleanTensor)
 	
 end
 
-local function createTensor(dimensionArray, initialValue)
+local function transpose(tensor, dimension1, dimension2)
 	
-	local result = {}
+	local dimensionArray = getDimensionArray(tensor)
 	
-	if (#dimensionArray > 2) then
-		
-		local remainingDimensions = {}
-		
-		for i = 2, #dimensionArray do table.insert(remainingDimensions, dimensionArray[i]) end
-
-		for i = 1, dimensionArray[1] do result[i] = createTensor(remainingDimensions, initialValue) end
-
-	else
-		
-		for i = 1, dimensionArray[1] do result[i] = table.create(dimensionArray[2], initialValue) end
-		
-	end
-	
-	return result
+	local numberOfDimensions = #dimensionArray
 	
 end
 
@@ -347,11 +419,9 @@ function TensorL:transpose(dimension1, dimension2)
 
 	if (dimension1 < 1) or (dimension1 > numberOfDimension) or (dimension2 < 1) or (dimension2 > numberOfDimension) or (dimension1 == dimension2) then error("Invalid dimensions.") end
 	
-	local result = {}
+	local result = transpose(self, dimension1, dimension2)
 
-	-- Initialize the transposed tensor with the same dimensions as the input tensor
-
-	return self.new(result)
+	return result
 	
 end
 
@@ -451,6 +521,16 @@ function TensorL:isLessOrEqualTo(other)
 
 	return self.new(result)
 
+end
+
+function TensorL:sum(dimension)
+	
+	local result = sum(self, dimension)
+	
+	if not dimension then return result end
+	
+	return result
+	
 end
 
 function TensorL:tensorProduct(other)
