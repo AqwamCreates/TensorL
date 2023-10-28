@@ -207,18 +207,20 @@ local function dimensionSumRecursive(result, tensor, dimension)
 	
 	local numberOfValues = dimensionArray[1]
 	
-	for i = 1, numberOfValues, 1 do dimensionSumRecursive(result[i], tensor[i], dimension) end
-	
-	if (numberOfDimensions == dimension) then
+	for i = 1, numberOfValues, 1 do 	
 		
-		for i = 1, numberOfValues, 1 do dimensionSumRecursive(result[i], tensor[i], dimension) end
-		
-	else
-		
-		for i = 1, numberOfValues, 1 do result[i] += tensor[i] end
+		if (numberOfDimensions == dimension) then
+
+			dimensionSumRecursive(result[i], tensor[i], dimension)
+
+		else
+
+			result[i] += tensor[i]
+
+		end
 		
 	end
-	
+
 end
 
 local function dimensionSum(tensor, dimension)
