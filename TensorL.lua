@@ -192,7 +192,6 @@ local function fullSum(tensor)
 			
 		end
 		
-		
 	end
 	
 	return result
@@ -223,15 +222,65 @@ local function dimensionSumRecursive(result, tensor, dimension)
 
 end
 
-local function dimensionSum(tensor, dimension)
+local function accumulateDimension(result, tensor, dimension, dimensionIndices, dimensionArray)
+	if dimension == #dimensionIndices then
+		for i = 1, dimensionArray[dimensionIndices[dimension]], 1 do
+			local indices = {}
+			for j = 1, #dimensionIndices do
+				indices[j] = dimensionIndices[j]
+			end
+			indices[dimension] = i
+			result[table.unpack(indices)] = (result[table.unpack(indices)] or 0) + tensor[table.unpack(indices)]
+		end
+	else
+		for i = 1, dimensionArray[dimensionIndices[dimension]], 1 do
+			dimensionIndices[dimension] = i
+			accumulateDimension(result, tensor, dimension + 1, dimensionIndices, dimensionArray)
+		end
+	end
+end
+
+local function dimSumRecursive(result, tensor, targetDimension)
+	
+	local dimensionArray = getDimensionArray(tensor)
+	
+	local currentDimension = #dimensionArray
+	
+	local numberOfValues = dimensionArray[1]
+	
+	for i = 1, numberOfValues, 1 do
+		
+		if (currentDimension == targetDimension) then
+			
+			print(getDimensionArray(result))
+			
+			print(getDimensionArray(tensor))
+			
+			result[i] += tensor[i]
+
+		else
+
+			dimensionSumRecursive(result[i], tensor[i], targetDimension)
+
+		end
+		
+	end
+	
+end
+
+local function dimensionSum(tensor, targetDimension)
 	
 	local dimensionArray = getDimensionArray(tensor)
 	
 	local newDimensionArray = deepCopyTable(dimensionArray)
 	
-	dimensionArray[dimension] = 1
+	dimensionArray[targetDimension] = 1
 	
-	local result = createTensor(newDimensionArray, 0)
+	local result = createTensor(dimensionArray, 0)
+
+	dimSumRecursive(result, tensor, targetDimension)
+	
+	--[[
 
 	for dimension1 = 1, dimensionArray[1], 1 do
 
@@ -262,6 +311,8 @@ local function dimensionSum(tensor, dimension)
 		end	
 
 	end
+	
+	--]]
 	
 	return result
 	
