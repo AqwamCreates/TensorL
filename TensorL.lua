@@ -1,72 +1,20 @@
---[[
+local AqwamTensorLibrary = {}
 
-	--------------------------------------------------------------------
-
-	Version 1.0.0
-
-	Aqwam's 3D Tensor Library (TensorL3D)
-
-	Author: Aqwam Harish Aiman
-	
-	YouTube: https://www.youtube.com/channel/UCUrwoxv5dufEmbGsxyEUPZw
-	
-	LinkedIn: https://www.linkedin.com/in/aqwam-harish-aiman/
-	
-	--------------------------------------------------------------------
-	
-	By using or possesing any copies of this library, you agree to our license at:
-	
-	https://github.com/AqwamCreates/TensorL3D/LICENSE.md
-	
-	--------------------------------------------------------------------
-	
-	DO NOT REMOVE THIS TEXT WITHOUT PROPER PERMISSION!
-	
-	--------------------------------------------------------------------
-
---]]
-
-local TensorL3D = {}
-
-local function create3DTensor(dimensionArray, initialValue)
-	
-	local result = {}
-
-	for dimension1 = 1, dimensionArray[1], 1 do
-
-		result[dimension1] =  {}
-
-		for dimension2 = 1, dimensionArray[2], 1 do
-
-			result[dimension1][dimension2] = table.create(dimensionArray[3], initialValue)
-
-		end
-
-	end
-	
-	return result
-	
-end
-
-local function create3DTensorFromFunction(dimensionArray, functionToUse)
+local function createTensor(dimensionArray, initialValue)
 
 	local result = {}
 
-	for dimension1 = 1, dimensionArray[1], 1 do
+	if (#dimensionArray > 2) then
 
-		result[dimension1] =  {}
+		local remainingDimensions = {}
 
-		for dimension2 = 1, dimensionArray[2], 1 do
-			
-			result[dimension1][dimension2] =  {}
-			
-			for dimension3 = 1, dimensionArray[3], 1 do
-				
-				result[dimension1][dimension2][dimension3] = functionToUse(dimension1, dimension2, dimension3)
-				
-			end
+		for i = 2, #dimensionArray do table.insert(remainingDimensions, dimensionArray[i]) end
 
-		end
+		for i = 1, dimensionArray[1] do result[i] = createTensor(remainingDimensions, initialValue) end
+
+	else
+
+		for i = 1, dimensionArray[1] do result[i] = table.create(dimensionArray[2], initialValue) end
 
 	end
 
@@ -114,98 +62,225 @@ local function deepCopyTable(original, copies)
 
 end
 
-local function applyFunction(functionToApply, tensor1, tensor2)
+local function getNumberOfDimensions(tensor)
 	
+	if (typeof(tensor) ~= "table") then return 0 end
+	
+	return getNumberOfDimensions(tensor[1]) + 1
+	
+end
+
+local function getSubTensorLength(tensor, targetDimension)
+	
+	local numberOfDimensions = getNumberOfDimensions(tensor)
+	
+	if (numberOfDimensions == targetDimension) then return #tensor end
+	
+	return getSubTensorLength(tensor[1], targetDimension)
+	
+end
+
+local function getDimensionArray(tensor)
+	
+	local numberOfDimensions = getNumberOfDimensions(tensor)
+
+	local dimensionArray = {}
+
+	for dimension = numberOfDimensions, 1, -1  do
+
+		local length = getSubTensorLength(tensor, dimension)
+
+		table.insert(dimensionArray, length)
+
+	end
+	
+	return dimensionArray
+	
+end
+
+local function applyOperation(operation, tensor1, tensor2)
+	
+	local dimensionArray1 = getDimensionArray(tensor1)
+	
+	local dimensionArray2 = getDimensionArray(tensor2)
+	
+	for i, _ in ipairs(dimensionArray1) do if (dimensionArray1[i] ~= dimensionArray2[i]) then error("Invalid dimensions.") end end
+
 	local result = {}
 	
-	for dimension1 = 1, #tensor1, 1 do
+	for i = 1, #tensor1 do  
 		
-		result[dimension1] = {}
+		if (#dimensionArray1 > 1) then
 
-		for dimension2 = 1, #tensor1[dimension1], 1 do
+			result[i] = applyOperation(operation, tensor1[i], tensor2[i])
+
+		else
+
+			result[i] = operation(tensor1[i], tensor2[i])
+
+		end
+		
+	end
+	
+	return result
+
+end
+
+local function createString(tensor)
+
+	local dimensionArray = getDimensionArray(tensor)
+	
+	local tensorLength = #tensor
+
+	local result = " "
+
+	if (#dimensionArray > 1) then
+		
+		result = result .. "{"
+
+		for i = 1, #tensor do 
 			
-			result[dimension1][dimension2] = {}
+			result = result .. createString(tensor[i])
+			
+			if (i == tensorLength) then continue end
+			
+			result = result .. "\n"
+			
+		end
+		
+		result = result .. " }"
 
-			for dimension3 = 1, #tensor1[dimension1][dimension2], 1 do
+	else
 
-				result[dimension1][dimension2][dimension3] = functionToApply(tensor1[dimension1][dimension2][dimension3], tensor2[dimension1][dimension2][dimension3]) 
+		result = result .. "{ "
 
-			end
+		for i = 1, tensorLength do 
+
+			result = result .. tensor[i]
+
+			if (i == tensorLength) then continue end
+
+			result = result .. ", "
 
 		end
 
+		result = result .. " }"
+
+	end
+
+	return result
+
+end
+
+local function fullSum(tensor)
+	
+	local dimensionArray = getDimensionArray(tensor)
+
+	local numberOfValues = dimensionArray[1]
+
+	local result = 0
+	
+	for i = 1, numberOfValues, 1 do 
+		
+		if (#dimensionArray > 1) then
+
+			result += fullSum(tensor[i]) 
+
+		else
+
+			result += tensor[i]
+			
+		end
+		
 	end
 	
 	return result
 	
 end
 
-local function generateTensor2DString(tensor2D)
+local function dimensionSumRecursive(result, tensor, dimension)
+	
+	local dimensionArray = getDimensionArray(tensor)
+	
+	local numberOfDimensions = #dimensionArray
+	
+	local numberOfValues = dimensionArray[1]
+	
+	for i = 1, numberOfValues, 1 do 	
+		
+		if (numberOfDimensions == dimension) then
 
-	if tensor2D == nil then return "" end
+			dimensionSumRecursive(result[i], tensor[i], dimension)
 
-	local numberOfRows = #tensor2D
+		else
 
-	local numberOfColumns = #tensor2D[1]
-
-	local columnWidths = {}
-
-	for column = 1, numberOfColumns do
-
-		local maxWidth = 0
-
-		for row = 1, numberOfRows do
-
-			local cellWidth = string.len(tostring(tensor2D[row][column]))
-
-			if (cellWidth > maxWidth) then
-
-				maxWidth = cellWidth
-
-			end
+			result[i] += tensor[i]
 
 		end
-
-		columnWidths[column] = maxWidth
-
+		
 	end
-
-	local text = ""
-
-	for row = 1, numberOfRows do
-
-		text = text .. "{"
-
-		for column = 1, numberOfColumns do
-
-			local cellValue = tensor2D[row][column]
-
-			local cellText = tostring(cellValue)
-
-			local cellWidth = string.len(cellText)
-
-			local padding = columnWidths[column] - cellWidth + 1
-
-			text = text .. string.rep(" ", padding) .. cellText
-		end
-
-		text = text .. " }\n"
-
-	end
-
-	return text
 
 end
 
-local function sum(tensor, dimension)
+local function accumulateDimension(result, tensor, dimension, dimensionIndices, dimensionArray)
+	if dimension == #dimensionIndices then
+		for i = 1, dimensionArray[dimensionIndices[dimension]], 1 do
+			local indices = {}
+			for j = 1, #dimensionIndices do
+				indices[j] = dimensionIndices[j]
+			end
+			indices[dimension] = i
+			result[table.unpack(indices)] = (result[table.unpack(indices)] or 0) + tensor[table.unpack(indices)]
+		end
+	else
+		for i = 1, dimensionArray[dimensionIndices[dimension]], 1 do
+			dimensionIndices[dimension] = i
+			accumulateDimension(result, tensor, dimension + 1, dimensionIndices, dimensionArray)
+		end
+	end
+end
+
+local function dimSumRecursive(result, tensor, targetDimension)
 	
-	local dimensionArray = tensor:getSize()
+	local dimensionArray = getDimensionArray(tensor)
+	
+	local currentDimension = #dimensionArray
+	
+	local numberOfValues = dimensionArray[1]
+	
+	for i = 1, numberOfValues, 1 do
+		
+		if (currentDimension == targetDimension) then
+			
+			print(getDimensionArray(result))
+			
+			print(getDimensionArray(tensor))
+			
+			result[i] += tensor[i]
 
+		else
+
+			dimensionSumRecursive(result[i], tensor[i], targetDimension)
+
+		end
+		
+	end
+	
+end
+
+local function dimensionSum(tensor, targetDimension)
+	
+	local dimensionArray = getDimensionArray(tensor)
+	
 	local newDimensionArray = deepCopyTable(dimensionArray)
+	
+	dimensionArray[targetDimension] = 1
+	
+	local result = createTensor(dimensionArray, 0)
 
-	if dimension then newDimensionArray[dimension] = 1 end
-
-	local result = (not dimension and 0) or TensorL3D.create(newDimensionArray, 0)
+	dimSumRecursive(result, tensor, targetDimension)
+	
+	--[[
 
 	for dimension1 = 1, dimensionArray[1], 1 do
 
@@ -213,11 +288,7 @@ local function sum(tensor, dimension)
 
 			for dimension3 = 1, dimensionArray[3], 1 do
 
-				if (dimension == nil) then
-
-					result += tensor[dimension1][dimension2][dimension3]
-
-				elseif (dimension == 1) then
+				if (dimension == 1) then
 
 					result[1][dimension2][dimension3] += tensor[dimension1][dimension2][dimension3]	
 
@@ -241,803 +312,459 @@ local function sum(tensor, dimension)
 
 	end
 	
+	--]]
+	
 	return result
 	
 end
 
-local function onBroadcastError(tensor1, tensor2)
-
-	local errorMessage = "Unable To Broadcast. \n" .. "Tensor 1 Size: " .. "(" .. #tensor1 .. ", " .. #tensor1[1] .. ", " .. #tensor1[1][1] .. ") \n" .. "Tensor 2 Size: " .. "(" .. #tensor2[1] .. ", " .. #tensor2[1] .. ", " .. #tensor2[1][1] .. ") \n"
-
-	error(errorMessage)
-
+local function sum(tensor, dimension)
+	
+	if not dimension then return fullSum(tensor) end
+	
+	local numberOfDimension = getNumberOfDimensions(tensor)
+	
+	if (dimension > numberOfDimension) or (dimension < 1) then error("Invalid dimensions.") end
+	
+	local reversedSequence = {}
+	
+	for i = numberOfDimension, 1, -1 do table.insert(reversedSequence, i) end
+	
+	local selectedDimension = reversedSequence[dimension]
+	
+	return dimensionSum(tensor, selectedDimension)
+	
 end
 
-local function checkIfCanBroadcast(tensor1, tensor2)
+local function tensorProduct(tensor1, tensor2)
+	
+	local dimensionArray1 = getDimensionArray(tensor1)
+	
+	local dimensionArray2 = getDimensionArray(tensor2)
 
-	local tensor1Depth = #tensor1
-	local tensor2Depth = #tensor2
+	for i, _ in ipairs(dimensionArray1) do if (dimensionArray1[i] ~= dimensionArray2[i]) then error("Invalid dimensions.") end end
 
-	local tensor1Rows = #tensor1[1]
-	local tensor2Rows = #tensor2[1]
+	local numberOfValues = dimensionArray1[1]
+	
+	local result = {}
+	
+	for i = 1, numberOfValues, 1 do
 
-	local tensor1Columns = #tensor1[1][1]
-	local tensor2Columns = #tensor2[1][1]
+		if (#dimensionArray1 > 1) then
 
-	local isTensor1Broadcasted
-	local isTensor2Broadcasted
+			local subproduct = tensorProduct(tensor1[i], tensor2[i])
 
-	local hasSameRowSize = (tensor1Rows == tensor2Rows)
-	local hasSameColumnSize = (tensor1Columns == tensor2Columns)
-	local hasSameDepth = (tensor1Depth == tensor2Depth)
+			table.insert(result, subproduct)
 
-	local hasSameDimension = hasSameRowSize and hasSameColumnSize and hasSameDepth
+		else
 
-	local isTensor1LargerInOneDimension = ((tensor1Depth > 1) and hasSameRowSize and hasSameColumnSize and (tensor2Depth == 1)) or
-		((tensor1Rows > 1) and hasSameColumnSize and hasSameDepth and (tensor2Rows == 1)) or
-		((tensor1Columns > 1) and hasSameRowSize and hasSameDepth and (tensor2Columns == 1))
+			table.insert(result, tensor1[i] * tensor2[i])
 
-	local isTensor2LargerInOneDimension = ((tensor2Depth > 1) and hasSameRowSize and hasSameColumnSize and (tensor1Depth == 1)) or
-		((tensor2Rows > 1) and hasSameColumnSize and hasSameDepth and (tensor1Rows == 1)) or
-		((tensor2Columns > 1) and hasSameRowSize and hasSameDepth and (tensor1Columns == 1))
+		end
 
-	local isTensor1Scalar = (tensor1Depth == 1) and (tensor1Rows == 1) and (tensor1Columns == 1)
-	local isTensor2Scalar = (tensor2Depth == 1) and (tensor2Rows == 1) and (tensor2Columns == 1)
+	end
 
-	local isTensor1Larger = (tensor1Depth > tensor2Depth) and (tensor1Rows > tensor2Rows) and (tensor1Columns > tensor2Columns)
-	local isTensor2Larger = (tensor2Depth > tensor1Depth) and (tensor2Rows > tensor1Rows) and (tensor2Columns > tensor1Columns)
+	return result
+end
 
-	if (hasSameDimension) then
+local function innerProduct(tensor1, tensor2)
+	
+	local dimensionArray1 = getDimensionArray(tensor1)
 
-		isTensor1Broadcasted = false
-		isTensor2Broadcasted = false
+	local dimensionArray2 = getDimensionArray(tensor2)
 
-	elseif (isTensor2LargerInOneDimension) or (isTensor2Larger and isTensor1Scalar) then
+	for i, _ in ipairs(dimensionArray1) do if (dimensionArray1[i] ~= dimensionArray2[i]) then error("Invalid dimensions.") end end
+	
+	local numberOfValues = dimensionArray1[1]
+	
+	local result = 0
+	
+	for i = 1, numberOfValues, 1 do  
+		
+		if (#dimensionArray1 > 1) then
 
-		isTensor1Broadcasted = true
-		isTensor2Broadcasted = false
+			result += innerProduct(tensor1[i], tensor2[i])
 
-	elseif (isTensor1LargerInOneDimension) or (isTensor1Larger and isTensor2Scalar) then
+		else
 
-		isTensor1Broadcasted = false
-		isTensor2Broadcasted = true
+			result += (tensor1[i] * tensor2[i])
+
+		end
+		
+	end
+
+	return result
+	
+end
+
+local function outerProduct(tensor1, tensor2)
+	
+	local dimensionArray1 = getDimensionArray(tensor1)
+	
+	local dimensionArray2 = getDimensionArray(tensor2)
+
+	for i, _ in ipairs(dimensionArray1) do if dimensionArray1[i] ~= dimensionArray2[i] then error("Invalid dimensions.") end end
+
+	local numberOfValues = dimensionArray1[1]
+	
+	local result = {}
+	
+	for i = 1, numberOfValues do
+
+		if (#dimensionArray1 > 1) then
+
+			result[i] = outerProduct(tensor1[i], tensor2[i])
+
+		else
+
+			result[i] = {}
+
+			for j = 1, numberOfValues do result[i][j] = tensor1[i] * tensor2[j] end
+
+		end
+
+	end
+
+	return result
+	
+end
+
+local function eq(booleanTensor)
+	
+	local dimensionArray1 = getDimensionArray(booleanTensor)
+
+	local numberOfValues = dimensionArray1[1]
+
+	local result = true
+
+	if (#dimensionArray1 > 1) then
+
+		for i = 1, numberOfValues do result = eq(booleanTensor[i]) end
 
 	else
 
-		onBroadcastError(tensor1, tensor2)
-
-	end
-
-	return isTensor1Broadcasted, isTensor2Broadcasted
-
-end
-
-local function expandTensor(tensor, targetDepthSize, targetRowSize, targetColumnSize)
-
-	local isDepthSizeEqualToOne = (#tensor == 1)
-
-	local isRowSizeEqualToOne = (#tensor[1] == 1)
-
-	local isColumnSizeEqualToOne = (#tensor[1][1] == 1)
-
-	local result = {}
-
-	if (isDepthSizeEqualToOne) and (isRowSizeEqualToOne) and (isColumnSizeEqualToOne) then
-
-		for i = 1, targetDepthSize do
-
-			result[i] = {}
-
-			for j = 1, targetRowSize do
-
-				result[i][j] = {}
-
-				for k = 1, targetColumnSize do
-
-					result[i][j][k] = tensor[1][1][1]
-
-				end
-
-			end
-
+		for i = 1, numberOfValues do 
+			
+			result = (result == booleanTensor[i])
+			
+			if (result == false) then return false end
+			
 		end
-
-	elseif (not isDepthSizeEqualToOne) and (isRowSizeEqualToOne) and (isColumnSizeEqualToOne) then
-
-		for i = 1, targetDepthSize do
-
-			result[i] = {}
-
-			for j = 1, targetRowSize do
-
-				result[i][j] = {}
-
-				for k = 1, targetColumnSize do
-
-					result[i][j][k] = tensor[i][1][1]
-
-				end
-
-			end
-
-		end
-
-	elseif (not isDepthSizeEqualToOne) and (not isRowSizeEqualToOne) and (isColumnSizeEqualToOne) then
-
-		for i = 1, targetDepthSize do
-
-			result[i] = {}
-
-			for j = 1, targetRowSize do
-
-				result[i][j] = {}
-
-				for k = 1, targetColumnSize do
-
-					result[i][j][k] = tensor[i][j][1]
-
-				end
-
-			end
-
-		end
-
-	elseif (isDepthSizeEqualToOne) and (not isRowSizeEqualToOne) and (isColumnSizeEqualToOne) then
-
-		for i = 1, targetDepthSize do
-
-			result[i] = {}
-
-			for j = 1, targetRowSize do
-
-				result[i][j] = {}
-
-				for k = 1, targetColumnSize do
-
-					result[i][j][k] = tensor[1][j][1]
-
-				end
-
-			end
-
-		end
-
-	elseif (isDepthSizeEqualToOne) and (isRowSizeEqualToOne) and (not isColumnSizeEqualToOne) then
-
-		for i = 1, targetDepthSize do
-
-			result[i] = {}
-
-			for j = 1, targetRowSize do
-
-				result[i][j] = {}
-
-				for k = 1, targetColumnSize do
-
-					result[i][j][k] = tensor[1][1][k]
-
-				end
-
-			end
-
-		end
-
-	elseif (not isDepthSizeEqualToOne) and (isRowSizeEqualToOne) and (not isColumnSizeEqualToOne) then
-
-		for i = 1, targetDepthSize do
-
-			result[i] = {}
-
-			for j = 1, targetRowSize do
-
-				result[i][j] = {}
-
-				for k = 1, targetColumnSize do
-
-					result[i][j][k] = tensor[i][1][k]
-
-				end
-
-			end
-
-		end
-
-	elseif (isDepthSizeEqualToOne) and (not isRowSizeEqualToOne) and (not isColumnSizeEqualToOne) then
-
-		for i = 1, targetDepthSize do
-
-			result[i] = {}
-
-			for j = 1, targetRowSize do
-
-				result[i][j] = {}
-
-				for k = 1, targetColumnSize do
-
-					result[i][j][k] = tensor[1][j][k]
-
-				end
-
-			end
-
-		end
-
-	elseif (not isDepthSizeEqualToOne) and (not isRowSizeEqualToOne) and (not isColumnSizeEqualToOne) then
-
-		result = tensor
 
 	end
 
 	return result
-
-end
-
-local function broadcastTensorsIfDifferentSizes(tensor1, tensor2)
-
-	local isTensor1Broadcasted = false
-	local isTensor2Broadcasted = false
-
-	isTensor1Broadcasted, isTensor2Broadcasted = checkIfCanBroadcast(tensor1, tensor2)
-
-	if (isTensor1Broadcasted) then
-
-		tensor1 = expandTensor(tensor1, #tensor2, #tensor2[1], #tensor2[1][1])
-
-	elseif (isTensor2Broadcasted) then
-
-		tensor2 = expandTensor(tensor2, #tensor1, #tensor1[1], #tensor1[1][1])
-
-	end
-
-	return tensor1, tensor2
-
-end
-
-local function is3DTensor(tensor)
-
-	local isTensor = pcall(function() local _ = tensor[1][1][1] end)
-
-	return isTensor
-
-end
-
-local function convertValueTo3DTensor(value)
-	
-	if is3DTensor(value) then return value end
-
-	if (type(value) ~= "number") then error("Cannot convert value into 3D tensor.") end
-	
-	return {{{value}}}
 	
 end
 
-local function isDimensionArrayEqual(dimensionArray, otherDimensionArray)
+local function transpose(tensor, dimension1, dimension2)
 	
-	for index, _ in ipairs(dimensionArray) do if (dimensionArray[index] ~= otherDimensionArray[index]) then return false end end
+	local dimensionArray = getDimensionArray(tensor)
 	
-	return true
-	
-end
-
-local function throwErrorIfOtherValueIsNot3DTensor(otherTensor)
-
-	if not is3DTensor(otherTensor) then return error("The other value is not a 3D tensor.") end
-
-end
-
-local function throwErrorIfValueIsNot3DTensor(otherTensor)
-
-	if not is3DTensor(otherTensor) then return error("The value is not a 3D tensor.") end
-
-end
-
-local function throwErrorIfDimensionArrayLengthIsNotEqualToThree(dimensionArray)
-	
-	if (#dimensionArray ~= 3) then return error("The length of dimension array is not equal to 3.") end
+	local numberOfDimensions = #dimensionArray
 	
 end
 
-local function throwErrorIfDimensionArrayIsNotEqual(dimensionArray, otherDimensionArray)
+function AqwamTensorLibrary.new(...)
 	
-	if not isDimensionArrayEqual(dimensionArray, otherDimensionArray) then error("The values of dimension array are not equal.") end
-	
-end
+	local self = setmetatable({}, AqwamTensorLibrary)
 
-
-
-function TensorL3D.new(value)
-	
-	throwErrorIfValueIsNot3DTensor(value)
-	
-	local self = setmetatable({}, TensorL3D)
-
-	self.Values = value
+	self.Values = ...
 
 	return self
 	
 end
 
-function TensorL3D.create(dimensionArray, initialValue)
-	
-	throwErrorIfDimensionArrayLengthIsNotEqualToThree(dimensionArray)
+function AqwamTensorLibrary.create(dimensionArray, initialValue)
 	
 	initialValue = initialValue or 0
 	
-	local self = setmetatable({}, TensorL3D)
+	local self = setmetatable({}, AqwamTensorLibrary)
 	
-	self.Values = create3DTensor(dimensionArray, initialValue)
+	self.Values = createTensor(dimensionArray, initialValue)
 	
 	return self
 	
 end
 
-function TensorL3D.createFromFunction(dimensionArray, functionToUse)
-	
-	throwErrorIfDimensionArrayLengthIsNotEqualToThree(dimensionArray)
-	
-	if (type(functionToUse) == "nil") then error("No function.") end
-	
-	local self = setmetatable({}, TensorL3D)
+function AqwamTensorLibrary:broadcast(dimensionsArray, values)
 
-	self.Values = create3DTensorFromFunction(dimensionArray, functionToUse)
+	local isNumber = typeof(values) == "number"
 
-	return self
+	if isNumber then return self.create(dimensionsArray, values) end
 	
-end
-
-
-function TensorL3D:expand(dimensionArray)
-	
-	throwErrorIfDimensionArrayLengthIsNotEqualToThree(dimensionArray)
-	
-	local newTensor = expandTensor(self, dimensionArray[1], dimensionArray[2], dimensionArray[3])
-
-	return self.new(newTensor)
+	return values
 
 end
 
-function TensorL3D:getSize()
+function AqwamTensorLibrary:getNumberOfDimensions()
+
+	return getNumberOfDimensions(self)
+
+end
+
+function AqwamTensorLibrary:getDimensionArray()
 	
-	return {#self, #self[1], #self[1][1]}
+	return getDimensionArray(self)
 	
 end
 
-function TensorL3D:print()
+function AqwamTensorLibrary:print()
 
 	print(self)
 	
 end
 
-function TensorL3D:transpose(dimensionIndexArray)
+function AqwamTensorLibrary:transpose(dimension1, dimension2)
 	
-	if (#dimensionIndexArray ~= 2) then error("The length of dimension index array is not equal to 2.") end
+	if (typeof(dimension1) ~= "number") or (typeof(dimension2) ~= "number") then error("Dimensions are not numbers.") end
 	
-	local dimension1 = dimensionIndexArray[1]
+	local numberOfDimension = getNumberOfDimensions(self)
+
+	if (dimension1 < 1) or (dimension1 > numberOfDimension) or (dimension2 < 1) or (dimension2 > numberOfDimension) or (dimension1 == dimension2) then error("Invalid dimensions.") end
 	
-	local dimension2 = dimensionIndexArray[2]
-	
-	if (type(dimension1) ~= "number") or (type(dimension2) ~= "number") then error("Dimensions are not numbers.") end
-	
-	if (dimension1 <= 0) or (dimension1 >= 4) or (dimension2 <= 0) or (dimension2 >= 4) or (dimension1 == dimension2) then
-		
-		error("Invalid dimensions for transpose.")
-		
-	end
-	
-	local newDimensionArray = self:getSize()
+	local result = transpose(self, dimension1, dimension2)
 
-	newDimensionArray[dimension1], newDimensionArray[dimension2] = newDimensionArray[dimension2], newDimensionArray[dimension1]
-	
-	local newTensor = self.create(newDimensionArray, true)
-	
-	if (table.find(dimensionIndexArray, 1)) and (table.find(dimensionIndexArray, 2)) then
-		
-		for i = 1, newDimensionArray[1] do
-			
-			for j = 1, newDimensionArray[2] do
-				
-				for k = 1, newDimensionArray[3] do
-					
-					newTensor[i][j][k] = self[j][i][k]
-					
-				end
-				
-			end
-			
-		end
-		
-	elseif (table.find(dimensionIndexArray, 1)) and (table.find(dimensionIndexArray, 3)) then
-		
-		for i = 1, newDimensionArray[1] do
-
-			for j = 1, newDimensionArray[2] do
-
-				for k = 1, newDimensionArray[3] do
-
-					newTensor[i][j][k] = self[k][j][i]
-
-				end
-
-			end
-
-		end
-		
-	elseif (table.find(dimensionIndexArray, 2)) and (table.find(dimensionIndexArray, 3)) then
-		
-		for i = 1, newDimensionArray[1] do
-
-			for j = 1, newDimensionArray[2] do
-
-				for k = 1, newDimensionArray[3] do
-
-					newTensor[i][j][k] = self[i][k][j]
-
-				end
-
-			end
-
-		end
-		
-	end
-
-	return newTensor
+	return result
 	
 end
 
-function TensorL3D:__eq(other)
+function AqwamTensorLibrary:__eq(other)
 	
-	if not is3DTensor(other) then return false end
+	local numberOfDimensions1 = getNumberOfDimensions(self)
+
+	local numberOfDimensions2 = getNumberOfDimensions(other)
+
+	if (numberOfDimensions1 ~= numberOfDimensions2) then return false end
 	
-	for dimension1 = 1, #self, 1 do
+	local operation = function(a, b) return (a == b) end
 
-		for dimension2 = 1, #self[dimension1], 1 do
+	local result = applyOperation(operation, self, other)
+	
+	local isEqual = eq(result)
 
-			for dimension3 = 1, #self[dimension1][dimension2], 1 do
-
-				if (self[dimension1][dimension2][dimension3] ~= other[dimension1][dimension2][dimension3]) then return false end
-
-			end
-
-		end
-
-	end
-
-	return true
+	return isEqual
 	
 end
 
-function TensorL3D:isEqualTo(other)
+function AqwamTensorLibrary:isEqualTo(other)
+
+	local numberOfDimensions1 = getNumberOfDimensions(self)
+
+	local numberOfDimensions2 = getNumberOfDimensions(other)
 	
-	throwErrorIfOtherValueIsNot3DTensor(other)
+	if (numberOfDimensions1 ~= numberOfDimensions2) then error("Invalid dimensions.") end
 
-	local functionToApply = function(a, b) return (a == b) end
+	local operation = function(a, b) return (a == b) end
 
-	local result = applyFunction(functionToApply, self, other)
+	local result = applyOperation(operation, self, other)
 
 	return self.new(result)
 
 end
 
-function TensorL3D:isGreaterThan(other)
+function AqwamTensorLibrary:isGreaterThan(other)
 
-	throwErrorIfOtherValueIsNot3DTensor(other)
+	local numberOfDimensions1 = getNumberOfDimensions(self)
 
-	local functionToApply = function(a, b) return (a > b) end
+	local numberOfDimensions2 = getNumberOfDimensions(other)
 
-	local result = applyFunction(functionToApply, self, other)
+	if (numberOfDimensions1 ~= numberOfDimensions2) then error("Invalid dimensions.") end
 
-	return self.new(result)
+	local operation = function(a, b) return (a > b) end
 
-end
-
-function TensorL3D:isGreaterOrEqualTo(other)
-
-	throwErrorIfOtherValueIsNot3DTensor(other)
-
-	local functionToApply = function(a, b) return (a >= b) end
-
-	local result = applyFunction(functionToApply, self, other)
+	local result = applyOperation(operation, self, other)
 
 	return self.new(result)
 
 end
 
-function TensorL3D:isLessThan(other)
+function AqwamTensorLibrary:isGreaterOrEqualTo(other)
 
-	throwErrorIfOtherValueIsNot3DTensor(other)
-	
-	local functionToApply = function(a, b) return (a < b) end
+	local numberOfDimensions1 = getNumberOfDimensions(self)
 
-	local result = applyFunction(functionToApply, self, other)
-	
-	return self.new(result)
+	local numberOfDimensions2 = getNumberOfDimensions(other)
 
-end
+	if (numberOfDimensions1 ~= numberOfDimensions2) then error("Invalid dimensions.") end
 
-function TensorL3D:isLessOrEqualTo(other)
+	local operation = function(a, b) return (a >= b) end
 
-	throwErrorIfOtherValueIsNot3DTensor(other)
-
-	local functionToApply = function(a, b) return (a <= b) end
-
-	local result = applyFunction(functionToApply, self, other)
+	local result = applyOperation(operation, self, other)
 
 	return self.new(result)
 
 end
 
-function TensorL3D:sum(dimension)
+function AqwamTensorLibrary:isLessThan(other)
+
+	local numberOfDimensions1 = getNumberOfDimensions(self)
+
+	local numberOfDimensions2 = getNumberOfDimensions(other)
+
+	if (numberOfDimensions1 ~= numberOfDimensions2) then error("Invalid dimensions.") end
 	
-	return sum(self, dimension)
+	local operation = function(a, b) return (a < b) end
+
+	local result = applyOperation(operation, self, other)
 	
+	return self.new(result)
+
 end
 
-function TensorL3D:concatenate(other, dimension)
+function AqwamTensorLibrary:isLessOrEqualTo(other)
 
-	throwErrorIfOtherValueIsNot3DTensor(other)
+	local numberOfDimensions1 = getNumberOfDimensions(self)
 
-	local dimensionArray1 = self:getSize()
+	local numberOfDimensions2 = getNumberOfDimensions(other)
 
-	local dimensionArray2 = other:getSize()
-	
-	local newDimensionArray = {}
-	
-	for dimensionIndex = 1, 3, 1 do
-		
-		if (dimensionIndex == dimension) then continue end
-		
-		if (dimensionArray1[dimensionIndex] ~= dimensionArray2[dimension]) then error("The tensors do not contain equal dimension values at dimension " .. dimension .. ".") end
-		
-	end
-	
-	for dimensionIndex = 1, 3, 1 do
-		
-		local dimensionSize = dimensionArray1[dimensionIndex]
-		
-		if (dimensionIndex == dimension) then
-			
-			dimensionSize = dimensionSize + dimensionArray2[dimensionIndex]
-			
-		end
-		
-		table.insert(newDimensionArray, dimensionSize)
-		
-	end
-	
-	local newTensor = self.create(newDimensionArray, true)
-	
-	
-	return newTensor
-	
+	if (numberOfDimensions1 ~= numberOfDimensions2) then error("Invalid dimensions.") end
+
+	local operation = function(a, b) return (a <= b) end
+
+	local result = applyOperation(operation, self, other)
+
+	return self.new(result)
+
 end
 
-
-function TensorL3D:dotProduct(other, dimension)
+function AqwamTensorLibrary:sum(dimension)
 	
-	throwErrorIfOtherValueIsNot3DTensor(other)
+	local result = sum(self, dimension)
 	
-	local dimensionArray1 = self:getSize()
-	
-	local dimensionArray2 = other:getSize()
-	
-	if (dimensionArray1[dimension] ~= dimensionArray2[dimension]) then error("The tensors do not contain equal dimension values at dimension " .. dimension .. ".") end
-	
-	local functionToApply = function(a, b) return (a * b) end
-
-	local result = applyFunction(functionToApply, self, other)
-
-	result = TensorL3D:sum(result, dimension)
+	if not dimension then return result end
 	
 	return result
 	
 end
 
-function TensorL3D:innerProduct(other)
+function AqwamTensorLibrary:tensorProduct(other)
+	
+	local result = tensorProduct(self, other)
+	
+	return self.new(result)
+	
+end
 
-	other = convertValueTo3DTensor(other)
-	
-	throwErrorIfOtherValueIsNot3DTensor(other)
+function AqwamTensorLibrary:innerProduct(other)
 
-	local functionToApply = function(a, b) return (a * b) end
-
-	local result = applyFunction(functionToApply, self, other)
-	
-	result = self.new(result)
-	
-	result = result:sum(1)
-	
-	result = result:sum(2)
-	
-	result = result:sum(3)
-	
-	return result[1][1][1]
+	return innerProduct(self, other)
 
 end
 
-function TensorL3D:copy()
+function AqwamTensorLibrary:outerProduct(other)
+	
+	local result = outerProduct(self, other)
+
+	return self.create(result)
+
+end
+
+function AqwamTensorLibrary:copy()
 	
 	return deepCopyTable(self)
 	
 end
 
-function TensorL3D:rawCopy()
-
+function AqwamTensorLibrary:rawCopy()
+	
 	return deepCopyTable(self.Values)
-
+	
 end
 
-function TensorL3D:applyFunction(functionToApply, ...)
-
-	local tensorValues
-
-	local tensors = {...}
+function AqwamTensorLibrary:__add(other)
 	
-	local dimensionArray = self:getSize()
-
-	local result = self.create(dimensionArray)
-
-	for dimension1 = 1, dimensionArray[1], 1 do
-
-		for dimension2 = 1, dimensionArray[2], 1 do
-
-			for dimension3 = 1, dimensionArray[3], 1 do
-				
-				tensorValues = {}
-				
-				for tensorIndex = 1, #tensors, 1  do
-					
-					table.insert(tensorValues, tensors[tensorIndex][dimension1][dimension2][dimension3])
-
-				end 
-				
-				result[dimension1][dimension2][dimension3] = functionToApply(self, table.unpack(tensorValues))
-				
-			end
-			
-		end	
-
-	end
-
-	return result
-
-end
-
-function TensorL3D:__add(other)
+	local numberOfDimensions = self:getNumberOfDimensions()
 	
-	other = convertValueTo3DTensor(other)
+	local other = self:broadcast(numberOfDimensions, other)
 	
-	throwErrorIfOtherValueIsNot3DTensor(other)
+	local operation = function(a, b) return (a + b) end
 	
-	local newSelf, newOther = broadcastTensorsIfDifferentSizes(self, other)
-	
-	local functionToApply = function(a, b) return (a + b) end
-	
-	local result = applyFunction(functionToApply, newSelf, newOther)
+	local result = applyOperation(operation, self, other)
 
 	return self.new(result)
 	
 end
 
-function TensorL3D:__sub(other)
+function AqwamTensorLibrary:__sub(other)
 	
-	other = convertValueTo3DTensor(other)
-	
-	throwErrorIfOtherValueIsNot3DTensor(other)
-	
-	local newSelf, newOther = broadcastTensorsIfDifferentSizes(self, other)
+	local other = self:broadcast(other, table.unpack(self:getNumberOfDimensions()))
 
-	local functionToApply = function(a, b) return (a - b) end
+	local operation = function(a, b) return (a - b) end
 
-	local result = applyFunction(functionToApply, newSelf, newOther)
+	local result = applyOperation(operation, self, other)
 
 	return self.new(result)
 	
 end
 
-function TensorL3D:__mul(other)
+function AqwamTensorLibrary:__mul(other)
 	
-	other = convertValueTo3DTensor(other)
-	
-	throwErrorIfOtherValueIsNot3DTensor(other)
-	
-	local newSelf, newOther = broadcastTensorsIfDifferentSizes(self, other)
+	local other = self:broadcast(other, table.unpack(self:getNumberOfDimensions()))
 
-	local functionToApply = function(a, b) return (a * b) end
+	local operation = function(a, b) return (a * b) end
 
-	local result = applyFunction(functionToApply, newSelf, newOther)
+	local result = applyOperation(operation, self, other)
 
 	return self.new(result)
 	
 end
 
-function TensorL3D:__div(other)
+function AqwamTensorLibrary:__div(other)
 	
-	other = convertValueTo3DTensor(other)
-	
-	throwErrorIfOtherValueIsNot3DTensor(other)
-	
-	local newSelf, newOther = broadcastTensorsIfDifferentSizes(self, other)
+	local other = self:broadcast(other, table.unpack(self:getNumberOfDimensions()))
 
-	local functionToApply = function(a, b) return (a / b) end
+	local operation = function(a, b) return (a / b) end
 
-	local result = applyFunction(functionToApply, newSelf, newOther)
+	local result = applyOperation(operation, self, other)
 
 	return self.new(result)
 	
 end
 
-function TensorL3D:__unm()
+function AqwamTensorLibrary:__unm(other)
 	
-	local result = {}
-	
-	local dimensionArray = self:getSize()
-	
-	for dimension1 = 1, dimensionArray[1], 1 do
-		
-		result[dimension1] = {}
+	local other = self:broadcast(-1, table.unpack(self:getNumberOfDimensions()))
 
-		for dimension2 = 1, dimensionArray[2], 1 do
-			
-			result[dimension1][dimension2] = {}
-			
-			for dimension3 = 1, dimensionArray[3], 1 do
+	local operation = function(a, b) return (a * b) end
 
-				result[dimension1][dimension2][dimension3] = -self[dimension1][dimension2][dimension3]
+	local result = applyOperation(operation, self, other)
 
-			end
-
-		end
-
-	end
-	
 	return self.new(result)
 	
 end
 
-function TensorL3D:__tostring()
+function AqwamTensorLibrary:__tostring()
 	
-	local text = "\n\n{\n\n"
-
-	local generatedText
-
-	for index = 1, #self, 1 do
-
-		generatedText = generateTensor2DString(self[index])
-
-		text = text .. generatedText .. "\n"
-
-	end
-
-	text = text .. "}\n\n"
+	local text = "\n\n" .. createString(self) .. "\n\n"
 
 	return text
 	
 end
 
-function TensorL3D:__len()
+function AqwamTensorLibrary:__len()
 	
 	return #self.Values
 	
 end
 
-function TensorL3D:__index(index)
+function AqwamTensorLibrary:__index(index)
 	
-	if (type(index) == "number") then
+	if (typeof(index) == "number") then
 		
 		return rawget(self.Values, index)
 		
 	else
 		
-		return rawget(TensorL3D, index)
+		return rawget(AqwamTensorLibrary, index)
 		
 	end
 	
 end
 
-function TensorL3D:__newindex(index, value)
+function AqwamTensorLibrary:__newindex(index, value)
 	
 	rawset(self, index, value)
 	
 end
 
-return TensorL3D
+return AqwamTensorLibrary
