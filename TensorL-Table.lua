@@ -552,7 +552,7 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 		local otherTensor = tensorArray[i]
 
-		--tensor, otherTensor = AqwamTensorLibrary:broadcastATensorIfDifferentSize(tensor, otherTensor)
+		tensor, otherTensor = AqwamTensorLibrary:broadcastATensorIfDifferentSize(tensor, otherTensor)
 
 		tensor = applyFunctionUsingTwoTensors(functionToApply, tensor, otherTensor)
 
@@ -608,15 +608,71 @@ local function onBroadcastError(dimensionSizeArray1, dimensionSizeArray2)
 
 end
 
+function AqwamTensorLibrary:expand1(tensor, targetDimensionSizeArray)
+	
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+	
+	local tensorNumberOfDimensions = #dimensionSizeArray
+	
+	local targetNumberOfDimensions = #targetDimensionSizeArray
+	
+	if (targetNumberOfDimensions <= tensorNumberOfDimensions) then error("Unable to expand. The target number of dimensions is less than or equal to the tensor's number of dimensions.") end
+	
+	for i = 1, tensorNumberOfDimensions, 1 do -- We need to remove the extra dimensions from target dimension size array. The values are removed starting from the first so that we can compare the endings.
+
+		table.remove(targetDimensionSizeArray, 1)
+
+		if (#targetDimensionSizeArray == tensorNumberOfDimensions) then break end
+
+	end
+	
+	for i = 1, tensorNumberOfDimensions, 1 do -- Check if the endings are equal so that we can expand the tensor. If the endings are not equal, then we can't expand the tensor.
+
+		if (targetDimensionSizeArray[i] ~= dimensionSizeArray[i]) then error("Unable to expand. Different size at index " .. i) end
+
+	end
+	
+end
+
+function AqwamTensorLibrary:expand(tensor, dimensionSizeToAddArray)
+	
+	local expandedTensor = {}
+
+	if (#dimensionSizeToAddArray > 1) then
+		
+		local remainingDimensionSizeArray = {}
+
+		for i = 2, #dimensionSizeToAddArray, 1 do table.insert(remainingDimensionSizeArray, dimensionSizeToAddArray[i]) end
+		
+		for i = 1, #dimensionSizeToAddArray, 1 do expandedTensor[i] = AqwamTensorLibrary:expand(tensor, remainingDimensionSizeArray) end
+
+	else
+
+		for i = 1, dimensionSizeToAddArray[1], 1 do
+
+			expandedTensor[i] = deepCopyTable(tensor)
+
+		end
+
+	end
+	
+	return expandedTensor
+	
+end
+
 function AqwamTensorLibrary:broadcastATensorIfDifferentSize(tensor1, tensor2)
 	
 	local dimensionSizeArray1 = AqwamTensorLibrary:getSize(tensor1)
 	
 	local dimensionSizeArray2 = AqwamTensorLibrary:getSize(tensor2)
 	
-	local hasSameDimensionSize = (#dimensionSizeArray1 == #dimensionSizeArray2)
+	local numberOfDimensions1 = #dimensionSizeArray1 
 	
-	if (hasSameDimensionSize) then
+	local numberOfDimensions2 = #dimensionSizeArray2
+	
+	local haveSameNumberOfDimensions = (numberOfDimensions1 == numberOfDimensions2)
+	
+	if (haveSameNumberOfDimensions) then -- If the number of dimensions are equal, we need to make sure that the sizes in each dimensions are equal, so that we can return the tensors in their own original sizes.
 		
 		for s, size in ipairs(dimensionSizeArray1) do if (size ~= dimensionSizeArray2[s]) then onBroadcastError(dimensionSizeArray1, dimensionSizeArray2) end end
 		
@@ -624,7 +680,57 @@ function AqwamTensorLibrary:broadcastATensorIfDifferentSize(tensor1, tensor2)
 		
 	end
 	
-	return 
+	local isTensor1HaveLessNumberOfDimensions = (numberOfDimensions1 < numberOfDimensions2)
+	
+	local tensorNumberWithLowestNumberOfDimensions = (isTensor1HaveLessNumberOfDimensions and 1) or 2
+	
+	local tensorWithLowestNumberOfDimensions = (isTensor1HaveLessNumberOfDimensions and tensor1) or tensor2
+	
+	local dimensionSizeArrayWithLowestNumberOfDimensions = (isTensor1HaveLessNumberOfDimensions and dimensionSizeArray1) or dimensionSizeArray2
+	
+	local dimensionSizeArrayWithHighestNumberOfDimensions = ((not isTensor1HaveLessNumberOfDimensions) and dimensionSizeArray1) or dimensionSizeArray2
+	
+	local copyOfDimensionSizeArrayWithHighestNumberOfDimensions = table.clone(dimensionSizeArrayWithHighestNumberOfDimensions)
+	
+	local lowestNumberOfDimensions = #dimensionSizeArrayWithLowestNumberOfDimensions
+	
+	local highestNumberOfDimensions = #dimensionSizeArrayWithHighestNumberOfDimensions
+	
+	local numberOfDimensionDifferences = highestNumberOfDimensions - lowestNumberOfDimensions
+	
+	for i = 1, lowestNumberOfDimensions, 1 do -- We need to remove the extra dimensions from tensor with highest number of dimensions. The values are removed starting from the first so that we can compare the endings.
+		
+		table.remove(copyOfDimensionSizeArrayWithHighestNumberOfDimensions, 1)
+		
+		if (#copyOfDimensionSizeArrayWithHighestNumberOfDimensions == lowestNumberOfDimensions) then break end
+		
+	end
+	
+	for i = 1, lowestNumberOfDimensions, 1 do -- Check if the endings are equal so that we can broadcast one of the tensor. If the endings are not equal, then we can't broadcast the tensor with the lowest number of dimensions.
+		
+		if (copyOfDimensionSizeArrayWithHighestNumberOfDimensions[i] ~= dimensionSizeArrayWithLowestNumberOfDimensions[i]) then onBroadcastError(dimensionSizeArray1, dimensionSizeArray2) end
+		
+	end
+	
+	local dimensionSizeToAdd = {}
+	
+	for i = 1, numberOfDimensionDifferences, 1 do
+		
+		table.insert(dimensionSizeToAdd, dimensionSizeArrayWithHighestNumberOfDimensions[i])
+		
+	end
+	
+	local expandedTensor = AqwamTensorLibrary:expand(tensorWithLowestNumberOfDimensions, dimensionSizeToAdd)
+	
+	if (tensorNumberWithLowestNumberOfDimensions == 1) then
+		
+		return expandedTensor, tensor2
+		
+	else
+		
+		return tensor1, expandedTensor
+		
+	end
 	
 end
 
@@ -640,13 +746,13 @@ function AqwamTensorLibrary:createTensor(dimensionSizeArray, initialValue)
 
 		local remainingDimensionSizeArray = {}
 
-		for i = 2, #dimensionSizeArray do table.insert(remainingDimensionSizeArray, dimensionSizeArray[i]) end
+		for i = 2, #dimensionSizeArray, 1 do table.insert(remainingDimensionSizeArray, dimensionSizeArray[i]) end
 
-		for i = 1, dimensionSizeArray[1] do tensor[i] = AqwamTensorLibrary:createTensor(remainingDimensionSizeArray, initialValue) end
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = AqwamTensorLibrary:createTensor(remainingDimensionSizeArray, initialValue) end
 
 	else
 
-		for i = 1, dimensionSizeArray[1] do tensor[i] = table.create(dimensionSizeArray[2], initialValue) end
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = table.create(dimensionSizeArray[2], initialValue) end
 
 	end
 	
@@ -807,6 +913,12 @@ function AqwamTensorLibrary:printPortableTensor(tensor)
 
 	print("\n\n" .. generatePortableTensorString(tensor))
 
+end
+
+function AqwamTensorLibrary:copy(tensor)
+	
+	return deepCopyTable(tensor)
+	
 end
 
 return AqwamTensorLibrary
