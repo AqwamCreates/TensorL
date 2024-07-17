@@ -506,25 +506,25 @@ local function containFalseBooleanInTensor(booleanTensor)
 
 	local numberOfValues = dimensionArray[1]
 
-	local result = true
+	local containsAFalseBoolean = true
 
 	if (#dimensionArray > 1) then
 
-		for i = 1, numberOfValues do result = containFalseBooleanInTensor(booleanTensor[i]) end
+		for i = 1, numberOfValues do containsAFalseBoolean = containFalseBooleanInTensor(booleanTensor[i]) end
 
 	else
 
 		for i = 1, numberOfValues do 
 
-			result = (result == booleanTensor[i])
+			containsAFalseBoolean = (containsAFalseBoolean == booleanTensor[i])
 
-			if (not result) then return false end
+			if (not containsAFalseBoolean) then return false end
 
 		end
 
 	end
 
-	return result
+	return containsAFalseBoolean
 
 end
 
