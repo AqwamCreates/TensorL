@@ -54,23 +54,23 @@ local function applyFunctionUsingOneTensor(operation, tensor)
 	
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
 	
-	local result = {}
+	local tensor = {}
 
 	for i = 1, #tensor do  
 
 		if (#dimensionSizeArray > 1) then
 
-			result[i] = applyFunctionUsingOneTensor(operation, tensor[i])
+			tensor[i] = applyFunctionUsingOneTensor(operation, tensor[i])
 
 		else
 
-			result[i] = operation(tensor[i])
+			tensor[i] = operation(tensor[i])
 
 		end
 
 	end
 
-	return result
+	return tensor
 	
 end
 
@@ -82,23 +82,23 @@ local function applyFunctionUsingTwoTensors(operation, tensor1, tensor2)
 
 	for i, _ in ipairs(dimensionSizeArray1) do if (dimensionSizeArray1[i] ~= dimensionSizeArray2[i]) then error("Invalid dimensions.") end end
 
-	local result = {}
+	local tensor = {}
 
 	for i = 1, #tensor1 do  
 
 		if (#dimensionSizeArray1 > 1) then
 
-			result[i] = applyFunctionUsingTwoTensors(operation, tensor1[i], tensor2[i])
+			tensor[i] = applyFunctionUsingTwoTensors(operation, tensor1[i], tensor2[i])
 
 		else
 
-			result[i] = operation(tensor1[i], tensor2[i])
+			tensor[i] = operation(tensor1[i], tensor2[i])
 
 		end
 
 	end
 
-	return result
+	return tensor
 
 end
 
@@ -465,6 +465,37 @@ local function tensorProduct(tensor1, tensor2)
 	return result
 end
 
+local function truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
+
+	while true do
+
+		local size = dimensionSizeArray[1]
+
+		if (size ~= 1) then break end
+
+		table.remove(dimensionSizeArray, 1)
+
+	end
+
+	return dimensionSizeArray
+
+end
+
+local function truncateTensorIfRequired(tensor)
+
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
+	if (dimensionSizeArray[1] == 1) then
+
+		return truncateTensorIfRequired(tensor[1])
+
+	else
+
+		return tensor
+
+	end 
+
+end
 
 
 local function containFalseBooleanInTensor(booleanTensor)
@@ -503,21 +534,31 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 	local firstTensor = tensorArray[1]
 
-	if (numberOfTensors == 1) then return applyFunctionUsingOneTensor(functionToApply, firstTensor) end
+	if (numberOfTensors == 1) then 
+		
+		local tensor = applyFunctionUsingOneTensor(functionToApply, firstTensor)
+		
+		tensor = truncateTensorIfRequired(tensor)
+		
+		return tensor
+		
+	end
 
-	local result = firstTensor
+	local tensor = firstTensor
 
 	for i = 2, numberOfTensors, 1 do
 
 		local otherTensor = tensorArray[i]
 
-		result, otherTensor = AqwamTensorLibrary:broadcastATensorIfDifferentSize(result, otherTensor)
+		--tensor, otherTensor = AqwamTensorLibrary:broadcastATensorIfDifferentSize(tensor, otherTensor)
 
-		result = applyFunctionUsingTwoTensors(functionToApply, result, otherTensor)
+		tensor = applyFunctionUsingTwoTensors(functionToApply, tensor, otherTensor)
 
 	end
+	
+	tensor = truncateTensorIfRequired(tensor)
 
-	return result
+	return tensor
 
 end
 
@@ -585,27 +626,11 @@ function AqwamTensorLibrary:broadcastATensorIfDifferentSize(tensor1, tensor2)
 	
 end
 
-local function truncateDimensionSizeArray(dimensionSizeArray)
-	
-	while true do
-		
-		local size = dimensionSizeArray[1]
-		
-		if (size ~= 1) then break end
-		
-		table.remove(dimensionSizeArray, 1)
-		
-	end
-	
-	return dimensionSizeArray
-	
-end
-
 function AqwamTensorLibrary:createTensor(dimensionSizeArray, initialValue)
 	
 	initialValue = initialValue or 0
 	
-	dimensionSizeArray = truncateDimensionSizeArray(dimensionSizeArray)
+	dimensionSizeArray = truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
 	
 	local tensor = {}
 
@@ -682,7 +707,7 @@ end
 
 function AqwamTensorLibrary:createIdentityTensor(dimensionSizeArray)
 	
-	dimensionSizeArray = truncateDimensionSizeArray(dimensionSizeArray)
+	dimensionSizeArray = truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
 	
 	return createIdentityTensor(dimensionSizeArray, {})
 	
