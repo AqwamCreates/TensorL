@@ -899,19 +899,19 @@ end
 
 function AqwamTensorLibrary:printTensor(tensor)
 
-	print("\n\n" .. generateTensorString(tensor))
+	print("\n\n" .. generateTensorString(tensor) .. "\n\n")
 
 end
 
 function AqwamTensorLibrary:printTensorWithComma(tensor)
 
-	print("\n\n" .. generateTensorStringWithComma(tensor))
+	print("\n\n" .. generateTensorStringWithComma(tensor) .. "\n\n")
 
 end
 
 function AqwamTensorLibrary:printPortableTensor(tensor)
 
-	print("\n\n" .. generatePortableTensorString(tensor))
+	print("\n\n" .. generatePortableTensorString(tensor) .. "\n\n")
 
 end
 
