@@ -102,7 +102,63 @@ local function applyFunctionUsingTwoTensors(operation, tensor1, tensor2)
 
 end
 
-local function createString(tensor, dimensionDepth)
+local function generateTensorString(tensor, dimensionDepth)
+
+	dimensionDepth = dimensionDepth or 1
+
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	local tensorLength = #tensor
+
+	local result = " "
+
+	if (numberOfDimensions > 1) then
+
+		local spacing = ""
+
+		result = result .. "{"
+
+		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
+
+		for i = 1, #tensor do
+
+			if (i > 1) then result = result .. spacing end
+
+			result = result .. generateTensorString(tensor[i], dimensionDepth + 1)
+
+			if (i == tensorLength) then continue end
+
+			result = result .. "\n"
+
+		end
+
+		result = result .. " }"
+
+	else
+
+		result = result .. "{ "
+
+		for i = 1, tensorLength do 
+
+			result = result .. tensor[i]
+
+			if (i == tensorLength) then continue end
+
+			result = result .. " "
+
+		end
+
+		result = result .. " }"
+
+	end
+
+	return result
+
+end
+
+local function generateTensorStringWithComma(tensor, dimensionDepth)
 	
 	dimensionDepth = dimensionDepth or 1
 
@@ -126,7 +182,7 @@ local function createString(tensor, dimensionDepth)
 			
 			if (i > 1) then result = result .. spacing end
 
-			result = result .. createString(tensor[i], dimensionDepth + 1)
+			result = result .. generateTensorStringWithComma(tensor[i], dimensionDepth + 1)
 
 			if (i == tensorLength) then continue end
 
@@ -151,6 +207,62 @@ local function createString(tensor, dimensionDepth)
 		end
 
 		result = result .. " }"
+
+	end
+
+	return result
+
+end
+
+local function generatePortableTensorString(tensor, dimensionDepth)
+
+	dimensionDepth = dimensionDepth or 1
+
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	local tensorLength = #tensor
+
+	local result = " "
+
+	if (numberOfDimensions > 1) then
+
+		local spacing = ""
+
+		result = result .. "{"
+
+		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
+
+		for i = 1, #tensor do
+
+			if (i > 1) then result = result .. spacing end
+
+			result = result .. generatePortableTensorString(tensor[i], dimensionDepth + 1)
+
+			if (i == tensorLength) then continue end
+
+			result = result .. "\n"
+
+		end
+
+		result = result .. " },"
+
+	else
+
+		result = result .. "{ "
+
+		for i = 1, tensorLength do 
+
+			result = result .. tensor[i]
+
+			if (i == tensorLength) then continue end
+
+			result = result .. ", "
+
+		end
+
+		result = result .. " },"
 
 	end
 
@@ -654,7 +766,19 @@ end
 
 function AqwamTensorLibrary:printTensor(tensor)
 
-	print("\n\n" .. createString(tensor))
+	print("\n\n" .. generateTensorString(tensor))
+
+end
+
+function AqwamTensorLibrary:printTensorWithComma(tensor)
+
+	print("\n\n" .. generateTensorStringWithComma(tensor))
+
+end
+
+function AqwamTensorLibrary:printPortableTensor(tensor)
+
+	print("\n\n" .. generatePortableTensorString(tensor))
 
 end
 
