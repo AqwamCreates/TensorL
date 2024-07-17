@@ -112,7 +112,7 @@ local function applyFunctionUsingTwoTensors(operation, tensor1, tensor2)
 
 end
 
-local function generateTensorString(tensor, dimensionDepth)
+function AqwamTensorLibrary:generateTensorString(tensor, dimensionDepth)
 
 	dimensionDepth = dimensionDepth or 1
 
@@ -136,7 +136,7 @@ local function generateTensorString(tensor, dimensionDepth)
 
 			if (i > 1) then result = result .. spacing end
 
-			result = result .. generateTensorString(tensor[i], dimensionDepth + 1)
+			result = result .. AqwamTensorLibrary:generateTensorString(tensor[i], dimensionDepth + 1)
 
 			if (i == tensorLength) then continue end
 
@@ -168,7 +168,7 @@ local function generateTensorString(tensor, dimensionDepth)
 
 end
 
-local function generateTensorStringWithComma(tensor, dimensionDepth)
+function AqwamTensorLibrary:generateTensorStringWithComma(tensor, dimensionDepth)
 	
 	dimensionDepth = dimensionDepth or 1
 
@@ -192,7 +192,7 @@ local function generateTensorStringWithComma(tensor, dimensionDepth)
 			
 			if (i > 1) then result = result .. spacing end
 
-			result = result .. generateTensorStringWithComma(tensor[i], dimensionDepth + 1)
+			result = result .. AqwamTensorLibrary:generateTensorStringWithComma(tensor[i], dimensionDepth + 1)
 
 			if (i == tensorLength) then continue end
 
@@ -224,7 +224,7 @@ local function generateTensorStringWithComma(tensor, dimensionDepth)
 
 end
 
-local function generatePortableTensorString(tensor, dimensionDepth)
+function AqwamTensorLibrary:generatePortableTensorString(tensor, dimensionDepth)
 
 	dimensionDepth = dimensionDepth or 1
 
@@ -248,7 +248,7 @@ local function generatePortableTensorString(tensor, dimensionDepth)
 
 			if (i > 1) then result = result .. spacing end
 
-			result = result .. generatePortableTensorString(tensor[i], dimensionDepth + 1)
+			result = result .. AqwamTensorLibrary:generatePortableTensorString(tensor[i], dimensionDepth + 1)
 
 			if (i == tensorLength) then continue end
 
@@ -877,19 +877,19 @@ end
 
 function AqwamTensorLibrary:printTensor(tensor)
 
-	print("\n\n" .. generateTensorString(tensor) .. "\n\n")
+	print("\n\n" .. AqwamTensorLibrary:generateTensorString(tensor) .. "\n\n")
 
 end
 
 function AqwamTensorLibrary:printTensorWithComma(tensor)
 
-	print("\n\n" .. generateTensorStringWithComma(tensor) .. "\n\n")
+	print("\n\n" .. AqwamTensorLibrary:generateTensorStringWithComma(tensor) .. "\n\n")
 
 end
 
 function AqwamTensorLibrary:printPortableTensor(tensor)
 
-	print("\n\n" .. generatePortableTensorString(tensor) .. "\n\n")
+	print("\n\n" .. AqwamTensorLibrary:generatePortableTensorString(tensor) .. "\n\n")
 
 end
 
