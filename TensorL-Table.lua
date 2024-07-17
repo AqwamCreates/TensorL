@@ -246,7 +246,9 @@ local function generatePortableTensorString(tensor, dimensionDepth)
 
 		end
 
-		result = result .. " },"
+		result = result .. " }"
+		
+		if (dimensionDepth > 1) then result = result .. "," end
 
 	else
 
