@@ -102,23 +102,31 @@ local function applyFunctionUsingTwoTensors(operation, tensor1, tensor2)
 
 end
 
-local function createString(tensor)
+local function createString(tensor, dimensionDepth)
+	
+	dimensionDepth = dimensionDepth or 1
 
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+	
+	local numberOfDimensions = #dimensionSizeArray
 
 	local tensorLength = #tensor
 
 	local result = " "
 
-	if (#dimensionSizeArray > 1) then
+	if (numberOfDimensions > 1) then
+		
+		local spacing = ""
 
 		result = result .. "{"
+		
+		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
 
 		for i = 1, #tensor do
 			
-			if (i > 1) then result = result .. "  " end
+			if (i > 1) then result = result .. spacing end
 
-			result = result .. createString(tensor[i])
+			result = result .. createString(tensor[i], dimensionDepth + 1)
 
 			if (i == tensorLength) then continue end
 
