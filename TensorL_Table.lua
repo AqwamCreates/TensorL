@@ -1,5 +1,15 @@
 local AqwamTensorLibrary = {}
 
+local function removeFirstValueFromArray(array)
+	
+	local newArray = {}
+	
+	for i = 2, #array, 1 do table.insert(newArray, array[i]) end
+	
+	return newArray
+	
+end
+
 local function deepCopyTable(original, copies)
 
 	copies = copies or {}
@@ -608,41 +618,13 @@ local function onBroadcastError(dimensionSizeArray1, dimensionSizeArray2)
 
 end
 
-function AqwamTensorLibrary:expand1(tensor, targetDimensionSizeArray)
-	
-	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
-	
-	local tensorNumberOfDimensions = #dimensionSizeArray
-	
-	local targetNumberOfDimensions = #targetDimensionSizeArray
-	
-	if (targetNumberOfDimensions <= tensorNumberOfDimensions) then error("Unable to expand. The target number of dimensions is less than or equal to the tensor's number of dimensions.") end
-	
-	for i = 1, tensorNumberOfDimensions, 1 do -- We need to remove the extra dimensions from target dimension size array. The values are removed starting from the first so that we can compare the endings.
-
-		table.remove(targetDimensionSizeArray, 1)
-
-		if (#targetDimensionSizeArray == tensorNumberOfDimensions) then break end
-
-	end
-	
-	for i = 1, tensorNumberOfDimensions, 1 do -- Check if the endings are equal so that we can expand the tensor. If the endings are not equal, then we can't expand the tensor.
-
-		if (targetDimensionSizeArray[i] ~= dimensionSizeArray[i]) then error("Unable to expand. Different size at index " .. i) end
-
-	end
-	
-end
-
 function AqwamTensorLibrary:expand(tensor, dimensionSizeToAddArray)
 	
 	local expandedTensor = {}
 
 	if (#dimensionSizeToAddArray > 1) then
 		
-		local remainingDimensionSizeArray = {}
-
-		for i = 2, #dimensionSizeToAddArray, 1 do table.insert(remainingDimensionSizeArray, dimensionSizeToAddArray[i]) end
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeToAddArray)
 		
 		for i = 1, #dimensionSizeToAddArray, 1 do expandedTensor[i] = AqwamTensorLibrary:expand(tensor, remainingDimensionSizeArray) end
 
@@ -744,9 +726,7 @@ function AqwamTensorLibrary:createTensor(dimensionSizeArray, initialValue)
 
 	if (#dimensionSizeArray > 2) then
 
-		local remainingDimensionSizeArray = {}
-
-		for i = 2, #dimensionSizeArray, 1 do table.insert(remainingDimensionSizeArray, dimensionSizeArray[i]) end
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
 		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = AqwamTensorLibrary:createTensor(remainingDimensionSizeArray, initialValue) end
 
@@ -774,9 +754,7 @@ local function createIdentityTensor(dimensionSizeArray, locationArray)
 			
 			table.insert(copiedLocationArray, i)
 			
-			local remainingDimensionSizeArray = {}
-
-			for i = 2, #dimensionSizeArray do table.insert(remainingDimensionSizeArray, dimensionSizeArray[i]) end
+			local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 			
 			tensor[i] = createIdentityTensor(remainingDimensionSizeArray, copiedLocationArray) 
 			
