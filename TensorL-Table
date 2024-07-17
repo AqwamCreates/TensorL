@@ -114,7 +114,9 @@ local function createString(tensor)
 
 		result = result .. "{"
 
-		for i = 1, #tensor do 
+		for i = 1, #tensor do
+			
+			if (i > 1) then result = result .. "  " end
 
 			result = result .. createString(tensor[i])
 
@@ -133,9 +135,7 @@ local function createString(tensor)
 		for i = 1, tensorLength do 
 
 			result = result .. tensor[i]
-			
-			
-
+		
 			if (i == tensorLength) then continue end
 
 			result = result .. ", "
@@ -347,17 +347,17 @@ end
 
 
 
-local function eq(booleanTensor)
+local function containFalseBooleanInTensor(booleanTensor)
 
-	local dimensionArray1 = getDimensionSizeArray(booleanTensor)
+	local dimensionArray = AqwamTensorLibrary:getSize(booleanTensor)
 
-	local numberOfValues = dimensionArray1[1]
+	local numberOfValues = dimensionArray[1]
 
 	local result = true
 
-	if (#dimensionArray1 > 1) then
+	if (#dimensionArray > 1) then
 
-		for i = 1, numberOfValues do result = eq(booleanTensor[i]) end
+		for i = 1, numberOfValues do result = containFalseBooleanInTensor(booleanTensor[i]) end
 
 	else
 
@@ -365,7 +365,7 @@ local function eq(booleanTensor)
 
 			result = (result == booleanTensor[i])
 
-			if (result == false) then return false end
+			if (not result) then return false end
 
 		end
 
@@ -646,7 +646,7 @@ end
 
 function AqwamTensorLibrary:printTensor(tensor)
 
-	print(createString(tensor))
+	print("\n\n" .. createString(tensor))
 
 end
 
