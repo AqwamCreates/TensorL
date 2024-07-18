@@ -510,7 +510,7 @@ local function truncateTensorIfRequired(tensor)
 end
 
 
-local function containFalseBooleanInTensor(booleanTensor)
+local function containAFalseBooleanInTensor(booleanTensor)
 
 	local dimensionArray = AqwamTensorLibrary:getSize(booleanTensor)
 
@@ -520,7 +520,7 @@ local function containFalseBooleanInTensor(booleanTensor)
 
 	if (#dimensionArray > 1) then
 
-		for i = 1, numberOfValues do containsAFalseBoolean = containFalseBooleanInTensor(booleanTensor[i]) end
+		for i = 1, numberOfValues do containsAFalseBoolean = containAFalseBooleanInTensor(booleanTensor[i]) end
 
 	else
 
@@ -926,6 +926,56 @@ end
 function AqwamTensorLibrary:power(...)
 
 	return applyFunctionOnMultipleTensors(math.pow, ...)
+
+end
+
+function AqwamTensorLibrary:isSameTensor(tensor1, tensor2)
+
+	local booleanTensor = AqwamTensorLibrary:isEqualTo(tensor1, tensor2)
+	
+	return containAFalseBooleanInTensor(booleanTensor)
+
+end
+
+function AqwamTensorLibrary:isEqualTo(tensor1, tensor2)
+
+	local functionToApply = function(a, b) return (a == b) end
+
+	local result = applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2)
+
+	return result
+
+end
+
+function AqwamTensorLibrary:isGreaterThan(tensor1, tensor2)
+
+	local functionToApply = function(a, b) return (a > b) end
+
+	return applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2)
+
+end
+
+function AqwamTensorLibrary:isGreaterOrEqualTo(tensor1, tensor2)
+
+	local functionToApply = function(a, b) return (a >= b) end
+
+	return applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2)
+
+end
+
+function AqwamTensorLibrary:isLessThan(tensor1, tensor2)
+
+	local functionToApply = function(a, b) return (a < b) end
+
+	return applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2)
+
+end
+
+function AqwamTensorLibrary:isLessOrEqualTo(tensor1, tensor2)
+
+	local functionToApply = function(a, b) return (a <= b) end
+
+	return applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2)
 
 end
 
