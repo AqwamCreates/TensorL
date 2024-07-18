@@ -679,7 +679,7 @@ local function createRandomUniformTensor(dimensionSizeArray)
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = createRandomNormalTensor(remainingDimensionSizeArray) end
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = createRandomUniformTensor(remainingDimensionSizeArray) end
 
 	else
 
