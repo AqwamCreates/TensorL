@@ -973,6 +973,7 @@ local function dotProduct(tensor1, tensor2)
 		for i = 1, tensor2DimensionSizeArray[1] do tensor[i] = dotProduct(tensor1, tensor2[i]) end
 		
 	else
+		
 		local sum = 0
 		
 		if numberOfDimensions1 == 1 and numberOfDimensions2 == 1 then
@@ -1037,7 +1038,7 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 		
 		local otherTensorNumberOfDimensions = #otherTensorDimensionSizeArray
 		
-		if (tensorNumberOfDimensions == otherTensorNumberOfDimensions) then
+		if (tensorNumberOfDimensions == otherTensorNumberOfDimensions) and (tensorNumberOfDimensions ~= 1) and (otherTensorNumberOfDimensions ~= 1) then
 			
 			if (tensorDimensionSizeArray[tensorNumberOfDimensions] ~= otherTensorDimensionSizeArray[otherTensorNumberOfDimensions - 1]) then error("The size of the last dimension of tensor " .. (i - 1) .. " is not equal to the size of second last dimension of the tensor " .. i .. ".") end
 
@@ -1047,13 +1048,17 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 
 			end
 			
-		elseif (tensorNumberOfDimensions == 1) then
+		elseif (tensorNumberOfDimensions == 1) and (otherTensorNumberOfDimensions >= 2) then
 			
 			for j = (otherTensorNumberOfDimensions - 1), otherTensorNumberOfDimensions, 1 do
 
 				if (tensorDimensionSizeArray[1] ~= otherTensorDimensionSizeArray[j]) then error("The size of dimension 1 of tensor " .. (i - 1) .. " is not equal to the size of dimension " .. j .. " of the tensor " .. i .. ".") end
 
 			end
+			
+		elseif (tensorNumberOfDimensions == 1) and (otherTensorNumberOfDimensions == 1) then
+			
+			if (tensorDimensionSizeArray[1] ~= otherTensorDimensionSizeArray[1]) then error("The size of dimension 1 of tensor " .. (i - 1) .. " is not equal to the size of dimension 1 of the tensor " .. i .. ".") end
 			
 		end
 		
@@ -1062,6 +1067,8 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 	end
 	
 	local resultTensorDimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+	
+	if (resultTensorDimensionSizeArray == nil) then return tensor end -- If our tensor is actually a scalar, just return the number.
 	
 	for _, size in ipairs(resultTensorDimensionSizeArray) do -- Return the original tensor if any dimension sizes are not equal to 1.
 		
