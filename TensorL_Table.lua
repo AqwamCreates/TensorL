@@ -1481,14 +1481,13 @@ function AqwamTensorLibrary:applyFunction(functionToApply, ...)
 		
 		for s, size in ipairs(dimensionSizeArray) do
 			
-			if (firstDimensionSizeArray[s] ~= size) then error("Tensors " .. i .. " do not contain equal dimension values at dimension " .. s .. ".") end
+			if (firstDimensionSizeArray[s] ~= size) then error("Tensor " .. i .. " do not contain equal dimension values at dimension " .. s .. ".") end
 			
 		end
 		
 	end
-
 	
-	return tensor
+	return applyFunction(functionToApply, ...)
 	
 end
 
