@@ -806,7 +806,7 @@ function AqwamTensorLibrary:createTensor(dimensionSizeArray, initialValue)
 	
 	local tensor = {}
 
-	if (#dimensionSizeArray > 2) then
+	if (#dimensionSizeArray >= 3) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -832,7 +832,7 @@ function AqwamTensorLibrary:createRandomNormalTensor(dimensionSizeArray, mean, s
 	
 	local tensor = {}
 
-	if (#dimensionSizeArray > 1) then
+	if (#dimensionSizeArray >= 2) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -864,7 +864,7 @@ function AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray)
 	
 	local tensor = {}
 
-	if (#dimensionSizeArray > 1) then
+	if (#dimensionSizeArray >= 2) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -886,7 +886,7 @@ local function createIdentityTensor(dimensionSizeArray, locationArray)
 	
 	local tensor = {}
 	
-	if (numberOfDimensions > 1) then
+	if (numberOfDimensions >= 2) then
 		
 		for i = 1, dimensionSizeArray[1] do 
 			
@@ -981,6 +981,26 @@ function AqwamTensorLibrary:getTotalSize(tensor)
 	
 end
 
+local function dotProduct(tensor1, tensor2)
+	
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor1)
+
+	local tensor = {}
+
+	if (#dimensionSizeArray >= 3) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = AqwamTensorLibrary:createTensor(remainingDimensionSizeArray, initialValue) end
+
+	else
+
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = table.create(dimensionSizeArray[2], initialValue) end
+
+	end
+	
+end
+
 function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a fucking headache to do this. https://medium.com/@hunter-j-phillips/a-simple-introduction-to-tensors-c4a8321efffc
 	
 	
@@ -1020,7 +1040,7 @@ function AqwamTensorLibrary:findMaximumValue(tensor)
 
 	local value
 
-	if (#dimensionSizeArray > 1) then
+	if (#dimensionSizeArray >= 2) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -1042,7 +1062,7 @@ function AqwamTensorLibrary:findMinimumValue(tensor)
 
 	local value
 
-	if (#dimensionSizeArray > 1) then
+	if (#dimensionSizeArray >= 2) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -1062,7 +1082,7 @@ local function flatten(tensor, targetTensor)
 	
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
 
-	if (#dimensionSizeArray > 1) then
+	if (#dimensionSizeArray >= 2) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -1094,7 +1114,7 @@ local function reshape(flattenedTensor, dimensionSizeArray, dimensionIndex)
 	
 	dimensionIndex = dimensionIndex or 0
 
-	if (#dimensionSizeArray > 1) then
+	if (#dimensionSizeArray >= 2) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -1179,7 +1199,7 @@ local function extract(tensor, originDimensionIndexArray, targetDimensionIndexAr
 	
 	local extractedTensor = {}
 	
-	if (#dimensionSizeArray > 1) then
+	if (#dimensionSizeArray >= 2) then
 
 		for i = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do 
 
@@ -1286,8 +1306,6 @@ end
 local function concatenate(targetTensor, otherTensor, dimension)
 	
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(targetTensor)
-	
-	print(dimensionSizeArray)
 
 	if (#dimensionSizeArray ~= dimension) then
 		
@@ -1441,7 +1459,7 @@ local function applyFunction(functionToApply, ...)
 	
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensorArray[1])
 	
-	if (#dimensionSizeArray > 1) then
+	if (#dimensionSizeArray >= 2) then
 
 		for i = 1, dimensionSizeArray[1], 1 do 
 			
