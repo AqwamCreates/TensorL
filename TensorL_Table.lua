@@ -1010,16 +1010,62 @@ local function dotProduct(tensor1, tensor2)
 		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = dotProduct(tensor1[i], tensor2[i]) end
 
 	else
+		
+		local tensor1Row = #tensor1
+		
+		local tensor1Column = #tensor1[1]
+		
+		local tensor2Column = #tensor1[1]
 
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = table.create(dimensionSizeArray[2], initialValue) end
+		for row = 1, tensor1Row, 1 do
+
+			tensor[row] = {}
+
+			for column = 1, tensor2Column, 1 do
+
+				local sum = 0
+
+				for i = 1, tensor1Column do sum = sum + (tensor1[row][i] * tensor2[i][column]) end
+
+				tensor[row][column] = sum
+
+			end
+
+		end
 
 	end
+	
+	return tensor
 	
 end
 
 function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a fucking headache to do this. https://medium.com/@hunter-j-phillips/a-simple-introduction-to-tensors-c4a8321efffc
 	
+	local tensorArray = {...}
 	
+	local tensor = tensorArray[1]
+	
+	for i = 2, #tensorArray, 1 do
+		
+		local otherTensor = tensorArray[i]
+		
+		local tensorDimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+		
+		local otherTensorDimensionSizeArray = AqwamTensorLibrary:getSize(otherTensor)
+		
+		if (#tensorDimensionSizeArray ~= #otherTensorDimensionSizeArray) then error("Tensor " .. (i - 1) .. " and " .. i .. " does not contain same number of dimensions.") end
+		
+		for s, size in ipairs(tensorDimensionSizeArray) do
+
+			if (size ~= otherTensorDimensionSizeArray[s]) then error("Tensor " .. (i - 1) .. " and " .. i .. " do not contain equal dimension values at dimension " .. s .. ".") end
+
+		end
+		
+		tensor = dotProduct(tensor, otherTensor)
+		
+	end
+	
+	return tensor
 	
 end
 
@@ -1525,11 +1571,11 @@ function AqwamTensorLibrary:applyFunction(functionToApply, ...)
 		
 		local dimensionSizeArray = allDimensionSizeArrays[i]
 		
-		if (#firstDimensionSizeArray ~= #dimensionSizeArray) then error("Tensor " .. i .. " does not have the same number of dimensions.") end
+		if (#firstDimensionSizeArray ~= #dimensionSizeArray) then error("Tensor ".. (i - 1) .. " and " .. i .. " does not have the same number of dimensions.") end
 		
-		for s, size in ipairs(dimensionSizeArray) do
+		for s, size in ipairs(firstDimensionSizeArray) do
 			
-			if (firstDimensionSizeArray[s] ~= size) then error("Tensor " .. i .. " do not contain equal dimension values at dimension " .. s .. ".") end
+			if (size ~= dimensionSizeArray[s]) then error("Tensor " .. (i - 1) .. " and " .. i .. " does not contain equal dimension values at dimension " .. s .. ".") end
 			
 		end
 		
