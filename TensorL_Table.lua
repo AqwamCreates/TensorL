@@ -798,11 +798,7 @@ function AqwamTensorLibrary:broadcastATensorIfDifferentSize(tensor1, tensor2)
 	
 end
 
-function AqwamTensorLibrary:createTensor(dimensionSizeArray, initialValue)
-	
-	initialValue = initialValue or 0
-	
-	dimensionSizeArray = truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
+local function createTensor(dimensionSizeArray, initialValue)
 	
 	local tensor = {}
 
@@ -810,7 +806,7 @@ function AqwamTensorLibrary:createTensor(dimensionSizeArray, initialValue)
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = AqwamTensorLibrary:createTensor(remainingDimensionSizeArray, initialValue) end
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = createTensor(remainingDimensionSizeArray, initialValue) end
 
 	else
 
@@ -822,13 +818,17 @@ function AqwamTensorLibrary:createTensor(dimensionSizeArray, initialValue)
 	
 end
 
-function AqwamTensorLibrary:createRandomNormalTensor(dimensionSizeArray, mean, standardDeviation)
-	
-	mean = mean or 0
-
-	standardDeviation = standardDeviation or 1
+function AqwamTensorLibrary:createTensor(dimensionSizeArray, initialValue)
 	
 	dimensionSizeArray = truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
+	
+	initialValue = initialValue or 0
+	
+	return createTensor(dimensionSizeArray, initialValue)
+	
+end
+
+local function createRandomNormalTensor(dimensionSizeArray, mean, standardDeviation)
 	
 	local tensor = {}
 
@@ -836,31 +836,41 @@ function AqwamTensorLibrary:createRandomNormalTensor(dimensionSizeArray, mean, s
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = AqwamTensorLibrary:createRandomNormalTensor(remainingDimensionSizeArray, mean, standardDeviation) end
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = createRandomNormalTensor(remainingDimensionSizeArray, mean, standardDeviation) end
 
 	else
 
 		for i = 1, dimensionSizeArray[1], 1 do 
-			
+
 			local randomNumber1 = math.random()
 
 			local randomNumber2 = math.random()
 
 			local zScore = math.sqrt(-2 * math.log(randomNumber1)) * math.cos(2 * math.pi * randomNumber2) -- Box–Muller transform formula.
-			
+
 			tensor[i] = (zScore * standardDeviation) + mean
-			
+
 		end
 
 	end
 
 	return tensor
+	
+end
+
+function AqwamTensorLibrary:createRandomNormalTensor(dimensionSizeArray, mean, standardDeviation)
+	
+	dimensionSizeArray = truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
+	
+	mean = mean or 0
+
+	standardDeviation = standardDeviation or 1
+	
+	return createRandomNormalTensor(dimensionSizeArray, mean, standardDeviation)
 
 end
 
-function AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray)
-	
-	dimensionSizeArray = truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
+local function createRandomUniformTensor(dimensionSizeArray)
 	
 	local tensor = {}
 
@@ -868,7 +878,7 @@ function AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray)
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = AqwamTensorLibrary:createRandomNormalTensor(remainingDimensionSizeArray) end
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = createRandomNormalTensor(remainingDimensionSizeArray) end
 
 	else
 
@@ -877,6 +887,14 @@ function AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray)
 	end
 
 	return tensor
+	
+end
+
+function AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray)
+	
+	dimensionSizeArray = truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
+	
+	return createRandomUniformTensor(dimensionSizeArray)
 
 end
 
@@ -989,9 +1007,7 @@ local function dotProduct(tensor1, tensor2)
 
 	if (#dimensionSizeArray >= 3) then
 
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = AqwamTensorLibrary:createTensor(remainingDimensionSizeArray, initialValue) end
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = dotProduct(tensor1[i], tensor2[i]) end
 
 	else
 
