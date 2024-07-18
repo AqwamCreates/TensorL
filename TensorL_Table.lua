@@ -202,7 +202,7 @@ function AqwamTensorLibrary:generateTensorString(tensor, textSpacingArray, dimen
 
 		end
 
-		text = text .. " }"
+		text = text .. "  }"
 
 	end
 
@@ -266,7 +266,7 @@ function AqwamTensorLibrary:generateTensorStringWithComma(tensor, textSpacingArr
 
 		end
 
-		text = text .. " }"
+		text = text .. "  }"
 
 	end
 
@@ -332,7 +332,7 @@ function AqwamTensorLibrary:generatePortableTensorString(tensor, textSpacingArra
 
 		end
 
-		text = text .. " },"
+		text = text .. "  },"
 
 	end
 
@@ -1113,8 +1113,107 @@ function AqwamTensorLibrary:reshape(flattenedTensor, dimensionSizeArray)
 	
 end
 
+local function getOutOfBoundsIndexArray(array, arrayToBeCheckedForOutOfBounds)
+
+	local outOfBoundsIndexArray = {}
+
+	for i, value in ipairs(arrayToBeCheckedForOutOfBounds) do
+
+		if (value < 1) or (value > array[i]) then table.insert(outOfBoundsIndexArray, i) end
+
+	end
+
+	return outOfBoundsIndexArray
+
+end
+
+local function getFalseBooleanIndexArray(functionToApply, array1, array2)
+
+	local falseBooleanIndexArray = {}
+
+	for i, value in ipairs(array1) do
+
+		if (not functionToApply(value, array2[i])) then table.insert(falseBooleanIndexArray, i) end
+
+	end
+
+	return falseBooleanIndexArray
+
+end
+
+local function extract(tensor, originDimensionIndexArray, targetDimensionIndexArray)
+	
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+	
+	local remainingOriginDimensionIndexArray = removeFirstValueFromArray(originDimensionIndexArray)
+
+	local remainingTargetDimensionIndexArray = removeFirstValueFromArray(targetDimensionIndexArray)
+	
+	local extractedTensor = {}
+	
+	if (#dimensionSizeArray > 1) then
+
+		for i = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do 
+
+			extractedTensor[i] = extract(tensor[i], remainingOriginDimensionIndexArray, remainingTargetDimensionIndexArray)
+
+		end
+
+	else
+		
+		for i = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do 
+
+			table.insert(extractedTensor, tensor[i]) 
+
+		end
+
+	end
+	
+	return extractedTensor
+	
+end
+
 function AqwamTensorLibrary:extract(tensor, originDimensionIndexArray, targetDimensionIndexArray)
 	
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	if (numberOfDimensions ~= #originDimensionIndexArray) then error("Invalid origin dimension index array.") end
+
+	if (numberOfDimensions ~= #targetDimensionIndexArray) then error("Invalid target dimension index array.") end
+
+	local outOfBoundsOriginIndexArray = getOutOfBoundsIndexArray(dimensionSizeArray, originDimensionIndexArray)
+
+	local outOfBoundsTargetIndexArray = getOutOfBoundsIndexArray(dimensionSizeArray, targetDimensionIndexArray)
+
+	local falseBooleanIndexArray = getFalseBooleanIndexArray(function(a, b) return (a <= b) end, originDimensionIndexArray, targetDimensionIndexArray)
+
+	local outOfBoundsOriginIndexArraySize = #outOfBoundsOriginIndexArray
+
+	local outOfBoundsTargetIndexArraySize = #outOfBoundsTargetIndexArray
+
+	local falseBooleanIndexArraySize = #falseBooleanIndexArray
+
+	if (outOfBoundsOriginIndexArraySize > 0) then
+
+		local errorString = "Attempting to set an origin dimension index that is out of bounds for dimension at "
+
+		for i, index in ipairs(outOfBoundsOriginIndexArray) do
+
+			errorString = errorString .. index
+
+			if (i < outOfBoundsOriginIndexArraySize) then errorString = errorString .. ", " end
+
+		end
+
+		errorString = errorString .. "."
+
+		error(errorString)
+
+	end
+	
+	return extract(tensor, originDimensionIndexArray, targetDimensionIndexArray)
 	
 end
 
