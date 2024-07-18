@@ -369,18 +369,20 @@ function AqwamTensorLibrary:generatePortableTensorString(tensor, textSpacingArra
 end
 
 function AqwamTensorLibrary:truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
+	
+	local newDimensionSizeArray = table.clone(dimensionSizeArray)
 
 	while true do
 
-		local size = dimensionSizeArray[1]
+		local size = newDimensionSizeArray[1]
 
 		if (size ~= 1) then break end
 
-		table.remove(dimensionSizeArray, 1)
+		table.remove(newDimensionSizeArray, 1)
 
 	end
 
-	return dimensionSizeArray
+	return newDimensionSizeArray
 
 end
 
@@ -619,9 +621,7 @@ local function createTensor(dimensionSizeArray, initialValue)
 	
 end
 
-function AqwamTensorLibrary:createTensor(dimensionSizeArray, initialValue)
-	
-	dimensionSizeArray = AqwamTensorLibrary:truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
+function AqwamTensorLibrary:createTensor(dimensionSizeArray, initialValue) -- Do not truncate the dimension size array! It is needed by the hardcoded transpose operation!
 	
 	initialValue = initialValue or 0
 	
@@ -883,7 +883,7 @@ end
 --]]
 
 
-local function hardcodedTranspose(tensor, dimensionIndexArray)
+local function hardcodedTranspose(tensor, dimensionIndexArray) -- I don't think it is worth the effort to generalize to the rest of dimensions...
 
 	local dimensionArray = AqwamTensorLibrary:getSize(tensor)
 	
@@ -898,25 +898,25 @@ local function hardcodedTranspose(tensor, dimensionIndexArray)
 	local dimension1 = dimensionIndexArray[1] + offset
 	local dimension2 = dimensionIndexArray[2] + offset
 	
-	local newDimensionArray = AqwamTensorLibrary:getSize(expandedTensor)
+	local newDimensionIndexArray = {dimension1, dimension2}
 	
-	print(newDimensionArray)
+	local expandedDimensionSizeArray = AqwamTensorLibrary:getSize(expandedTensor)
 
-	newDimensionArray[dimension1], newDimensionArray[dimension2] = newDimensionArray[dimension2], newDimensionArray[dimension1]
+	expandedDimensionSizeArray[dimension1], expandedDimensionSizeArray[dimension2] = expandedDimensionSizeArray[dimension2], expandedDimensionSizeArray[dimension1]
 	
-	local newTensor = AqwamTensorLibrary:createTensor(newDimensionArray, true)
+	local newTensor = AqwamTensorLibrary:createTensor(expandedDimensionSizeArray, true)
 
-	if (table.find(dimensionIndexArray, 1)) and (table.find(dimensionIndexArray, 2)) then
+	if (table.find(newDimensionIndexArray, 1)) and (table.find(newDimensionIndexArray, 2)) then
 
-		for a = 1, newDimensionArray[1], 1 do
+		for a = 1, expandedDimensionSizeArray[1], 1 do
 
-			for b = 1, newDimensionArray[2], 1 do
+			for b = 1, expandedDimensionSizeArray[2], 1 do
 
-				for c = 1, newDimensionArray[3], 1 do
+				for c = 1, expandedDimensionSizeArray[3], 1 do
 
-					for d = 1, newDimensionArray[4], 1 do
+					for d = 1, expandedDimensionSizeArray[4], 1 do
 
-						for e = 1, newDimensionArray[5], 1 do
+						for e = 1, expandedDimensionSizeArray[5], 1 do
 
 							newTensor[a][b][c][d][e] = expandedTensor[b][a][c][d][e]
 							
@@ -930,17 +930,17 @@ local function hardcodedTranspose(tensor, dimensionIndexArray)
 
 		end
 
-	elseif (table.find(dimensionIndexArray, 1)) and (table.find(dimensionIndexArray, 3)) then
+	elseif (table.find(newDimensionIndexArray, 1)) and (table.find(newDimensionIndexArray, 3)) then
 
-		for a = 1, newDimensionArray[1], 1 do
+		for a = 1, expandedDimensionSizeArray[1], 1 do
 
-			for b = 1, newDimensionArray[2], 1 do
+			for b = 1, expandedDimensionSizeArray[2], 1 do
 
-				for c = 1, newDimensionArray[3], 1 do
+				for c = 1, expandedDimensionSizeArray[3], 1 do
 
-					for d = 1, newDimensionArray[4], 1 do
+					for d = 1, expandedDimensionSizeArray[4], 1 do
 
-						for e = 1, newDimensionArray[5], 1 do
+						for e = 1, expandedDimensionSizeArray[5], 1 do
 
 							newTensor[a][b][c][d][e] = expandedTensor[c][b][a][d][e]
 							
@@ -954,17 +954,17 @@ local function hardcodedTranspose(tensor, dimensionIndexArray)
 
 		end
 
-	elseif (table.find(dimensionIndexArray, 2)) and (table.find(dimensionIndexArray, 3)) then
+	elseif (table.find(newDimensionIndexArray, 2)) and (table.find(newDimensionIndexArray, 3)) then
 
-		for a = 1, newDimensionArray[1], 1 do
+		for a = 1, expandedDimensionSizeArray[1], 1 do
 
-			for b = 1, newDimensionArray[2], 1 do
+			for b = 1, expandedDimensionSizeArray[2], 1 do
 
-				for c = 1, newDimensionArray[3], 1 do
+				for c = 1, expandedDimensionSizeArray[3], 1 do
 
-					for d = 1, newDimensionArray[4], 1 do
+					for d = 1, expandedDimensionSizeArray[4], 1 do
 
-						for e = 1, newDimensionArray[5], 1 do
+						for e = 1, expandedDimensionSizeArray[5], 1 do
 							
 							newTensor[a][b][c][d][e] = expandedTensor[a][c][b][d][e]
 							
@@ -978,17 +978,17 @@ local function hardcodedTranspose(tensor, dimensionIndexArray)
 
 		end
 
-	elseif (table.find(dimensionIndexArray, 1)) and (table.find(dimensionIndexArray, 4)) then
+	elseif (table.find(newDimensionIndexArray, 1)) and (table.find(newDimensionIndexArray, 4)) then
 
-		for a = 1, newDimensionArray[1], 1 do
+		for a = 1, expandedDimensionSizeArray[1], 1 do
 
-			for b = 1, newDimensionArray[2], 1 do
+			for b = 1, expandedDimensionSizeArray[2], 1 do
 
-				for c = 1, newDimensionArray[3], 1 do
+				for c = 1, expandedDimensionSizeArray[3], 1 do
 
-					for d = 1, newDimensionArray[4], 1 do
+					for d = 1, expandedDimensionSizeArray[4], 1 do
 
-						for e = 1, newDimensionArray[5], 1 do
+						for e = 1, expandedDimensionSizeArray[5], 1 do
 
 							newTensor[a][b][c][d][e] = expandedTensor[d][b][c][a][e]
 							
@@ -1002,17 +1002,17 @@ local function hardcodedTranspose(tensor, dimensionIndexArray)
 
 		end
 
-	elseif (table.find(dimensionIndexArray, 1)) and (table.find(dimensionIndexArray, 5)) then
+	elseif (table.find(newDimensionIndexArray, 1)) and (table.find(newDimensionIndexArray, 5)) then
 
-		for a = 1, newDimensionArray[1], 1 do
+		for a = 1, expandedDimensionSizeArray[1], 1 do
 
-			for b = 1, newDimensionArray[2], 1 do
+			for b = 1, expandedDimensionSizeArray[2], 1 do
 
-				for c = 1, newDimensionArray[3], 1 do
+				for c = 1, expandedDimensionSizeArray[3], 1 do
 
-					for d = 1, newDimensionArray[4], 1 do
+					for d = 1, expandedDimensionSizeArray[4], 1 do
 
-						for e = 1, newDimensionArray[5], 1 do
+						for e = 1, expandedDimensionSizeArray[5], 1 do
 
 							newTensor[a][b][c][d][e] = expandedTensor[e][b][c][d][a]
 							
@@ -1026,17 +1026,17 @@ local function hardcodedTranspose(tensor, dimensionIndexArray)
 
 		end
 
-	elseif (table.find(dimensionIndexArray, 2)) and (table.find(dimensionIndexArray, 4)) then
+	elseif (table.find(newDimensionIndexArray, 2)) and (table.find(newDimensionIndexArray, 4)) then
 
-		for a = 1, newDimensionArray[1], 1 do
+		for a = 1, expandedDimensionSizeArray[1], 1 do
 
-			for b = 1, newDimensionArray[2], 1 do
+			for b = 1, expandedDimensionSizeArray[2], 1 do
 
-				for c = 1, newDimensionArray[3], 1 do
+				for c = 1, expandedDimensionSizeArray[3], 1 do
 
-					for d = 1, newDimensionArray[4], 1 do
+					for d = 1, expandedDimensionSizeArray[4], 1 do
 
-						for e = 1, newDimensionArray[5], 1 do
+						for e = 1, expandedDimensionSizeArray[5], 1 do
 
 							newTensor[a][b][c][d][e] = expandedTensor[a][d][c][b][e]
 							
@@ -1050,17 +1050,17 @@ local function hardcodedTranspose(tensor, dimensionIndexArray)
 
 		end
 
-	elseif (table.find(dimensionIndexArray, 2)) and (table.find(dimensionIndexArray, 5)) then
+	elseif (table.find(newDimensionIndexArray, 2)) and (table.find(newDimensionIndexArray, 5)) then
 
-		for a = 1, newDimensionArray[1], 1 do
+		for a = 1, expandedDimensionSizeArray[1], 1 do
 
-			for b = 1, newDimensionArray[2], 1 do
+			for b = 1, expandedDimensionSizeArray[2], 1 do
 
-				for c = 1, newDimensionArray[3], 1 do
+				for c = 1, expandedDimensionSizeArray[3], 1 do
 
-					for d = 1, newDimensionArray[4], 1 do
+					for d = 1, expandedDimensionSizeArray[4], 1 do
 
-						for e = 1, newDimensionArray[5], 1 do
+						for e = 1, expandedDimensionSizeArray[5], 1 do
 
 							newTensor[a][b][c][d][e] = expandedTensor[a][e][c][d][b]
 							
@@ -1074,17 +1074,17 @@ local function hardcodedTranspose(tensor, dimensionIndexArray)
 
 		end
 
-	elseif (table.find(dimensionIndexArray, 3)) and (table.find(dimensionIndexArray, 4)) then
+	elseif (table.find(newDimensionIndexArray, 3)) and (table.find(newDimensionIndexArray, 4)) then
 
-		for a = 1, newDimensionArray[1], 1 do
+		for a = 1, expandedDimensionSizeArray[1], 1 do
 
-			for b = 1, newDimensionArray[2], 1 do
+			for b = 1, expandedDimensionSizeArray[2], 1 do
 
-				for c = 1, newDimensionArray[3], 1 do
+				for c = 1, expandedDimensionSizeArray[3], 1 do
 
-					for d = 1, newDimensionArray[4], 1 do
+					for d = 1, expandedDimensionSizeArray[4], 1 do
 
-						for e = 1, newDimensionArray[5], 1 do
+						for e = 1, expandedDimensionSizeArray[5], 1 do
 
 							newTensor[a][b][c][d][e] = expandedTensor[a][b][d][c][e]
 							
@@ -1098,17 +1098,17 @@ local function hardcodedTranspose(tensor, dimensionIndexArray)
 
 		end
 
-	elseif (table.find(dimensionIndexArray, 3)) and (table.find(dimensionIndexArray, 5)) then
+	elseif (table.find(newDimensionIndexArray, 3)) and (table.find(newDimensionIndexArray, 5)) then
 
-		for a = 1, newDimensionArray[1], 1 do
+		for a = 1, expandedDimensionSizeArray[1], 1 do
 
-			for b = 1, newDimensionArray[2], 1 do
+			for b = 1, expandedDimensionSizeArray[2], 1 do
 
-				for c = 1, newDimensionArray[3], 1 do
+				for c = 1, expandedDimensionSizeArray[3], 1 do
 
-					for d = 1, newDimensionArray[4], 1 do
+					for d = 1, expandedDimensionSizeArray[4], 1 do
 
-						for e = 1, newDimensionArray[5], 1 do
+						for e = 1, expandedDimensionSizeArray[5], 1 do
 
 							newTensor[a][b][c][d][e] = expandedTensor[a][b][e][d][c]
 							
@@ -1122,17 +1122,17 @@ local function hardcodedTranspose(tensor, dimensionIndexArray)
 
 		end
 
-	elseif (table.find(dimensionIndexArray, 4)) and (table.find(dimensionIndexArray, 5)) then
+	elseif (table.find(newDimensionIndexArray, 4)) and (table.find(newDimensionIndexArray, 5)) then
 
-		for a = 1, newDimensionArray[1], 1 do
+		for a = 1, expandedDimensionSizeArray[1], 1 do
 
-			for b = 1, newDimensionArray[2], 1 do
+			for b = 1, expandedDimensionSizeArray[2], 1 do
 
-				for c = 1, newDimensionArray[3], 1 do
+				for c = 1, expandedDimensionSizeArray[3], 1 do
 
-					for d = 1, newDimensionArray[4], 1 do
+					for d = 1, expandedDimensionSizeArray[4], 1 do
 
-						for e = 1, newDimensionArray[5], 1 do
+						for e = 1, expandedDimensionSizeArray[5], 1 do
 
 							newTensor[a][b][c][d][e] = expandedTensor[a][b][c][e][d]
 							
