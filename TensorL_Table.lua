@@ -1210,35 +1210,17 @@ local function dotProduct(tensor1, tensor2)
 
 		end
 
-	elseif numberOfDimensions1 == 1 and numberOfDimensions2 >= 2 then
+	elseif (numberOfDimensions1 == 1) and (numberOfDimensions2 >= 2) then
 
 		for i = 1, tensor2DimensionSizeArray[1] do tensor[i] = dotProduct(tensor1, tensor2[i]) end
 
-	else
+	elseif (numberOfDimensions1 == 1) and (numberOfDimensions2 == 1) then
+		
+		local sum = 0
 
-		if (numberOfDimensions1 == 1) and (numberOfDimensions2 == 1) then
-			
-			local sum = 0
+		for i = 1, #tensor1 do sum = sum + tensor1[i] * tensor2[i] end
 
-			for i = 1, #tensor1 do sum = sum + tensor1[i] * tensor2[i] end
-
-			tensor = sum
-
-		elseif (numberOfDimensions1 == 1) and (numberOfDimensions2 == 2) then
-
-			local tensor2Column = #tensor2[1]
-
-			for column = 1, tensor2Column do
-
-				local columnSum = 0
-
-				for i = 1, #tensor1 do columnSum = columnSum + tensor1[i] * tensor2[i][column] end
-
-				tensor[column] = columnSum
-
-			end
-
-		end
+		tensor = sum 
 
 	end
 
