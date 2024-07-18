@@ -1273,17 +1273,21 @@ function AqwamTensorLibrary:extract(tensor, originDimensionIndexArray, targetDim
 
 	end
 	
-	return extract(tensor, originDimensionIndexArray, targetDimensionIndexArray)
+	local extractedTensor = extract(tensor, originDimensionIndexArray, targetDimensionIndexArray)
+	
+	return AqwamTensorLibrary:truncateTensorIfRequired(extractedTensor)
 	
 end
 
 local function concatenate(targetTensor, otherTensor, dimension)
 	
-	local dimensionSizeArray = AqwamTensorLibrary:getSize(targetTensor) 
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(targetTensor)
+	
+	print(dimensionSizeArray)
 
 	if (#dimensionSizeArray ~= dimension) then
-
-		for i = 1, dimensionSizeArray[1], 1 do targetTensor[i] = concatenate(targetTensor, otherTensor, dimension) end
+		
+		for i = 1, dimensionSizeArray[1], 1 do targetTensor[i] = concatenate(targetTensor[i], otherTensor[i], dimension) end
 
 	else
 		
@@ -1310,8 +1314,8 @@ function AqwamTensorLibrary:concatenate(tensor1, tensor2, dimension)
 	local numberOfDimensions2 = #dimensionSizeArray2
 	
 	if (numberOfDimensions1 ~= numberOfDimensions2) then error("The tensors do not have equal number of dimensions.") end
-
-	local newDimensionArray = {}
+	
+	if (numberOfDimensions1 <= 0) or (dimension > numberOfDimensions1) then error("The selected dimension is out of bounds.") end
 
 	for dimensionIndex = 1, 3, 1 do
 
