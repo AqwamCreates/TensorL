@@ -879,6 +879,57 @@ function AqwamTensorLibrary:getNumberOfDimensions(tensor)
 	
 end
 
+function AqwamTensorLibrary:dotProduct(tensor1, tensor2) -- Refer to this article. It was a fucking headache to do this. https://medium.com/@hunter-j-phillips/a-simple-introduction-to-tensors-c4a8321efffc
+	
+	
+	
+end
+
+function AqwamTensorLibrary:mean(tensor, dimension)
+	
+	
+end
+	
+function AqwamTensorLibrary:standardDeviation(tensor, dimension)
+	
+	
+end
+
+function AqwamTensorLibrary:zScoreNormalize(tensor, dimension)
+	
+	
+end
+
+function AqwamTensorLibrary:findMaximumValue(tensor)
+	
+	
+end
+
+function AqwamTensorLibrary:findMinimumValue(tensor)
+	
+	
+end
+
+function AqwamTensorLibrary:flatten(tensor)
+	
+	
+end
+
+function AqwamTensorLibrary:reshape(flattenedTensor, dimensionSizeArray)
+	
+	
+end
+
+function AqwamTensorLibrary:extract(tensor, originDimensionIndexArray, targetDimensionIndexArray)
+	
+	
+end
+
+function AqwamTensorLibrary:concatenate(tensor1, tensor2, dimension)
+	
+	
+end
+
 function AqwamTensorLibrary:add(...)
 
 	local functionToApply = function(a, b) return (a + b) end
