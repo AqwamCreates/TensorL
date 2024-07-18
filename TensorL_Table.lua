@@ -1084,13 +1084,23 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 		
 		local otherTensorNumberOfDimensions = #otherTensorDimensionSizeArray
 		
-		if (tensorNumberOfDimensions ~= otherTensorNumberOfDimensions) then error("Tensor " .. (i - 1) .. " and " .. i .. " does not have the same number of dimensions.") end
-		
-		if (tensorDimensionSizeArray[tensorNumberOfDimensions] ~= otherTensorDimensionSizeArray[otherTensorNumberOfDimensions - 1]) then error("The size of the last dimension of tensor " .. (i - 1) .. " is not equal to the size of second last dimension of the tensor " .. i .. ".") end
-		
-		for j = 1, (otherTensorNumberOfDimensions - 2) do
+		if (tensorNumberOfDimensions == otherTensorNumberOfDimensions) then
 			
-			if (tensorDimensionSizeArray[i] ~= otherTensorDimensionSizeArray[i]) then error("The size of dimension " .. j .. " of tensor " .. (i - 1) .. " is not equal to the size of dimension " .. j .. " of the tensor " .. i .. ".") end
+			if (tensorDimensionSizeArray[tensorNumberOfDimensions] ~= otherTensorDimensionSizeArray[otherTensorNumberOfDimensions - 1]) then error("The size of the last dimension of tensor " .. (i - 1) .. " is not equal to the size of second last dimension of the tensor " .. i .. ".") end
+
+			for j = 1, (otherTensorNumberOfDimensions - 2), 1 do
+
+				if (tensorDimensionSizeArray[i] ~= otherTensorDimensionSizeArray[i]) then error("The size of dimension " .. j .. " of tensor " .. (i - 1) .. " is not equal to the size of dimension " .. j .. " of the tensor " .. i .. ".") end
+
+			end
+			
+		elseif (tensorNumberOfDimensions == 1) then
+			
+			for j = 1, (otherTensorNumberOfDimensions - 2), 1 do
+
+				if (tensorDimensionSizeArray[1] ~= otherTensorDimensionSizeArray[i]) then error("The size of dimension " .. j .. " of tensor " .. (i - 1) .. " is not equal to the size of dimension " .. j .. " of the tensor " .. i .. ".") end
+
+			end
 			
 		end
 		
