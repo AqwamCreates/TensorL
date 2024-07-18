@@ -1284,9 +1284,7 @@ function AqwamTensorLibrary:isEqualTo(tensor1, tensor2)
 
 	local functionToApply = function(a, b) return (a == b) end
 
-	local result = applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2)
-
-	return result
+	return applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2)
 
 end
 
