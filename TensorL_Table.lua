@@ -465,9 +465,7 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 	end
 	
-	tensor = AqwamTensorLibrary:truncateTensorIfRequired(tensor)
-
-	return tensor
+	return  AqwamTensorLibrary:truncateTensorIfRequired(tensor)
 
 end
 
@@ -2139,7 +2137,9 @@ function AqwamTensorLibrary:applyFunction(functionToApply, ...)
 		
 	end
 	
-	return applyFunction(functionToApply, ...)
+	local resultTensor = applyFunction(functionToApply, ...)
+	
+	return AqwamTensorLibrary:truncateTensorIfRequired(resultTensor)
 	
 end
 
