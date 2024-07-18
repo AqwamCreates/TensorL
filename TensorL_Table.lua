@@ -1043,6 +1043,22 @@ local function dotProduct(tensor1, tensor2)
 	
 end
 
+local function convertTensorToScalar(tensor)
+	
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+	
+	if (#dimensionSizeArray >= 1) then
+		
+		return convertTensorToScalar(tensor[1])
+		
+	else
+		
+		return tensor[1]
+		
+	end
+	
+end
+
 function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a fucking headache to do this. https://medium.com/@hunter-j-phillips/a-simple-introduction-to-tensors-c4a8321efffc
 	
 	local tensorArray = {...}
@@ -1075,7 +1091,15 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 		
 	end
 	
-	return tensor
+	local resultTensorDimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+	
+	for _, size in ipairs(resultTensorDimensionSizeArray) do
+		
+		if (size ~= 1) then return tensor end
+		
+	end
+	
+	return convertTensorToScalar(tensor)
 	
 end
 
