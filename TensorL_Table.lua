@@ -902,16 +902,75 @@ end
 
 function AqwamTensorLibrary:findMaximumValue(tensor)
 	
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
+	local value
+
+	if (#dimensionSizeArray > 1) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do value = AqwamTensorLibrary:findMaximumValue(tensor[i]) end
+
+	else
+
+		value = math.max(table.unpack(tensor))
+
+	end
+
+	return value
 	
 end
 
 function AqwamTensorLibrary:findMinimumValue(tensor)
 	
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
+	local value
+
+	if (#dimensionSizeArray > 1) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do value = AqwamTensorLibrary:findMinimumValue(tensor[i]) end
+
+	else
+
+		value = math.min(table.unpack(tensor))
+
+	end
+
+	return value
+	
+end
+
+local function flatten(tensor, targetTensor)
+	
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
+	if (#dimensionSizeArray > 1) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do flatten(tensor[i], targetTensor) end
+
+	else
+		
+		for _, value in ipairs(tensor) do table.insert(targetTensor, value) end
+
+	end
+
+	return tensor
 	
 end
 
 function AqwamTensorLibrary:flatten(tensor)
 	
+	local flattenedTensor = {}
+	
+	flatten(tensor, flattenedTensor)
+	
+	return flattenedTensor
 	
 end
 
