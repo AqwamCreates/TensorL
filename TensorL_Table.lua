@@ -246,7 +246,7 @@ function AqwamTensorLibrary:generateTensorStringWithComma(tensor, textSpacingArr
 
 	else
 
-		text = text .. "{"
+		text = text .. "{ "
 
 		for i = 1, tensorLength do 
 
@@ -312,7 +312,7 @@ function AqwamTensorLibrary:generatePortableTensorString(tensor, textSpacingArra
 
 	else
 
-		text = text .. "{"
+		text = text .. "{ "
 
 		for i = 1, tensorLength do 
 
