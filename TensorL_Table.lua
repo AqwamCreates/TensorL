@@ -1065,7 +1065,7 @@ end
 
 --]]
 
-local function dimensionSum(tensor, dimension)
+local function dimensionSum(tensor, dimension, )
 	
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
 
@@ -1387,15 +1387,15 @@ function AqwamTensorLibrary:extract(tensor, originDimensionIndexArray, targetDim
 	
 end
 
-local function concatenate(targetTensor, otherTensor, dimension, currentDepth)
+local function concatenate(targetTensor, otherTensor, targetDimension, currentDimension)
 	
-	currentDepth = currentDepth or 1
+	currentDimension = currentDimension or 1
 	
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(targetTensor)
 
-	if (currentDepth ~= dimension) then
+	if (currentDimension ~= targetDimension) then
 		
-		for i = 1, dimensionSizeArray[1], 1 do targetTensor[i] = concatenate(targetTensor[i], otherTensor[i], dimension, currentDepth + 1) end
+		for i = 1, dimensionSizeArray[1], 1 do targetTensor[i] = concatenate(targetTensor[i], otherTensor[i], targetDimension, currentDimension + 1) end
 
 	else
 		
