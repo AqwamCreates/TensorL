@@ -912,7 +912,7 @@ function AqwamTensorLibrary:getSize(tensor)
 
 	local numberOfDimensions = AqwamTensorLibrary:getNumberOfDimensions(tensor)
 	
-	if (numberOfDimensions == 0) then return 0 end
+	if (numberOfDimensions == 0) then return nil end
 
 	local dimensionSizeArray = {}
 
