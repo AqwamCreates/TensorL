@@ -112,7 +112,41 @@ local function applyFunctionUsingTwoTensors(operation, tensor1, tensor2)
 
 end
 
-function AqwamTensorLibrary:generateTensorString(tensor, dimensionDepth)
+local function get2DTensorTextSpacing(tensor, textSpacingArray)
+	
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+	
+	if (#dimensionSizeArray > 1) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do textSpacingArray = get2DTensorTextSpacing(tensor[i], textSpacingArray) end
+
+	else
+
+		for i = 1, dimensionSizeArray[1], 1 do textSpacingArray[i] = math.max(textSpacingArray[i], string.len(tostring(tensor[i]))) end
+
+	end
+	
+	return textSpacingArray
+	
+end
+
+function AqwamTensorLibrary:get2DTensorTextSpacing(tensor)
+	
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+	
+	local numberOfDimensions = #dimensionSizeArray
+	
+	local sizeAtFinalDimension = dimensionSizeArray[numberOfDimensions]
+	
+	local textSpacingArray = table.create(sizeAtFinalDimension, 0)
+	
+	return get2DTensorTextSpacing(tensor, textSpacingArray)
+	
+end
+
+function AqwamTensorLibrary:generateTensorString(tensor, textSpacingArray, dimensionDepth)
 
 	dimensionDepth = dimensionDepth or 1
 
@@ -122,53 +156,61 @@ function AqwamTensorLibrary:generateTensorString(tensor, dimensionDepth)
 
 	local tensorLength = #tensor
 
-	local result = " "
+	local text = " "
 
 	if (numberOfDimensions > 1) then
 
 		local spacing = ""
 
-		result = result .. "{"
+		text = text .. "{"
 
 		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
 
 		for i = 1, #tensor do
 
-			if (i > 1) then result = result .. spacing end
+			if (i > 1) then text = text .. spacing end
 
-			result = result .. AqwamTensorLibrary:generateTensorString(tensor[i], dimensionDepth + 1)
+			text = text .. AqwamTensorLibrary:generateTensorString(tensor[i], textSpacingArray, dimensionDepth + 1)
 
 			if (i == tensorLength) then continue end
 
-			result = result .. "\n"
+			text = text .. "\n"
 
 		end
 
-		result = result .. " }"
+		text = text .. " }"
 
 	else
 
-		result = result .. "{ "
+		text = text .. "{ "
 
-		for i = 1, tensorLength do 
+		for i = 1, tensorLength do
+			
+			local cellValue = tensor[i]
+			
+			local cellText = tostring(cellValue)
 
-			result = result .. tensor[i]
+			local cellWidth = string.len(cellText)
+
+			local padding = textSpacingArray[i] - cellWidth + 1
+
+			text = text .. string.rep(" ", padding) .. cellText
 
 			if (i == tensorLength) then continue end
 
-			result = result .. " "
+			text = text .. " "
 
 		end
 
-		result = result .. " }"
+		text = text .. " }"
 
 	end
 
-	return result
+	return text
 
 end
 
-function AqwamTensorLibrary:generateTensorStringWithComma(tensor, dimensionDepth)
+function AqwamTensorLibrary:generateTensorStringWithComma(tensor, textSpacingArray, dimensionDepth)
 	
 	dimensionDepth = dimensionDepth or 1
 
@@ -178,53 +220,61 @@ function AqwamTensorLibrary:generateTensorStringWithComma(tensor, dimensionDepth
 
 	local tensorLength = #tensor
 
-	local result = " "
+	local text = " "
 
 	if (numberOfDimensions > 1) then
 		
 		local spacing = ""
 
-		result = result .. "{"
+		text = text .. "{"
 		
 		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
 
 		for i = 1, #tensor do
 			
-			if (i > 1) then result = result .. spacing end
+			if (i > 1) then text = text .. spacing end
 
-			result = result .. AqwamTensorLibrary:generateTensorStringWithComma(tensor[i], dimensionDepth + 1)
+			text = text .. AqwamTensorLibrary:generateTensorStringWithComma(tensor[i], textSpacingArray, dimensionDepth + 1)
 
 			if (i == tensorLength) then continue end
 
-			result = result .. "\n"
+			text = text .. "\n"
 
 		end
 
-		result = result .. " }"
+		text = text .. " }"
 
 	else
 
-		result = result .. "{ "
+		text = text .. "{ "
 
 		for i = 1, tensorLength do 
 
-			result = result .. tensor[i]
+			local cellValue = tensor[i]
+
+			local cellText = tostring(cellValue)
+
+			local cellWidth = string.len(cellText)
+
+			local padding = textSpacingArray[i] - cellWidth + 1
+
+			text = text .. string.rep(" ", padding) .. cellText
 		
 			if (i == tensorLength) then continue end
 
-			result = result .. ", "
+			text = text .. ", "
 
 		end
 
-		result = result .. " }"
+		text = text .. " }"
 
 	end
 
-	return result
+	return text
 
 end
 
-function AqwamTensorLibrary:generatePortableTensorString(tensor, dimensionDepth)
+function AqwamTensorLibrary:generatePortableTensorString(tensor, textSpacingArray, dimensionDepth)
 
 	dimensionDepth = dimensionDepth or 1
 
@@ -234,51 +284,59 @@ function AqwamTensorLibrary:generatePortableTensorString(tensor, dimensionDepth)
 
 	local tensorLength = #tensor
 
-	local result = " "
+	local text = " "
 
 	if (numberOfDimensions > 1) then
 
 		local spacing = ""
 
-		result = result .. "{"
+		text = text .. "{"
 
 		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
 
 		for i = 1, #tensor do
 
-			if (i > 1) then result = result .. spacing end
+			if (i > 1) then text = text .. spacing end
 
-			result = result .. AqwamTensorLibrary:generatePortableTensorString(tensor[i], dimensionDepth + 1)
+			text = text .. AqwamTensorLibrary:generatePortableTensorString(tensor[i], textSpacingArray, dimensionDepth + 1)
 
 			if (i == tensorLength) then continue end
 
-			result = result .. "\n"
+			text = text .. "\n"
 
 		end
 
-		result = result .. " }"
+		text = text .. " }"
 		
-		if (dimensionDepth > 1) then result = result .. "," end
+		if (dimensionDepth > 1) then text = text .. "," end
 
 	else
 
-		result = result .. "{ "
+		text = text .. "{ "
 
 		for i = 1, tensorLength do 
 
-			result = result .. tensor[i]
+			local cellValue = tensor[i]
+
+			local cellText = tostring(cellValue)
+
+			local cellWidth = string.len(cellText)
+
+			local padding = textSpacingArray[i] - cellWidth + 1
+
+			text = text .. string.rep(" ", padding) .. cellText
 
 			if (i == tensorLength) then continue end
 
-			result = result .. ", "
+			text = text .. ", "
 
 		end
 
-		result = result .. " },"
+		text = text .. " },"
 
 	end
 
-	return result
+	return text
 
 end
 
@@ -1166,20 +1224,26 @@ function AqwamTensorLibrary:isLessOrEqualTo(tensor1, tensor2)
 end
 
 function AqwamTensorLibrary:printTensor(tensor)
+	
+	local textSpacingArray = AqwamTensorLibrary:get2DTensorTextSpacing(tensor)
 
-	print("\n\n" .. AqwamTensorLibrary:generateTensorString(tensor) .. "\n\n")
+	print("\n\n" .. AqwamTensorLibrary:generateTensorString(tensor, textSpacingArray) .. "\n\n")
 
 end
 
 function AqwamTensorLibrary:printTensorWithComma(tensor)
+	
+	local textSpacingArray = AqwamTensorLibrary:get2DTensorTextSpacing(tensor)
 
-	print("\n\n" .. AqwamTensorLibrary:generateTensorStringWithComma(tensor) .. "\n\n")
+	print("\n\n" .. AqwamTensorLibrary:generateTensorStringWithComma(tensor, textSpacingArray) .. "\n\n")
 
 end
 
 function AqwamTensorLibrary:printPortableTensor(tensor)
+	
+	local textSpacingArray = AqwamTensorLibrary:get2DTensorTextSpacing(tensor)
 
-	print("\n\n" .. AqwamTensorLibrary:generatePortableTensorString(tensor) .. "\n\n")
+	print("\n\n" .. AqwamTensorLibrary:generatePortableTensorString(tensor, textSpacingArray) .. "\n\n")
 
 end
 
