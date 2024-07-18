@@ -625,6 +625,8 @@ function AqwamTensorLibrary:createTensor(dimensionSizeArray, initialValue) -- Do
 	
 	initialValue = initialValue or 0
 	
+	dimensionSizeArray = AqwamTensorLibrary:truncateTensorIfRequired(dimensionSizeArray)
+	
 	return createTensor(dimensionSizeArray, initialValue)
 	
 end
@@ -908,7 +910,7 @@ local function hardcodedTranspose(tensor, dimensionIndexArray) -- I don't think 
 
 	expandedDimensionSizeArray[dimension1], expandedDimensionSizeArray[dimension2] = expandedDimensionSizeArray[dimension2], expandedDimensionSizeArray[dimension1]
 	
-	local newTensor = AqwamTensorLibrary:createTensor(expandedDimensionSizeArray, true)
+	local newTensor = createTensor(expandedDimensionSizeArray, true)
 
 	if (table.find(newDimensionIndexArray, 1)) and (table.find(newDimensionIndexArray, 2)) then
 
@@ -1493,7 +1495,7 @@ local function hardcodedDimensionSum(tensor, dimension) -- I don't think it is w
 	
 	expandedSumDimensionArray[dimension] = 1
 
-	local newTensor = AqwamTensorLibrary:createTensor(expandedSumDimensionArray, 0)
+	local newTensor = createTensor(expandedSumDimensionArray, 0)
 	
 	if (dimension == 1) then
 		
