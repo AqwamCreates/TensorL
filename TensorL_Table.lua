@@ -830,6 +830,8 @@ end
 
 --]]
 
+--[[
+
 local function transpose(originalTensor, dimensionIndexArray, currentDimension)
 	
 	currentDimension = currentDimension or 1
@@ -853,6 +855,8 @@ local function transpose(originalTensor, dimensionIndexArray, currentDimension)
 	return originalTensor
 	
 end
+
+--]]
 
 --[[
 
@@ -1425,6 +1429,8 @@ end
 
 --]]
 
+--[[
+
 local function dimensionSum(tensor, targetDimension, currentDimension)
 	
 	currentDimension = currentDimension or 1
@@ -1459,6 +1465,158 @@ local function dimensionSum(tensor, targetDimension, currentDimension)
 	
 end
 
+--]]
+
+local function hardcodedDimensionSum(tensor, dimension) -- I don't think it is worth the effort to generalize to the rest of dimensions... That being said, to process videos, you need at most 5 dimensions. Don't get confused about the channels! Only number of channels are changed and not the number of dimensions of the tensor!
+	
+	local dimensionArray = AqwamTensorLibrary:getSize(tensor)
+
+	local numberOfDimensions = #dimensionArray
+
+	local offset = 5 - numberOfDimensions
+	
+	local dimension = dimension + offset
+
+	local dimensionSizeToAddArray = table.create(offset, 1)
+
+	local expandedTensor = AqwamTensorLibrary:expand(tensor, dimensionSizeToAddArray)
+
+	local expandedDimensionSizeArray = AqwamTensorLibrary:getSize(expandedTensor)
+	
+	local expandedSumDimensionArray = table.clone(expandedDimensionSizeArray)
+	
+	expandedSumDimensionArray[dimension] = 1
+
+	local newTensor = AqwamTensorLibrary:createTensor(expandedSumDimensionArray, 0)
+	
+	if (dimension == 1) then
+		
+		for a = 1, expandedDimensionSizeArray[1], 1 do
+			
+			for b = 1, expandedDimensionSizeArray[2], 1 do
+
+				for c = 1, expandedDimensionSizeArray[3], 1 do
+
+					for d = 1, expandedDimensionSizeArray[4], 1 do
+
+						for e = 1, expandedDimensionSizeArray[5], 1 do
+
+							newTensor[1][b][c][d][e] = newTensor[1][b][c][d][e] + expandedTensor[a][b][c][d][e]
+							
+						end
+
+					end
+
+				end
+
+			end
+			
+		end
+		
+	elseif (dimension == 2) then
+
+		for a = 1, expandedDimensionSizeArray[1], 1 do
+
+			for b = 1, expandedDimensionSizeArray[2], 1 do
+
+				for c = 1, expandedDimensionSizeArray[3], 1 do
+
+					for d = 1, expandedDimensionSizeArray[4], 1 do
+
+						for e = 1, expandedDimensionSizeArray[5], 1 do
+							
+							print()
+
+							newTensor[a][1][c][d][e] = newTensor[a][1][c][d][e] + expandedTensor[a][b][c][d][e]
+
+						end
+
+					end
+
+				end
+
+			end
+
+		end
+		
+	elseif (dimension == 3) then
+
+		for a = 1, expandedDimensionSizeArray[1], 1 do
+
+			for b = 1, expandedDimensionSizeArray[2], 1 do
+
+				for c = 1, expandedDimensionSizeArray[3], 1 do
+
+					for d = 1, expandedDimensionSizeArray[4], 1 do
+
+						for e = 1, expandedDimensionSizeArray[5], 1 do
+
+							newTensor[a][b][1][d][e] = newTensor[a][b][1][d][e] + expandedTensor[a][b][c][d][e]
+
+						end
+
+					end
+
+				end
+
+			end
+
+		end
+		
+	elseif (dimension == 4) then
+
+		for a = 1, expandedDimensionSizeArray[1], 1 do
+
+			for b = 1, expandedDimensionSizeArray[2], 1 do
+
+				for c = 1, expandedDimensionSizeArray[3], 1 do
+
+					for d = 1, expandedDimensionSizeArray[4], 1 do
+
+						for e = 1, expandedDimensionSizeArray[5], 1 do
+
+							newTensor[a][b][c][1][e] = newTensor[a][b][c][1][e] + expandedTensor[a][b][c][d][e]
+
+						end
+
+					end
+
+				end
+
+			end
+
+		end
+		
+	elseif (dimension == 5) then
+
+		for a = 1, expandedDimensionSizeArray[1], 1 do
+
+			for b = 1, expandedDimensionSizeArray[2], 1 do
+
+				for c = 1, expandedDimensionSizeArray[3], 1 do
+
+					for d = 1, expandedDimensionSizeArray[4], 1 do
+
+						for e = 1, expandedDimensionSizeArray[5], 1 do
+
+							newTensor[a][b][c][d][1] = newTensor[a][b][c][d][1] + expandedTensor[a][b][c][d][e]
+
+						end
+
+					end
+
+				end
+
+			end
+
+		end
+		
+	end
+	
+	return AqwamTensorLibrary:truncateTensorIfRequired(newTensor)
+	
+end
+
 function AqwamTensorLibrary:sum(tensor, dimension)
 
 	if (not dimension) then return fullSum(tensor) end
@@ -1467,7 +1625,7 @@ function AqwamTensorLibrary:sum(tensor, dimension)
 
 	if (dimension <= 0) or (dimension > numberOfDimensions) then error("Invalid dimensions.") end
 
-	return dimensionSum(tensor, dimension)
+	return hardcodedDimensionSum(tensor, dimension)
 
 end
 
