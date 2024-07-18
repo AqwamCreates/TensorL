@@ -1093,9 +1093,9 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 	
 	local resultTensorDimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
 	
-	for _, size in ipairs(resultTensorDimensionSizeArray) do
+	for _, size in ipairs(resultTensorDimensionSizeArray) do -- Return the original tensor if any dimension sizes are not equal to 1.
 		
-		if (size ~= 1) then return tensor end
+		if (size ~= 1) then return AqwamTensorLibrary:truncateTensorIfRequired(tensor) end
 		
 	end
 	
