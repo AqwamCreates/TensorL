@@ -960,22 +960,133 @@ local function fullSum(tensor)
 
 end
 
+--[[
+
 local function dimensionSum(tensor, dimension)
 
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+	
+	local newTensor = {}
 
 	if (#dimensionSizeArray ~= dimension) then
 
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = dimensionSum(targetTensor[i], otherTensor[i], dimension) end
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = dimensionSum(tensor[i], dimension) end
 
 	else
 
-		for _, value in ipairs(otherTensor) do table.insert(targetTensor, value) end
+		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = 0 end
+
+		-- Sum along the specified dimension
+		for i = 1, #tensor do
+			
+			for j = 1, dimensionSizeArray[1], 1 do
+				
+				print(tensor)
+				
+				newTensor[j] = newTensor[j] + tensor[j]
+				
+			end
+			
+		end
 
 	end
 
-	return tensor
+	return newTensor
 
+end
+
+--]]
+
+--[[
+
+local function dimensionSum(tensor, dimension)
+
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+	
+	local numberOfDimensions = #dimensionSizeArray
+	
+	local firstDimensionSize = dimensionSizeArray[1]
+	
+	local secondDimensionSize = dimensionSizeArray[2]
+	
+	local newTensor = table.create(firstDimensionSize, 0)
+	
+	if (secondDimensionSize ~= dimension) and (numberOfDimensions >= 2) then
+		
+		for i = 1, firstDimensionSize, 1 do newTensor[i] = dimensionSum(tensor[i], dimension) end
+		
+	--else
+		
+		--for i = 1, firstDimensionSize, 1 do newTensor[i] = newTensor[i] + tensor[i] end
+		
+	end
+
+	return newTensor
+
+end
+
+--]]
+
+--[[
+
+local function dimensionSum(tensor, dimension, locationArray)
+	
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	local newTensor = table.create(dimensionSizeArray[1], 0)
+
+	if (numberOfDimensions ~= dimension) then
+
+		for i = 1, dimensionSizeArray[1] do 
+
+			local copiedLocationArray = table.clone(locationArray)
+
+			table.insert(copiedLocationArray, i)
+
+			newTensor[i] = dimensionSum(tensor[i], dimension, copiedLocationArray) 
+
+		end
+
+	else
+
+		for i = 1, dimensionSizeArray[1], 1 do
+			
+			newTensor[i] = newTensor[i] + tensor[i]
+
+		end
+
+	end
+
+	return newTensor
+
+end
+
+--]]
+
+local function dimensionSum(tensor, dimension)
+	
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	local newTensor = table.create(dimensionSizeArray[1], 0)
+	
+	if (numberOfDimensions ~= dimension) then
+
+		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = dimensionSum(tensor[i], dimension) end
+
+	else
+
+
+		
+		for i = 1, dimensionSizeArray[1] do newTensor[i] = newTensor[i] + fullSum(tensor[i]) end
+
+	end
+	
+	return newTensor
+	
 end
 
 function AqwamTensorLibrary:sum(tensor, dimension)
@@ -1276,13 +1387,15 @@ function AqwamTensorLibrary:extract(tensor, originDimensionIndexArray, targetDim
 	
 end
 
-local function concatenate(targetTensor, otherTensor, dimension)
+local function concatenate(targetTensor, otherTensor, dimension, currentDepth)
+	
+	currentDepth = currentDepth or 1
 	
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(targetTensor)
 
-	if (#dimensionSizeArray ~= dimension) then
+	if (currentDepth ~= dimension) then
 		
-		for i = 1, dimensionSizeArray[1], 1 do targetTensor[i] = concatenate(targetTensor[i], otherTensor[i], dimension) end
+		for i = 1, dimensionSizeArray[1], 1 do targetTensor[i] = concatenate(targetTensor[i], otherTensor[i], dimension, currentDepth + 1) end
 
 	else
 		
