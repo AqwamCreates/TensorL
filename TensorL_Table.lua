@@ -192,7 +192,7 @@ function AqwamTensorLibrary:generateTensorString(tensor, textSpacingArray, dimen
 
 			local cellWidth = string.len(cellText)
 
-			local padding = textSpacingArray[i] - cellWidth + 1
+			local padding = textSpacingArray[i] - cellWidth
 
 			text = text .. string.rep(" ", padding) .. cellText
 
@@ -202,7 +202,7 @@ function AqwamTensorLibrary:generateTensorString(tensor, textSpacingArray, dimen
 
 		end
 
-		text = text .. "  }"
+		text = text .. " }"
 
 	end
 
@@ -256,7 +256,7 @@ function AqwamTensorLibrary:generateTensorStringWithComma(tensor, textSpacingArr
 
 			local cellWidth = string.len(cellText)
 
-			local padding = textSpacingArray[i] - cellWidth + 1
+			local padding = textSpacingArray[i] - cellWidth
 
 			text = text .. string.rep(" ", padding) .. cellText
 		
@@ -266,7 +266,7 @@ function AqwamTensorLibrary:generateTensorStringWithComma(tensor, textSpacingArr
 
 		end
 
-		text = text .. "  }"
+		text = text .. " }"
 
 	end
 
@@ -322,7 +322,7 @@ function AqwamTensorLibrary:generatePortableTensorString(tensor, textSpacingArra
 
 			local cellWidth = string.len(cellText)
 
-			local padding = textSpacingArray[i] - cellWidth + 1
+			local padding = textSpacingArray[i] - cellWidth
 
 			text = text .. string.rep(" ", padding) .. cellText
 
@@ -332,7 +332,7 @@ function AqwamTensorLibrary:generatePortableTensorString(tensor, textSpacingArra
 
 		end
 
-		text = text .. "  },"
+		text = text .. " },"
 
 	end
 
