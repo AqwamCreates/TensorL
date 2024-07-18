@@ -368,152 +368,6 @@ function AqwamTensorLibrary:generatePortableTensorString(tensor, textSpacingArra
 
 end
 
-local function fullSum(tensor)
-
-	local dimensionArray = AqwamTensorLibrary:getSize(tensor)
-
-	local numberOfValues = dimensionArray[1]
-
-	local result = 0
-
-	for i = 1, numberOfValues, 1 do 
-
-		if (#dimensionArray > 1) then
-
-			result += fullSum(tensor[i]) 
-
-		else
-
-			result += tensor[i]
-
-		end
-
-	end
-
-	return result
-
-end
-
-local function dimensionSumRecursive(result, tensor, dimension)
-
-	local dimensionArray = AqwamTensorLibrary:getSize(tensor)
-
-	local numberOfDimensions = #dimensionArray
-
-	local numberOfValues = dimensionArray[1]
-
-	for i = 1, numberOfValues, 1 do 	
-
-		if (numberOfDimensions == dimension) then
-
-			dimensionSumRecursive(result[i], tensor[i], dimension)
-
-		else
-
-			result[i] += tensor[i]
-
-		end
-
-	end
-
-end
-
-local function accumulateDimension(result, tensor, dimension, dimensionIndices, dimensionArray)
-	if dimension == #dimensionIndices then
-		for i = 1, dimensionArray[dimensionIndices[dimension]], 1 do
-			local indices = {}
-			for j = 1, #dimensionIndices do
-				indices[j] = dimensionIndices[j]
-			end
-			indices[dimension] = i
-			result[table.unpack(indices)] = (result[table.unpack(indices)] or 0) + tensor[table.unpack(indices)]
-		end
-	else
-		for i = 1, dimensionArray[dimensionIndices[dimension]], 1 do
-			dimensionIndices[dimension] = i
-			accumulateDimension(result, tensor, dimension + 1, dimensionIndices, dimensionArray)
-		end
-	end
-end
-
-local function dimSumRecursive(result, tensor, targetDimension)
-
-	local dimensionArray = AqwamTensorLibrary:getSize(tensor)
-
-	local currentDimension = #dimensionArray
-
-	local numberOfValues = dimensionArray[1]
-
-	for i = 1, numberOfValues, 1 do
-
-		if (currentDimension == targetDimension) then
-
-			print(AqwamTensorLibrary:getSize(result))
-
-			print(AqwamTensorLibrary:getSize(tensor))
-
-			result[i] += tensor[i]
-
-		else
-
-			dimensionSumRecursive(result[i], tensor[i], targetDimension)
-
-		end
-
-	end
-
-end
-
-local function dimensionSum(tensor, targetDimension)
-
-	local dimensionArray = AqwamTensorLibrary:getSize(tensor)
-
-	local newDimensionArray = deepCopyTable(dimensionArray)
-
-	dimensionArray[targetDimension] = 1
-
-	local result = createTensor(dimensionArray, 0)
-
-	dimSumRecursive(result, tensor, targetDimension)
-
-	--[[
-
-	for dimension1 = 1, dimensionArray[1], 1 do
-
-		for dimension2 = 1, dimensionArray[2], 1 do
-
-			for dimension3 = 1, dimensionArray[3], 1 do
-
-				if (dimension == 1) then
-
-					result[1][dimension2][dimension3] += tensor[dimension1][dimension2][dimension3]	
-
-				elseif (dimension == 2) then
-
-					result[dimension1][1][dimension3] += tensor[dimension1][dimension2][dimension3]
-
-				elseif (dimension == 3) then
-
-					result[dimension1][dimension2][1] += tensor[dimension1][dimension2][dimension3]
-
-				else
-
-					error("Invalid dimension.")
-
-				end 
-
-			end
-
-		end	
-
-	end
-	
-	--]]
-
-	return result
-
-end
-
 function AqwamTensorLibrary:truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
 
 	while true do
@@ -1080,37 +934,65 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 	
 end
 
+local function fullSum(tensor)
+
+	local dimensionArray = AqwamTensorLibrary:getSize(tensor)
+
+	local numberOfValues = dimensionArray[1]
+
+	local result = 0
+
+	for i = 1, numberOfValues, 1 do 
+
+		if (#dimensionArray > 1) then
+
+			result += fullSum(tensor[i]) 
+
+		else
+
+			result += tensor[i]
+
+		end
+
+	end
+
+	return result
+
+end
+
+local function dimensionSum(tensor, dimension)
+
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
+	if (#dimensionSizeArray ~= dimension) then
+
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = dimensionSum(targetTensor[i], otherTensor[i], dimension) end
+
+	else
+
+		for _, value in ipairs(otherTensor) do table.insert(targetTensor, value) end
+
+	end
+
+	return tensor
+
+end
+
 function AqwamTensorLibrary:sum(tensor, dimension)
 
 	if (not dimension) then return fullSum(tensor) end
 
-	local numberOfDimension = AqwamTensorLibrary:getNumberOfDimensions(tensor)
+	local numberOfDimensions = #AqwamTensorLibrary:getSize(tensor)
 
-	if (dimension > numberOfDimension) or (dimension < 1) then error("Invalid dimensions.") end
+	if (dimension <= 0) or (dimension > numberOfDimensions) then error("Invalid dimensions.") end
 
-	local reversedSequence = {}
-
-	for i = numberOfDimension, 1, -1 do table.insert(reversedSequence, i) end
-
-	local selectedDimension = reversedSequence[dimension]
-
-	return dimensionSum(tensor, selectedDimension)
+	return dimensionSum(tensor, dimension)
 
 end
 
 function AqwamTensorLibrary:mean(tensor, dimension)
 	
-	if (not dimension) then
-		
-		local sum = fullSum(tensor)
-		
-		local totalSize = AqwamTensorLibrary:getTotalSize(tensor)
-		
-		local mean = sum / totalSize
-		
-		return mean
-		
-	end
+	local sumTensor = AqwamTensorLibrary:sum(tensor, dimension)
 	
 	
 end
