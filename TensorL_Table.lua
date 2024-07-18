@@ -1049,9 +1049,9 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 			
 		elseif (tensorNumberOfDimensions == 1) then
 			
-			for j = 1, (otherTensorNumberOfDimensions - 2), 1 do
+			for j = (otherTensorNumberOfDimensions - 1), otherTensorNumberOfDimensions, 1 do
 
-				if (tensorDimensionSizeArray[1] ~= otherTensorDimensionSizeArray[i]) then error("The size of dimension 1 of tensor " .. (i - 1) .. " is not equal to the size of dimension " .. j .. " of the tensor " .. i .. ".") end
+				if (tensorDimensionSizeArray[1] ~= otherTensorDimensionSizeArray[j]) then error("The size of dimension 1 of tensor " .. (i - 1) .. " is not equal to the size of dimension " .. j .. " of the tensor " .. i .. ".") end
 
 			end
 			
