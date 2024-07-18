@@ -828,6 +828,8 @@ function AqwamTensorLibrary:createRandomNormalTensor(dimensionSizeArray, mean, s
 
 	standardDeviation = standardDeviation or 1
 	
+	dimensionSizeArray = truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
+	
 	local tensor = {}
 
 	if (#dimensionSizeArray > 1) then
@@ -857,7 +859,9 @@ function AqwamTensorLibrary:createRandomNormalTensor(dimensionSizeArray, mean, s
 end
 
 function AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray)
-
+	
+	dimensionSizeArray = truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
+	
 	local tensor = {}
 
 	if (#dimensionSizeArray > 1) then
@@ -977,7 +981,7 @@ function AqwamTensorLibrary:getTotalSize(tensor)
 	
 end
 
-function AqwamTensorLibrary:dotProduct(tensor1, tensor2) -- Refer to this article. It was a fucking headache to do this. https://medium.com/@hunter-j-phillips/a-simple-introduction-to-tensors-c4a8321efffc
+function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a fucking headache to do this. https://medium.com/@hunter-j-phillips/a-simple-introduction-to-tensors-c4a8321efffc
 	
 	
 	
@@ -1317,7 +1321,7 @@ function AqwamTensorLibrary:concatenate(tensor1, tensor2, dimension)
 	
 	if (numberOfDimensions1 <= 0) or (dimension > numberOfDimensions1) then error("The selected dimension is out of bounds.") end
 
-	for dimensionIndex = 1, 3, 1 do
+	for dimensionIndex = 1, numberOfDimensions1, 1 do
 
 		if (dimensionIndex == dimension) then continue end
 
@@ -1427,6 +1431,65 @@ function AqwamTensorLibrary:isLessOrEqualTo(tensor1, tensor2)
 
 	return applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2)
 
+end
+
+local function applyFunction(functionToApply, ...)
+	
+	local tensorArray = {...}
+	
+	local tensor = {}
+	
+	local dimensionSizeArray = {}
+	
+	if (#dimensionSizeArray > 2) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = applyFunction(remainingDimensionSizeArray, initialValue) end
+
+	else
+
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = table.create(dimensionSizeArray[2], initialValue) end
+
+	end
+	
+	return tensor
+	
+end
+
+function AqwamTensorLibrary:applyFunction(functionToApply, ...)
+	
+	local tensorArray = {...}
+	
+	local allDimensionSizeArrays = {}
+	
+	for _, tensor in ipairs(tensorArray) do
+		
+		local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+		
+		table.insert(allDimensionSizeArrays, dimensionSizeArray)
+		
+	end
+	
+	local firstDimensionSizeArray = allDimensionSizeArrays[1]
+	
+	for i = 2, #tensorArray, 1 do
+		
+		local dimensionSizeArray = allDimensionSizeArrays[i]
+		
+		if (#firstDimensionSizeArray ~= #dimensionSizeArray) then error("Tensor " .. i .. " does not have the same number of dimensions.") end
+		
+		for s, size in ipairs(dimensionSizeArray) do
+			
+			if (firstDimensionSizeArray[s] ~= size) then error("Tensors " .. i .. " do not contain equal dimension values at dimension " .. s .. ".") end
+			
+		end
+		
+	end
+
+	
+	return tensor
+	
 end
 
 function AqwamTensorLibrary:printTensor(tensor)
