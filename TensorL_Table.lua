@@ -1025,7 +1025,11 @@ local function dotProduct(tensor1, tensor2)
 
 				local sum = 0
 
-				for i = 1, tensor1Column do sum = sum + (tensor1[row][i] * tensor2[i][column]) end
+				for i = 1, tensor1Column do 
+					
+					sum = sum + (tensor1[row][i] * tensor2[i][column]) 
+					
+				end
 
 				tensor[row][column] = sum
 
@@ -1053,12 +1057,18 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 		
 		local otherTensorDimensionSizeArray = AqwamTensorLibrary:getSize(otherTensor)
 		
-		if (#tensorDimensionSizeArray ~= #otherTensorDimensionSizeArray) then error("Tensor " .. (i - 1) .. " and " .. i .. " does not contain same number of dimensions.") end
+		local tensorNumberOfDimensions = #tensorDimensionSizeArray
 		
-		for s, size in ipairs(tensorDimensionSizeArray) do
-
-			if (size ~= otherTensorDimensionSizeArray[s]) then error("Tensor " .. (i - 1) .. " and " .. i .. " do not contain equal dimension values at dimension " .. s .. ".") end
-
+		local otherTensorNumberOfDimensions = #otherTensorDimensionSizeArray
+		
+		if (tensorNumberOfDimensions ~= otherTensorNumberOfDimensions) then error("Tensor " .. (i - 1) .. " and " .. i .. " does not have the same number of dimensions.") end
+		
+		if (tensorDimensionSizeArray[tensorNumberOfDimensions] ~= otherTensorDimensionSizeArray[otherTensorNumberOfDimensions - 1]) then error("The size of the last dimension of tensor " .. (i - 1) .. " is not equal to the size of second last dimension of the tensor " .. i .. ".") end
+		
+		for j = 1, (otherTensorNumberOfDimensions - 2) do
+			
+			if (tensorDimensionSizeArray[i] ~= otherTensorDimensionSizeArray[i]) then error("The size of dimension " .. j .. " of tensor " .. (i - 1) .. " is not equal to the size of dimension " .. j .. " of the tensor " .. i .. ".") end
+			
 		end
 		
 		tensor = dotProduct(tensor, otherTensor)
