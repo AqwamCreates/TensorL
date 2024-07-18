@@ -1182,9 +1182,33 @@ local function dotProduct(tensor1, tensor2)
 
 	local tensor = {}
 
-	if numberOfDimensions1 >= 2 and numberOfDimensions2 >= 2 then
+	if (numberOfDimensions1 >= 3) and (numberOfDimensions2 >= 3) then
 
 		for i = 1, tensor1DimensionSizeArray[1] do tensor[i] = dotProduct(tensor1[i], tensor2[i]) end
+		
+	elseif (numberOfDimensions1 == 2) and (numberOfDimensions2 == 2) then
+		
+		local tensor1Row = #tensor1
+		
+		local tensor1Column = #tensor1[1]
+		
+		local tensor2Column = #tensor2[1]
+		
+		for row = 1, tensor1Row, 1 do
+
+			tensor[row] = {}
+
+			for column = 1, tensor2Column, 1 do
+
+				local sum = 0
+
+				for i = 1, tensor1Column do sum = sum + (tensor1[row][i] * tensor2[i][column]) end
+
+				tensor[row][column] = sum
+
+			end
+
+		end
 
 	elseif numberOfDimensions1 == 1 and numberOfDimensions2 >= 2 then
 
@@ -1192,15 +1216,15 @@ local function dotProduct(tensor1, tensor2)
 
 	else
 
-		local sum = 0
-
-		if numberOfDimensions1 == 1 and numberOfDimensions2 == 1 then
+		if (numberOfDimensions1 == 1) and (numberOfDimensions2 == 1) then
+			
+			local sum = 0
 
 			for i = 1, #tensor1 do sum = sum + tensor1[i] * tensor2[i] end
 
 			tensor = sum
 
-		elseif numberOfDimensions1 == 1 and numberOfDimensions2 == 2 then
+		elseif (numberOfDimensions1 == 1) and (numberOfDimensions2 == 2) then
 
 			local tensor2Column = #tensor2[1]
 
@@ -1269,7 +1293,7 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 		elseif (tensorNumberOfDimensions == 1) and (otherTensorNumberOfDimensions >= 2) then
 			
 			for j = (otherTensorNumberOfDimensions - 1), otherTensorNumberOfDimensions, 1 do
-
+				
 				if (tensorDimensionSizeArray[1] ~= otherTensorDimensionSizeArray[j]) then error("The size of dimension 1 of tensor " .. (i - 1) .. " is not equal to the size of dimension " .. j .. " of the tensor " .. i .. ".") end
 
 			end
