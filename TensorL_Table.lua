@@ -514,56 +514,7 @@ local function dimensionSum(tensor, targetDimension)
 
 end
 
-function AqwamTensorLibrary:sum(tensor, dimension)
-
-	if (not dimension) then return fullSum(tensor) end
-
-	local numberOfDimension = AqwamTensorLibrary:getNumberOfDimensions(tensor)
-
-	if (dimension > numberOfDimension) or (dimension < 1) then error("Invalid dimensions.") end
-
-	local reversedSequence = {}
-
-	for i = numberOfDimension, 1, -1 do table.insert(reversedSequence, i) end
-
-	local selectedDimension = reversedSequence[dimension]
-
-	return dimensionSum(tensor, selectedDimension)
-
-end
-
-local function tensorProduct(tensor1, tensor2)
-
-	local dimensionArray1 = AqwamTensorLibrary:getSize(tensor1)
-
-	local dimensionArray2 = AqwamTensorLibrary:getSize(tensor2)
-
-	for i, _ in ipairs(dimensionArray1) do if (dimensionArray1[i] ~= dimensionArray2[i]) then error("Invalid dimensions.") end end
-
-	local numberOfValues = dimensionArray1[1]
-
-	local result = {}
-
-	for i = 1, numberOfValues, 1 do
-
-		if (#dimensionArray1 > 1) then
-
-			local subproduct = tensorProduct(tensor1[i], tensor2[i])
-
-			table.insert(result, subproduct)
-
-		else
-
-			table.insert(result, tensor1[i] * tensor2[i])
-
-		end
-
-	end
-
-	return result
-end
-
-local function truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
+function AqwamTensorLibrary:truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
 
 	while true do
 
@@ -820,7 +771,7 @@ end
 
 function AqwamTensorLibrary:createTensor(dimensionSizeArray, initialValue)
 	
-	dimensionSizeArray = truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
+	dimensionSizeArray = AqwamTensorLibrary:truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
 	
 	initialValue = initialValue or 0
 	
@@ -860,7 +811,7 @@ end
 
 function AqwamTensorLibrary:createRandomNormalTensor(dimensionSizeArray, mean, standardDeviation)
 	
-	dimensionSizeArray = truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
+	dimensionSizeArray = AqwamTensorLibrary:truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
 	
 	mean = mean or 0
 
@@ -892,7 +843,7 @@ end
 
 function AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray)
 	
-	dimensionSizeArray = truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
+	dimensionSizeArray = AqwamTensorLibrary:truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
 	
 	return createRandomUniformTensor(dimensionSizeArray)
 
@@ -951,7 +902,7 @@ end
 
 function AqwamTensorLibrary:createIdentityTensor(dimensionSizeArray)
 	
-	dimensionSizeArray = truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
+	dimensionSizeArray = AqwamTensorLibrary:truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
 	
 	return createIdentityTensor(dimensionSizeArray, {})
 	
@@ -1118,6 +1069,24 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 	
 	return convertTensorToScalar(tensor)
 	
+end
+
+function AqwamTensorLibrary:sum(tensor, dimension)
+
+	if (not dimension) then return fullSum(tensor) end
+
+	local numberOfDimension = AqwamTensorLibrary:getNumberOfDimensions(tensor)
+
+	if (dimension > numberOfDimension) or (dimension < 1) then error("Invalid dimensions.") end
+
+	local reversedSequence = {}
+
+	for i = numberOfDimension, 1, -1 do table.insert(reversedSequence, i) end
+
+	local selectedDimension = reversedSequence[dimension]
+
+	return dimensionSum(tensor, selectedDimension)
+
 end
 
 function AqwamTensorLibrary:mean(tensor, dimension)
