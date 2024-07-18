@@ -740,6 +740,60 @@ function AqwamTensorLibrary:createTensor(dimensionSizeArray, initialValue)
 	
 end
 
+function AqwamTensorLibrary:createRandomNormalTensor(dimensionSizeArray, mean, standardDeviation)
+	
+	mean = mean or 0
+
+	standardDeviation = standardDeviation or 1
+	
+	local tensor = {}
+
+	if (#dimensionSizeArray > 1) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = AqwamTensorLibrary:createRandomNormalTensor(remainingDimensionSizeArray, mean, standardDeviation) end
+
+	else
+
+		for i = 1, dimensionSizeArray[1], 1 do 
+			
+			local randomNumber1 = math.random()
+
+			local randomNumber2 = math.random()
+
+			local zScore = math.sqrt(-2 * math.log(randomNumber1)) * math.cos(2 * math.pi * randomNumber2) -- Box–Muller transform formula.
+			
+			tensor[i] = (zScore * standardDeviation) + mean
+			
+		end
+
+	end
+
+	return tensor
+
+end
+
+function AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray)
+
+	local tensor = {}
+
+	if (#dimensionSizeArray > 1) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = AqwamTensorLibrary:createRandomNormalTensor(remainingDimensionSizeArray) end
+
+	else
+
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = math.random() end
+
+	end
+
+	return tensor
+
+end
+
 local function createIdentityTensor(dimensionSizeArray, locationArray)
 	
 	local numberOfDimensions = #dimensionSizeArray
