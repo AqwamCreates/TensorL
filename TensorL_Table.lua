@@ -879,6 +879,22 @@ function AqwamTensorLibrary:getNumberOfDimensions(tensor)
 	
 end
 
+function AqwamTensorLibrary:getTotalSize(tensor)
+	
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+	
+	local totalSize = 1
+	
+	for _, value in ipairs(dimensionSizeArray) do
+		
+		totalSize = value * totalSize
+		
+	end
+	
+	return totalSize
+	
+end
+
 function AqwamTensorLibrary:dotProduct(tensor1, tensor2) -- Refer to this article. It was a fucking headache to do this. https://medium.com/@hunter-j-phillips/a-simple-introduction-to-tensors-c4a8321efffc
 	
 	
@@ -886,6 +902,18 @@ function AqwamTensorLibrary:dotProduct(tensor1, tensor2) -- Refer to this articl
 end
 
 function AqwamTensorLibrary:mean(tensor, dimension)
+	
+	if (not dimension) then
+		
+		local sum = fullSum(tensor)
+		
+		local totalSize = AqwamTensorLibrary:getTotalSize(tensor)
+		
+		local mean = sum / totalSize
+		
+		return mean
+		
+	end
 	
 	
 end
@@ -974,8 +1002,29 @@ function AqwamTensorLibrary:flatten(tensor)
 	
 end
 
+local function reshape(flattenedTensor, dimensionSizeArray)
+	
+
+	
+	
+	
+end
+
 function AqwamTensorLibrary:reshape(flattenedTensor, dimensionSizeArray)
 	
+	local flattenedTensorSizeArray = AqwamTensorLibrary:getSize(flattenedTensor)
+
+	if (#flattenedTensorSizeArray > 1) then error("Unable to reshape a tensor that has more than one dimension.") end
+	
+	local totalNumberOfValuesRequired = 1
+	
+	for _, value in ipairs(dimensionSizeArray) do
+		
+		totalNumberOfValuesRequired = totalNumberOfValuesRequired * value
+		
+	end
+	
+	if (totalNumberOfValuesRequired ~= flattenedTensorSizeArray[1]) then error("The number of values in flattened tensor does not equal to total number of values for reshaped tensor.") end
 	
 end
 
