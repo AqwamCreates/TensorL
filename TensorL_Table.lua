@@ -1548,8 +1548,6 @@ local function hardcodedDimensionSum(tensor, dimension) -- I don't think it is w
 					for d = 1, expandedDimensionSizeArray[4], 1 do
 
 						for e = 1, expandedDimensionSizeArray[5], 1 do
-							
-							print()
 
 							newTensor[a][1][c][d][e] = newTensor[a][1][c][d][e] + expandedTensor[a][b][c][d][e]
 
