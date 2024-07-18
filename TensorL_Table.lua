@@ -1002,11 +1002,34 @@ function AqwamTensorLibrary:flatten(tensor)
 	
 end
 
-local function reshape(flattenedTensor, dimensionSizeArray)
+local function reshape(flattenedTensor, dimensionSizeArray, dimensionIndex)
 	
+	local tensor = {}
+	
+	dimensionIndex = dimensionIndex or 0
 
+	if (#dimensionSizeArray > 1) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do 
+			
+			tensor[i], dimensionIndex = reshape(flattenedTensor, remainingDimensionSizeArray, dimensionIndex) 
+			
+		end
+
+	else
+		
+		for i = 1, dimensionSizeArray[1], 1 do 
+			
+			dimensionIndex = dimensionIndex + 1
+			table.insert(tensor, flattenedTensor[dimensionIndex]) 
+			
+		end
+
+	end
 	
-	
+	return tensor, dimensionIndex
 	
 end
 
@@ -1024,7 +1047,11 @@ function AqwamTensorLibrary:reshape(flattenedTensor, dimensionSizeArray)
 		
 	end
 	
-	if (totalNumberOfValuesRequired ~= flattenedTensorSizeArray[1]) then error("The number of values in flattened tensor does not equal to total number of values for reshaped tensor.") end
+	if (totalNumberOfValuesRequired ~= flattenedTensorSizeArray[1]) then error("The number of values in flattened tensor does not equal to total number of values of the reshaped tensor.") end
+	
+	local tensor = reshape(flattenedTensor, dimensionSizeArray)
+	
+	return tensor
 	
 end
 
