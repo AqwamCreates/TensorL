@@ -1266,6 +1266,80 @@ local function dotProduct(tensor1, tensor2) -- Best one. Do not delete!
 
 end
 
+local function nestedDotProduct(tensor1, tensor2)
+	
+	local numberOfDimensions1 = AqwamTensorLibrary:getNumberOfDimensions(tensor1)
+
+	local numberOfDimensions2 = AqwamTensorLibrary:getNumberOfDimensions(tensor2)
+	
+	local highestNumberOfDimensions = math.max(numberOfDimensions1, numberOfDimensions2)
+
+	local numberOfDimensionsOffset1 = 5 - highestNumberOfDimensions
+
+	local numberOfDimensionsOffset2 = 5 - highestNumberOfDimensions
+
+	local expandedTensor1 = AqwamTensorLibrary:expand(tensor1, table.create(numberOfDimensionsOffset1, 1))
+
+	local expandedTensor2 = AqwamTensorLibrary:expand(tensor2, table.create(numberOfDimensionsOffset2, 1))
+
+	local expandedNumberOfDimension1 = AqwamTensorLibrary:getSize(expandedTensor1)
+
+	local expandedNumberOfDimension2 = AqwamTensorLibrary:getSize(expandedTensor2)
+	
+	local function recursedDotProduct(subTensor, subTensor1, subTensor2)
+		
+		for a = 1, expandedNumberOfDimension2[5], 1 do
+
+			subTensor = {}
+
+			local sum = 0
+
+			for f = 1, expandedNumberOfDimension1[5] do sum = sum + (expandedTensor1[a][b][c][d][f] * expandedTensor2[a][b][c][f][e]) end
+
+			subTensor[a][b][c][d][e] = sum
+
+		end
+		
+	end
+
+	local tensor = {}
+
+	for a = 1, expandedNumberOfDimension1[1], 1 do
+
+		tensor[a] = {}
+
+		for b = 1, expandedNumberOfDimension1[2], 1 do
+
+			tensor[a][b] = {}
+
+			for c = 1, expandedNumberOfDimension1[3], 1 do
+
+				tensor[a][b][c] = {}
+
+				for d = 1, expandedNumberOfDimension1[4], 1 do
+
+					tensor[a][b][c][d] = {}
+
+					for e = 1, expandedNumberOfDimension2[5], 1 do
+
+						local sum = 0
+
+						for f = 1, expandedNumberOfDimension1[5] do sum = sum + (expandedTensor1[a][b][c][d][f] * expandedTensor2[a][b][c][f][e]) end
+
+						tensor[a][b][c][d][e] = sum
+
+					end
+
+				end
+
+			end
+
+		end
+
+	end
+	
+end
+
 --[[
 
 local function dotProduct(tensor1, tensor2) -- Second best one
