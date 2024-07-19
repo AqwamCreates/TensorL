@@ -465,7 +465,7 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 	end
 	
-	return  AqwamTensorLibrary:truncateTensorIfRequired(tensor)
+	return  AqwamTensorLibrary:getProperTensorFormatIfRequired(tensor)
 
 end
 
@@ -623,11 +623,11 @@ local function createTensor(dimensionSizeArray, initialValue)
 	
 end
 
-function AqwamTensorLibrary:createTensor(dimensionSizeArray, initialValue) -- Do not truncate the dimension size array! It is needed by the hardcoded transpose operation!
-	
-	initialValue = initialValue or 0
+function AqwamTensorLibrary:createTensor(dimensionSizeArray, initialValue)
 	
 	dimensionSizeArray = AqwamTensorLibrary:truncateTensorIfRequired(dimensionSizeArray)
+	
+	initialValue = initialValue or 0
 	
 	return createTensor(dimensionSizeArray, initialValue)
 	
@@ -754,6 +754,22 @@ local function createIdentityTensor(dimensionSizeArray, locationArray)
 	
 end
 
+local function convertTensorToScalar(tensor)
+
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
+	if (#dimensionSizeArray >= 1) then
+
+		return convertTensorToScalar(tensor[1])
+
+	else
+
+		return tensor
+
+	end
+
+end
+
 function AqwamTensorLibrary:createIdentityTensor(dimensionSizeArray)
 	
 	dimensionSizeArray = AqwamTensorLibrary:truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
@@ -777,6 +793,22 @@ function AqwamTensorLibrary:getSize(tensor)
 	end
 
 	return dimensionSizeArray
+
+end
+
+function AqwamTensorLibrary:getProperTensorFormatIfRequired(tensor)
+
+	local resultTensorDimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
+	if (resultTensorDimensionSizeArray == nil) then return tensor end -- If our tensor is actually a scalar, just return the number.
+
+	for _, size in ipairs(resultTensorDimensionSizeArray) do -- Return the original tensor if any dimension sizes are not equal to 1.
+
+		if (size ~= 1) then return AqwamTensorLibrary:truncateTensorIfRequired(tensor) end
+
+	end
+
+	return convertTensorToScalar(tensor)
 
 end
 
@@ -1541,38 +1573,6 @@ local function hardcodedDotProduct(tensor1, tensor2)
 	end
 	
 	return AqwamTensorLibrary:truncateTensorIfRequired(tensor)
-	
-end
-
-local function convertTensorToScalar(tensor)
-	
-	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
-	
-	if (#dimensionSizeArray >= 1) then
-		
-		return convertTensorToScalar(tensor[1])
-		
-	else
-		
-		return tensor
-		
-	end
-	
-end
-
-function AqwamTensorLibrary:getProperTensorFormatIfRequired(tensor)
-	
-	local resultTensorDimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
-
-	if (resultTensorDimensionSizeArray == nil) then return tensor end -- If our tensor is actually a scalar, just return the number.
-
-	for _, size in ipairs(resultTensorDimensionSizeArray) do -- Return the original tensor if any dimension sizes are not equal to 1.
-
-		if (size ~= 1) then return AqwamTensorLibrary:truncateTensorIfRequired(tensor) end
-
-	end
-
-	return convertTensorToScalar(tensor)
 	
 end
 
