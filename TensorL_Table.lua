@@ -1510,7 +1510,7 @@ local function dotProduct(tensor1, tensor2) -- Best one. Do not delete!
 
 end
 
-local function tensor2DDotProduct(tensor1, tensor2)
+local function tensor2DimensionalDotProduct(tensor1, tensor2)
 
 	local subTensor = {}
 
@@ -1554,7 +1554,7 @@ local function recursiveExpandedDotProduct(subTensor1, subTensor2) -- Since both
 
 	elseif (numberOfDimensions1 == 2) then -- No need an elseif statement where number of dimension is 1. This operation requires 2D tensors.
 
-		subTensor = tensor2DDotProduct(subTensor1, subTensor2)
+		subTensor = tensor2DimensionalDotProduct(subTensor1, subTensor2)
 
 	elseif (numberOfDimensions1 == 0) then
 
