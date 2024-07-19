@@ -1881,7 +1881,7 @@ function AqwamTensorLibrary:mean(tensor, dimension)
 	
 	local meanTensor = AqwamTensorLibrary:divide(sumTensor, size)
 	
-	return AqwamTensorLibrary:getProperTensorFormatIfRequired(tensor)
+	return AqwamTensorLibrary:getProperTensorFormatIfRequired(meanTensor)
 	
 end
 	
