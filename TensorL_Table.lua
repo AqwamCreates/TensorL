@@ -1789,13 +1789,9 @@ local function fullSum(tensor)
 
 		for i = 1, dimensionSizeArray[1], 1 do result = result + fullSum(tensor[i]) end
 
-	elseif (numberOfDimensions == 1) then
-		
-		for i = 1, dimensionSizeArray[1], 1 do result = result + tensor[i] end
-		
 	else
 		
-		print(tensor)
+		for i = 1, dimensionSizeArray[1], 1 do result = result + tensor[i] end
 
 	end
 
@@ -1803,7 +1799,7 @@ local function fullSum(tensor)
 
 end
 
-local function dimensionSum(tensor, targetDimension, currentDimension, currentLocationArray)
+local function dimensionSum(tensor, targetDimension, currentDimension)
 	
 	currentDimension = currentDimension or 1
 	
@@ -1813,13 +1809,19 @@ local function dimensionSum(tensor, targetDimension, currentDimension, currentLo
 	
 	local newTensor = {}
 	
-	if (currentDimension == targetDimension) then
+	if (currentDimension == targetDimension) and (numberOfDimensions >= 2) then
 		
-		for i = 1, numberOfDimensions, 1 do newTensor[i] = fullSum(tensor[i]) end
+		print(dimensionSizeArray)
+		
+		for i = 1, dimensionSizeArray[1], 1 do newTensor[1] = fullSum(tensor[i]) end
+		
+	elseif (currentDimension == targetDimension) and (numberOfDimensions == 1) then
+		
+		newTensor = fullSum(tensor)
 		
 	else
 		
-		for i = 1, numberOfDimensions, 1 do newTensor[i] = dimensionSum(tensor[i], targetDimension, currentDimension + 1) end
+		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = dimensionSum(tensor[i], targetDimension, currentDimension + 1) end
 		
 	end
 	
@@ -1983,7 +1985,7 @@ function AqwamTensorLibrary:sum(tensor, dimension)
 
 	if (dimension <= 0) or (dimension > numberOfDimensions) then error("The dimension is out of bounds.") end
 
-	return hardcodedDimensionSum(tensor, dimension)
+	return dimensionSum(tensor, dimension)
 
 end
 
