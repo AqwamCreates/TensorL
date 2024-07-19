@@ -639,29 +639,29 @@ function AqwamTensorLibrary:broadcastATensorIfDifferentSize(tensor1, tensor2)
 
 	local numberOfDimensionDifferences = highestNumberOfDimensions - lowestNumberOfDimensions
 
-	for i = 1, lowestNumberOfDimensions, 1 do -- We need to remove the extra dimensions from tensor with highest number of dimensions. The values are removed starting from the first so that we can compare the endings.
+	for i = 1, numberOfDimensionDifferences, 1 do -- We need to remove the extra dimensions from tensor with highest number of dimensions. The values are removed starting from the first so that we can compare the endings.
 
 		table.remove(truncatedDimensionSizeArrayWithHighestNumberOfDimensions, 1)
-
-		if (#truncatedDimensionSizeArrayWithHighestNumberOfDimensions == lowestNumberOfDimensions) then break end
 
 	end
 
 	for i = lowestNumberOfDimensions, 1, -1 do -- Check if the endings are equal so that we can broadcast one of the tensor. If the endings are not equal, then we can't broadcast the tensor with the lowest number of dimensions.
-
-		if (truncatedDimensionSizeArrayWithHighestNumberOfDimensions[i] ~= dimensionSizeArrayWithLowestNumberOfDimensions[i]) then onBroadcastError(dimensionSizeArray1, dimensionSizeArray2) end
+		
+		local dimensionSize = truncatedDimensionSizeArrayWithHighestNumberOfDimensions[i]
+		
+		if (dimensionSize ~= dimensionSizeArrayWithLowestNumberOfDimensions[i]) and (dimensionSize ~= 1) then onBroadcastError(dimensionSizeArray1, dimensionSizeArray2) end
 
 	end
 
-	local dimensionSizeToAdd = {}
+	local dimensionSizeToAddArray = {}
 
 	for i = 1, numberOfDimensionDifferences, 1 do
 
-		table.insert(dimensionSizeToAdd, dimensionSizeArrayWithHighestNumberOfDimensions[i])
+		table.insert(dimensionSizeToAddArray, dimensionSizeArrayWithHighestNumberOfDimensions[i])
 
 	end
 
-	local expandedTensor = AqwamTensorLibrary:increaseNumberOfDimensions(tensorWithLowestNumberOfDimensions, dimensionSizeToAdd)
+	local expandedTensor = AqwamTensorLibrary:increaseNumberOfDimensions(tensorWithLowestNumberOfDimensions, dimensionSizeToAddArray)
 	
 	expandedTensor = AqwamTensorLibrary:expand(expandedTensor, dimensionSizeArrayWithHighestNumberOfDimensions)
 
