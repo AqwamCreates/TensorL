@@ -543,6 +543,8 @@ local function onBroadcastError(dimensionSizeArray1, dimensionSizeArray2)
 
 end
 
+--[[
+
 function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 	
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
@@ -579,6 +581,78 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 		
 		for i = 1, targetDimensionSize, 1 do table.insert(newTensor, tensor[1]) end
 		
+	end
+	
+	return newTensor
+	
+end
+
+--]]
+
+
+
+function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
+	
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+	
+	if checkIfHasSameDimensionSizeArray(dimensionSizeArray, targetDimensionSizeArray) then return tensor end
+	
+	local numberOfDimensions = #dimensionSizeArray
+	
+	local dimensionSize = dimensionSizeArray[1]
+	
+	local targetDimensionSize = targetDimensionSizeArray[1]
+	
+	local hasSameDimensionSize = (dimensionSize == targetDimensionSize)
+	
+	local nextDimensionSize = dimensionSizeArray[2]
+	
+	local nextTargetDimensionSize = targetDimensionSizeArray[2]
+	
+	local hasSameNextDimensionSize = (nextDimensionSize == nextTargetDimensionSize)
+		
+	local canNextDimensionBeExpanded = (nextDimensionSize == 1)
+	
+	local newTensor = {}
+	
+	if (not canNextDimensionBeExpanded) and (not hasSameNextDimensionSize) then
+		
+		print(tensor, targetDimensionSizeArray)
+		
+		error("Unable to expand.")
+		
+	elseif (numberOfDimensions > 1) and (not hasSameNextDimensionSize) then
+		
+		for i = 1, targetDimensionSize, 1 do
+			
+			newTensor[i] = {} 
+			
+			for j = 1, nextTargetDimensionSize, 1 do
+				
+				local subTensorToCopy = tensor[i][1]
+				
+				newTensor[i][j] = deepCopyTable(subTensorToCopy)
+				
+			end
+			
+		end
+		
+	elseif (numberOfDimensions > 2) and (hasSameNextDimensionSize) then
+
+		newTensor = deepCopyTable(tensor)
+		
+	elseif (numberOfDimensions == 1) and (dimensionSize == 1) then
+		
+		for i = 1, targetDimensionSize, 1 do table.insert(newTensor, tensor[1]) end
+		
+	end
+
+	if (numberOfDimensions > 1) then
+
+		local remainingTargetDimensionSizeArray = removeFirstValueFromArray(targetDimensionSizeArray)
+
+		for i = 1, targetDimensionSizeArray[1], 1 do t[i] = AqwamTensorLibrary:expand(newTensor[i], remainingTargetDimensionSizeArray) end
+
 	end
 	
 	return newTensor
