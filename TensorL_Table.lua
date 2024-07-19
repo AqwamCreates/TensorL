@@ -1250,7 +1250,6 @@ local function dotProduct(tensor1, tensor2)
 		
 	else
 		
-		print(AqwamTensorLibrary:printTensor(tensor2))
 		error({numberOfDimensions1, numberOfDimensions2})
 	
 	end
