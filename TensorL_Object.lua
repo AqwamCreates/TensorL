@@ -1,3 +1,33 @@
+--[[
+
+	--------------------------------------------------------------------
+
+	Version 0.0.1
+
+	Aqwam's Tensor Library (TensorL)
+
+	Author: Aqwam Harish Aiman
+	
+	Email: aqwam.harish.aiman@gmail.com
+	
+	YouTube: https://www.youtube.com/channel/UCUrwoxv5dufEmbGsxyEUPZw
+	
+	LinkedIn: https://www.linkedin.com/in/aqwam-harish-aiman/
+	
+	--------------------------------------------------------------------
+	
+	By using or possesing any copies of this library, you agree to our terms and conditions at:
+	
+	https://github.com/AqwamCreates/TensorL/blob/main/docs/TermsAndConditions.md
+	
+	--------------------------------------------------------------------
+	
+	DO NOT REMOVE THIS TEXT!
+	
+	--------------------------------------------------------------------
+
+--]]
+
 local AqwamTensorLibrary = {}
 
 local function createTensor(dimensionArray, initialValue)
