@@ -587,17 +587,17 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray, dimensionIn
 
 		local remainingDimensionIndexToCopyArray = removeFirstValueFromArray(dimensionIndexToCopyArray)
 		
-		for i = 1, dimensionSizeArray[1], 1 do expandedTensor[i] = AqwamTensorLibrary:expand(tensor[i], remainingTargetDimensionSizeArray, remainingDimensionIndexToCopyArray) end
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = AqwamTensorLibrary:expand(tensor[i], remainingTargetDimensionSizeArray, remainingDimensionIndexToCopyArray) end
 		
 	end
 	
 	local targetDimensionSize = targetDimensionSizeArray[1]
-	
+
 	local dimensionSizeDifference = targetDimensionSize - dimensionSize
 	
 	local value = tensor[dimensionIndexToCopy]
 	
-	for i = 1, targetDimensionSizeArray[1], 1 do table.insert(expandedTensor, deepCopyTable(value)) end
+	for i = 1, targetDimensionSize, 1 do table.insert(expandedTensor, deepCopyTable(value)) end
 	
 	return expandedTensor
 	
