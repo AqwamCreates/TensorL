@@ -1288,6 +1288,10 @@ local function nestedDotProduct(tensor1, tensor2)
 	
 	local function subTensorDotProduct(subTensor1, subTensor2)
 		
+		AqwamTensorLibrary:printTensor(subTensor1)
+
+		AqwamTensorLibrary:printTensor(subTensor2)
+		
 		local subTensor = {}
 		
 		for a = 1, #subTensor2, 1 do
@@ -1314,11 +1318,7 @@ local function nestedDotProduct(tensor1, tensor2)
 		
 		local dotProductedTensor = {}
 		
-		AqwamTensorLibrary:printTensor(subTensor1)
-		
-		AqwamTensorLibrary:printTensor(subTensor2)
-		
-		if (numberOfDimensions2 >= 3) then
+		if (numberOfDimensions2 >= 4) then
 			
 			for i = 1, subDimensionSizeArray1[1], 1 do dotProductedTensor[i] = recursiveNestedDotProduct(subTensor1[i], subTensor2[i]) end
 			
