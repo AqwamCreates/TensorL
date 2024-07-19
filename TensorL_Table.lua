@@ -1248,8 +1248,12 @@ local function dotProduct(tensor1, tensor2)
 		
 		tensor = sum
 		
-	else
+	elseif (numberOfDimensions1 == 0) or (numberOfDimensions2 == 0) then
 		
+		tensor = AqwamTensorLibrary:multiply(tensor1, tensor2)
+		
+	else
+	
 		error({numberOfDimensions1, numberOfDimensions2})
 	
 	end
