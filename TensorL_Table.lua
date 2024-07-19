@@ -603,7 +603,7 @@ function AqwamTensorLibrary:broadcastATensorIfDifferentSize(tensor1, tensor2)
 	
 end
 
-local function createTensor(dimensionSizeArray, initialValue)
+local function createTensor(dimensionSizeArray, initialValue) -- Don't put dimension size array truncation here. It is needed for several operations like dot product. 
 	
 	local tensor = {}
 
