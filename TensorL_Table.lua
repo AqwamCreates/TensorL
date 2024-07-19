@@ -619,7 +619,7 @@ local function createTensor(dimensionSizeArray, initialValue) -- Don't put dimen
 	
 	local tensor = {}
 
-	if (#dimensionSizeArray >= 3) then
+	if (#dimensionSizeArray >= 2) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -627,7 +627,7 @@ local function createTensor(dimensionSizeArray, initialValue) -- Don't put dimen
 
 	else
 
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = table.create(dimensionSizeArray[2], initialValue) end
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = initialValue end
 
 	end
 	
