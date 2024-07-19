@@ -1162,6 +1162,8 @@ end
 
 function AqwamTensorLibrary:transpose(tensor, dimensionIndexArray)
 	
+	if (AqwamTensorLibrary:getNumberOfDimensions(tensor) == 0) then return tensor end
+	
 	if (#dimensionIndexArray ~= 2) then error("Dimension index array must contain exactly 2 dimensions.") end
 	
 	if (dimensionIndexArray[1] == dimensionIndexArray[2]) then return tensor end
@@ -1170,7 +1172,7 @@ function AqwamTensorLibrary:transpose(tensor, dimensionIndexArray)
 	
 end
 
-local function dotProduct(tensor1, tensor2)
+local function dotProduct(tensor1, tensor2) -- Best one. Do not delete!
 
 	local tensor1DimensionSizeArray = AqwamTensorLibrary:getSize(tensor1)
 
@@ -1230,11 +1232,13 @@ local function dotProduct(tensor1, tensor2)
 		
 	elseif (numberOfDimensions1 > 1) and (numberOfDimensions2 == 1) then
 		
-		local sum = 0
-		
 		for i = 1, tensor1DimensionSizeArray[1], 1 do
 			
 			for j = 1, tensor1DimensionSizeArray[2], 1 do 
+				
+				tensor[i] = {}
+				
+				local sum = 0
 				
 				for k = 1, tensor2DimensionSizeArray[1] do
 					
@@ -1242,11 +1246,11 @@ local function dotProduct(tensor1, tensor2)
 					
 				end
 				
+				tensor[i][j] = sum
+				
 			end
 			
 		end
-		
-		tensor = sum
 		
 	elseif (numberOfDimensions1 == 0) or (numberOfDimensions2 == 0) then
 		
@@ -1398,6 +1402,66 @@ end
 
 --]]
 
+local function hardcodedDotProduct(tensor1, tensor2)
+	
+	local numberOfDimensions1 = AqwamTensorLibrary:getNumberOfDimensions(tensor1)
+	
+	local numberOfDimensions2 = AqwamTensorLibrary:getNumberOfDimensions(tensor2)
+	
+	local numberOfDimensionsOffset1 = 5 - numberOfDimensions1
+	
+	local numberOfDimensionsOffset2 = 5 - numberOfDimensions2
+	
+	local expandedTensor1 = AqwamTensorLibrary:expand(tensor1, table.create(numberOfDimensionsOffset1, 1))
+	
+	local expandedTensor2 = AqwamTensorLibrary:expand(tensor2, table.create(numberOfDimensionsOffset2, 1))
+	
+	local expandedNumberOfDimension1 = AqwamTensorLibrary:getSize(expandedTensor1)
+	
+	local expandedNumberOfDimension2 = AqwamTensorLibrary:getSize(expandedTensor2)
+	
+	local tensor = {}
+	
+	for a = 1, expandedNumberOfDimension1[1], 1 do
+		
+		tensor[a] = {}
+		
+		for b = 1, expandedNumberOfDimension1[2], 1 do
+			
+			tensor[a][b] = {}
+
+			for c = 1, expandedNumberOfDimension1[3], 1 do
+				
+				tensor[a][b][c] = {}
+
+				for d = 1, expandedNumberOfDimension1[4], 1 do
+					
+					tensor[a][b][c][d] = {}
+
+					for e = 1, expandedNumberOfDimension2[5], 1 do
+						
+						tensor[a][b][c][d][e] = {}
+
+						local sum = 0
+
+						for f = 1, expandedNumberOfDimension1[5] do sum = sum + (expandedTensor1[a][b][c][d][f] * expandedTensor2[a][b][c][f][e]) end
+
+						tensor[a][b][c][d][e] = sum
+
+					end
+
+				end
+
+			end
+
+		end
+		
+	end
+	
+	return AqwamTensorLibrary:truncateTensorIfRequired(tensor)
+	
+end
+
 local function convertTensorToScalar(tensor)
 	
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
@@ -1456,7 +1520,7 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 			
 		end
 		
-		tensor = dotProduct(tensor, otherTensor)
+		tensor = hardcodedDotProduct(tensor, otherTensor)
 		
 	end
 	
