@@ -523,21 +523,25 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray, dimensionIn
 	
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
 	
-	local originDimensionSize = dimensionSizeArray[1]
-
-	local remainingTargetDimensionSizeArray = removeFirstValueFromArray(targetDimensionSizeArray)
+	local numberOfDimensions = #dimensionSizeArray
 	
-	local remainingDimensionIndexToCopyArray = removeFirstValueFromArray(dimensionIndexToCopyArray)
+	local dimensionSize = dimensionSizeArray[1]
 	
 	local expandedTensor = {}
 	
-	for i = 1, originDimensionSize, 1 do expandedTensor[i] = AqwamTensorLibrary:expand(tensor[i], remainingTargetDimensionSizeArray, remainingDimensionIndexToCopyArray) end
-	
-	local numberOfDimensions = #dimensionSizeArray
+	if (numberOfDimensions > 1) then
+		
+		local remainingTargetDimensionSizeArray = removeFirstValueFromArray(targetDimensionSizeArray)
+
+		local remainingDimensionIndexToCopyArray = removeFirstValueFromArray(dimensionIndexToCopyArray)
+		
+		for i = 1, dimensionSize, 1 do expandedTensor[i] = AqwamTensorLibrary:expand(tensor[i], remainingTargetDimensionSizeArray, remainingDimensionIndexToCopyArray) end
+		
+	end
 	
 	local targetDimensionSize = targetDimensionSizeArray[1]
 	
-	local dimensionSizeDifference = targetDimensionSize - originDimensionSize
+	local dimensionSizeDifference = targetDimensionSize - dimensionSize
 	
 	local dimensionIndexToCopy = dimensionIndexToCopyArray[1] or 1
 
