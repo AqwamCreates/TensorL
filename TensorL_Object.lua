@@ -623,13 +623,7 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 			
 			newTensor[i] = {} 
 			
-			for j = 1, nextTargetDimensionSize, 1 do
-				
-				local subTensorToCopy = tensor[i][1]
-				
-				newTensor[i][j] = deepCopyTable(subTensorToCopy)
-				
-			end
+			for j = 1, nextTargetDimensionSize, 1 do newTensor[i][j] = deepCopyTable(tensor[i][1]) end
 			
 		end
 		
