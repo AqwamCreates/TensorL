@@ -565,11 +565,15 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 		
 		error("Unable to expand.")
 	
-	elseif (numberOfDimensions > 1) then
+	elseif (numberOfDimensions > 1) and (hasSameDimensionSize) then
 		
 		local remainingTargetDimensionSizeArray = removeFirstValueFromArray(targetDimensionSizeArray)
 		
 		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = AqwamTensorLibrary:expand(tensor[i], remainingTargetDimensionSizeArray) end
+		
+	elseif (numberOfDimensions > 1) and (not hasSameDimensionSize) then
+		
+		error()
 		
 	elseif (numberOfDimensions == 1) and (dimensionSize == 1) then
 		
@@ -607,6 +611,42 @@ function AqwamTensorLibrary:increaseNumberOfDimensions(tensor, dimensionSizeToAd
 	
 end
 
+local function getTheDimensionSizeArrayWithFewestNumberOfDimensionSizeOf1(dimensionSizeArray1, dimensionSizeArray2)
+	
+	local dimensionSizeOf1Count1 = 0
+	
+	local dimensionSizeOf1Count2 = 0
+	
+	for i = 1, #dimensionSizeArray1, 1 do
+		
+		if (dimensionSizeArray1[i] == 1) then dimensionSizeOf1Count1 = dimensionSizeOf1Count1 + 1 end
+		
+		if (dimensionSizeArray2[i] == 1) then dimensionSizeOf1Count2 = dimensionSizeOf1Count2 + 1 end
+		
+	end
+	
+	if (dimensionSizeOf1Count1 == 0) then
+		
+		return 2
+		
+	elseif (dimensionSizeOf1Count2 == 0) then
+		
+		return 1
+		
+	end
+	
+	if (dimensionSizeOf1Count1 < dimensionSizeOf1Count2) then
+		
+		return 1
+		
+	else
+		
+		return 2
+		
+	end
+	
+end
+
 function AqwamTensorLibrary:broadcastATensorIfDifferentSize(tensor1, tensor2)
 
 	local dimensionSizeArray1 = AqwamTensorLibrary:getSize(tensor1)
@@ -617,11 +657,11 @@ function AqwamTensorLibrary:broadcastATensorIfDifferentSize(tensor1, tensor2)
 
 	local numberOfDimensions2 = #dimensionSizeArray2
 
-	local haveSameNumberOfDimensions = (numberOfDimensions1 == numberOfDimensions2)
-
+	local haveSameNumberOfDimensions = (numberOfDimensions1 == numberOfDimensions2) -- Currently, if the number of dimensions have the same size, the tensor containing dimension with smaller axis will not expand. See case when tensor sizes are (5, 3, 6) and (5, 1, 6). So we need to be explicit in our dimensionSizeArrayWithHighestNumberOfDimensions variable.
+	
 	local isTensor1HaveLessNumberOfDimensions = (numberOfDimensions1 < numberOfDimensions2)
 
-	local tensorNumberWithLowestNumberOfDimensions = (isTensor1HaveLessNumberOfDimensions and 1) or 2
+	local tensorNumberWithLowestNumberOfDimensions = (haveSameNumberOfDimensions and getTheDimensionSizeArrayWithFewestNumberOfDimensionSizeOf1(dimensionSizeArray1, dimensionSizeArray2)) or (isTensor1HaveLessNumberOfDimensions and 1) or 2
 
 	local tensorWithLowestNumberOfDimensions = (isTensor1HaveLessNumberOfDimensions and tensor1) or tensor2
 
@@ -629,40 +669,35 @@ function AqwamTensorLibrary:broadcastATensorIfDifferentSize(tensor1, tensor2)
 
 	local dimensionSizeArrayWithHighestNumberOfDimensions = ((not isTensor1HaveLessNumberOfDimensions) and dimensionSizeArray1) or dimensionSizeArray2
 
-	local truncatedDimensionSizeArrayWithHighestNumberOfDimensions = table.clone(dimensionSizeArrayWithHighestNumberOfDimensions)
-
 	local lowestNumberOfDimensions = #dimensionSizeArrayWithLowestNumberOfDimensions
 
 	local highestNumberOfDimensions = #dimensionSizeArrayWithHighestNumberOfDimensions
 
 	local numberOfDimensionDifferences = highestNumberOfDimensions - lowestNumberOfDimensions
+	
+	local truncatedDimensionSizeArrayWithHighestNumberOfDimensions = table.clone(dimensionSizeArrayWithHighestNumberOfDimensions)
 
 	for i = 1, numberOfDimensionDifferences, 1 do -- We need to remove the extra dimensions from tensor with highest number of dimensions. The values are removed starting from the first so that we can compare the endings.
 
 		table.remove(truncatedDimensionSizeArrayWithHighestNumberOfDimensions, 1)
 
 	end
-
-	for i = lowestNumberOfDimensions, 1, -1 do -- Check if the endings are equal so that we can broadcast one of the tensor. If the endings are not equal, then we can't broadcast the tensor with the lowest number of dimensions.
+	
+	for i, dimensionSize in ipairs(dimensionSizeArrayWithLowestNumberOfDimensions) do -- Check if the endings are equal so that we can broadcast one of the tensor. If the dimension size are not equal and neither have dimension size of 1, then we can't broadcast the tensor with the lowest number of dimensions.
 		
-		local dimensionSize = truncatedDimensionSizeArrayWithHighestNumberOfDimensions[i]
+		if (dimensionSize ~=  truncatedDimensionSizeArrayWithHighestNumberOfDimensions[i]) and (dimensionSize ~= 1) then onBroadcastError(dimensionSizeArray1, dimensionSizeArray2) end
 		
-		if (dimensionSize ~= dimensionSizeArrayWithLowestNumberOfDimensions[i]) and (dimensionSize ~= 1) then onBroadcastError(dimensionSizeArray1, dimensionSizeArray2) end
-
 	end
 
 	local dimensionSizeToAddArray = {}
 
-	for i = 1, numberOfDimensionDifferences, 1 do
-
-		table.insert(dimensionSizeToAddArray, dimensionSizeArrayWithHighestNumberOfDimensions[i])
-
-	end
-	
+	for i = 1, numberOfDimensionDifferences, 1 do table.insert(dimensionSizeToAddArray, dimensionSizeArrayWithHighestNumberOfDimensions[i]) end -- Get the dimension sizes of the left part of dimension size array.
 	
 	local expandedTensor = AqwamTensorLibrary:increaseNumberOfDimensions(tensorWithLowestNumberOfDimensions, dimensionSizeToAddArray)
 	
 	expandedTensor = AqwamTensorLibrary:expand(expandedTensor, dimensionSizeArrayWithHighestNumberOfDimensions)
+	
+	print(AqwamTensorLibrary:getSize(expandedTensor))
 
 	if (tensorNumberWithLowestNumberOfDimensions == 1) then
 
