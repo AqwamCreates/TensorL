@@ -687,7 +687,7 @@ function AqwamTensorLibrary:createRandomNormalTensor(dimensionSizeArray, mean, s
 
 end
 
-local function createRandomUniformTensor(dimensionSizeArray)
+local function createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue)
 	
 	local tensor = {}
 
@@ -699,7 +699,7 @@ local function createRandomUniformTensor(dimensionSizeArray)
 
 	else
 
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = math.random() end
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = math.random(minimumValue, maximumValue) end
 
 	end
 
@@ -707,11 +707,11 @@ local function createRandomUniformTensor(dimensionSizeArray)
 	
 end
 
-function AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray)
+function AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue)
 	
 	dimensionSizeArray = AqwamTensorLibrary:truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
 	
-	return createRandomUniformTensor(dimensionSizeArray)
+	return createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue)
 
 end
 
