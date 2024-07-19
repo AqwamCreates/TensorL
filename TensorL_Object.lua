@@ -617,8 +617,6 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 	
 	if (not canNextDimensionBeExpanded) and (not hasSameNextDimensionSize) then
 		
-		print(tensor, targetDimensionSizeArray)
-		
 		error("Unable to expand.")
 		
 	elseif (numberOfDimensions > 1) and (not hasSameNextDimensionSize) then
