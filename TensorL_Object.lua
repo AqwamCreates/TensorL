@@ -595,15 +595,13 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 	
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
 	
-	if checkIfHasSameDimensionSizeArray(dimensionSizeArray, targetDimensionSizeArray) then return tensor end
+	if checkIfHasSameDimensionSizeArray(dimensionSizeArray, targetDimensionSizeArray) then return deepCopyTable(tensor) end -- Do not remove this even if the code below is related or function similar to this code.
 	
 	local numberOfDimensions = #dimensionSizeArray
 	
 	local dimensionSize = dimensionSizeArray[1]
 	
 	local targetDimensionSize = targetDimensionSizeArray[1]
-	
-	local hasSameDimensionSize = (dimensionSize == targetDimensionSize)
 	
 	local nextDimensionSize = dimensionSizeArray[2]
 	
@@ -635,7 +633,7 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 			
 		end
 		
-	elseif (numberOfDimensions > 2) and (hasSameNextDimensionSize) then
+	elseif (numberOfDimensions > 2) and (hasSameNextDimensionSize) then -- Do not remove this even if the code above is related or function similar to this code.
 
 		newTensor = deepCopyTable(tensor)
 		
