@@ -543,54 +543,6 @@ local function onBroadcastError(dimensionSizeArray1, dimensionSizeArray2)
 
 end
 
---[[
-
-function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
-	
-	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
-	
-	if checkIfHasSameDimensionSizeArray(dimensionSizeArray, targetDimensionSizeArray) then return tensor end
-	
-	local numberOfDimensions = #dimensionSizeArray
-	
-	local dimensionSize = dimensionSizeArray[1]
-	
-	local targetDimensionSize = targetDimensionSizeArray[1]
-	
-	local canBeExpanded = (dimensionSize == 1)
-	
-	local hasSameDimensionSize = (dimensionSize == targetDimensionSize)
-	
-	local newTensor = {}
-	
-	if (not canBeExpanded) and (not hasSameDimensionSize) then
-		
-		error("Unable to expand.")
-	
-	elseif (numberOfDimensions > 1) and (hasSameDimensionSize) then
-		
-		local remainingTargetDimensionSizeArray = removeFirstValueFromArray(targetDimensionSizeArray)
-		
-		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = AqwamTensorLibrary:expand(tensor[i], remainingTargetDimensionSizeArray) end
-		
-	elseif (numberOfDimensions > 1) and (not hasSameDimensionSize) then
-		
-		error()
-		
-	elseif (numberOfDimensions == 1) and (canBeExpanded) then
-		
-		for i = 1, targetDimensionSize, 1 do table.insert(newTensor, tensor[1]) end
-		
-	end
-	
-	return newTensor
-	
-end
-
---]]
-
-
-
 function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 	
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
