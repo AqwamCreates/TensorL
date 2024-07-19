@@ -537,13 +537,11 @@ local function onBroadcastError(dimensionSizeArray1, dimensionSizeArray2)
 	
 	local tensor2DimensionSizeArrayString = getTensorDimensionSizeArrayString(dimensionSizeArray2)
 
-	local errorMessage = "Unable to broadcast. \n" .. "Tensor 1 size: " .. tensor1DimensionSizeArrayString .."\n" .. "Tensor 2 size: " .. tensor2DimensionSizeArrayString .."\n"
+	local errorMessage = "Unable to broadcast. \n\n" .. "Tensor 1 size: " .. tensor1DimensionSizeArrayString .."\n" .. "Tensor 2 size: " .. tensor2DimensionSizeArrayString .."\n\n"
 	
 	error(errorMessage)
 
 end
-
-
 
 function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 	
@@ -660,7 +658,8 @@ function AqwamTensorLibrary:broadcastATensorIfDifferentSize(tensor1, tensor2)
 		table.insert(dimensionSizeToAddArray, dimensionSizeArrayWithHighestNumberOfDimensions[i])
 
 	end
-
+	
+	
 	local expandedTensor = AqwamTensorLibrary:increaseNumberOfDimensions(tensorWithLowestNumberOfDimensions, dimensionSizeToAddArray)
 	
 	expandedTensor = AqwamTensorLibrary:expand(expandedTensor, dimensionSizeArrayWithHighestNumberOfDimensions)
