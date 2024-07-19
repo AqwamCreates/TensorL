@@ -651,7 +651,7 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 
 		local remainingTargetDimensionSizeArray = removeFirstValueFromArray(targetDimensionSizeArray)
 
-		for i = 1, targetDimensionSizeArray[1], 1 do t[i] = AqwamTensorLibrary:expand(newTensor[i], remainingTargetDimensionSizeArray) end
+		for i = 1, targetDimensionSizeArray[1], 1 do newTensor[i] = AqwamTensorLibrary:expand(newTensor[i], remainingTargetDimensionSizeArray) end
 
 	end
 	
