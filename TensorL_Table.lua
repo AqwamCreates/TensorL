@@ -1478,6 +1478,22 @@ local function convertTensorToScalar(tensor)
 	
 end
 
+function AqwamTensorLibrary:getProperTensorFormatIfRequired(tensor)
+	
+	local resultTensorDimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
+	if (resultTensorDimensionSizeArray == nil) then return tensor end -- If our tensor is actually a scalar, just return the number.
+
+	for _, size in ipairs(resultTensorDimensionSizeArray) do -- Return the original tensor if any dimension sizes are not equal to 1.
+
+		if (size ~= 1) then return AqwamTensorLibrary:truncateTensorIfRequired(tensor) end
+
+	end
+
+	return convertTensorToScalar(tensor)
+	
+end
+
 function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a fucking headache to do this. https://medium.com/@hunter-j-phillips/a-simple-introduction-to-tensors-c4a8321efffc
 	
 	local tensorArray = {...}
@@ -1524,17 +1540,7 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 		
 	end
 	
-	local resultTensorDimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
-	
-	if (resultTensorDimensionSizeArray == nil) then return tensor end -- If our tensor is actually a scalar, just return the number.
-	
-	for _, size in ipairs(resultTensorDimensionSizeArray) do -- Return the original tensor if any dimension sizes are not equal to 1.
-		
-		if (size ~= 1) then return AqwamTensorLibrary:truncateTensorIfRequired(tensor) end
-		
-	end
-	
-	return convertTensorToScalar(tensor)
+	return AqwamTensorLibrary:getProperTensorFormatIfRequired(tensor)
 	
 end
 
@@ -1869,18 +1875,49 @@ end
 
 function AqwamTensorLibrary:mean(tensor, dimension)
 	
+	local size = (dimension and AqwamTensorLibrary:getSize(tensor)[dimension]) or AqwamTensorLibrary:getTotalSize(tensor)
+	
 	local sumTensor = AqwamTensorLibrary:sum(tensor, dimension)
 	
+	local meanTensor = AqwamTensorLibrary:divide(sumTensor, size)
+	
+	return AqwamTensorLibrary:getProperTensorFormatIfRequired(tensor)
 	
 end
 	
 function AqwamTensorLibrary:standardDeviation(tensor, dimension)
 	
+	local size = (dimension and AqwamTensorLibrary:getSize(tensor)[dimension]) or AqwamTensorLibrary:getTotalSize(tensor)
+	
+	local meanTensor = AqwamTensorLibrary:mean(tensor, dimension)
+
+	local subtractedTensor = AqwamTensorLibrary:subtract(tensor, meanTensor)
+
+	local squaredSubractedTensor = AqwamTensorLibrary:power(subtractedTensor, 2)
+
+	local summedSquaredSubtractedTensor = AqwamTensorLibrary:sum(squaredSubractedTensor, dimension)
+
+	local squaredStandardDeviationTensor = AqwamTensorLibrary:divide(summedSquaredSubtractedTensor, size)
+
+	local standardDeviationTensor = AqwamTensorLibrary:power(squaredSubractedTensor, 0.5)
+
+	local standardDeviationTensorSizeArray = AqwamTensorLibrary:getSize(standardDeviationTensor)
+	
+	return AqwamTensorLibrary:getProperTensorFormatIfRequired(tensor)
 	
 end
 
 function AqwamTensorLibrary:zScoreNormalize(tensor, dimension)
 	
+	local meanTensor = AqwamTensorLibrary:mean(tensor, dimension)
+
+	local standardDeviationTensor = AqwamTensorLibrary:standardDeviation(tensor, dimension)
+
+	local subtractedTensor = AqwamTensorLibrary:subtract(tensor, meanTensor)
+
+	local normalizedTensor = AqwamTensorLibrary:divide(subtractedTensor, standardDeviationTensor)
+
+	return normalizedTensor, meanTensor, standardDeviationTensor
 	
 end
 
