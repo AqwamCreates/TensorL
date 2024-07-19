@@ -1436,15 +1436,11 @@ local function tensor2DDotProduct(tensor1, tensor2)
 
 end
 
-local function recursiveExpandedDotProduct(subTensor1, subTensor2)
+local function recursiveExpandedDotProduct(subTensor1, subTensor2) -- Since both have equal number of dimensions now, we only need to use only one dimension size array.
 
 	local subDimensionSizeArray1 = AqwamTensorLibrary:getSize(subTensor1)
 
-	local subDimensionSizeArray2 = AqwamTensorLibrary:getSize(subTensor2)
-
-	local numberOfDimensions1 = #subDimensionSizeArray2
-
-	local numberOfDimensions2 = #subDimensionSizeArray2
+	local numberOfDimensions1 = #subDimensionSizeArray1
 
 	local subTensor = {}
 
@@ -1452,7 +1448,7 @@ local function recursiveExpandedDotProduct(subTensor1, subTensor2)
 
 		for i = 1, subDimensionSizeArray1[1], 1 do subTensor[i] = recursiveExpandedDotProduct(subTensor1[i], subTensor2[i]) end
 
-	elseif (numberOfDimensions1 == 2) then
+	elseif (numberOfDimensions1 == 2) then -- No need an elseif statement where number of dimension is 1. This operation requires 2D tensors.
 
 		subTensor = tensor2DDotProduct(subTensor1, subTensor2)
 
