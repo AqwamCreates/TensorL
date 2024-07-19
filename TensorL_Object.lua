@@ -575,7 +575,7 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 		
 		error()
 		
-	elseif (numberOfDimensions == 1) and (dimensionSize == 1) then
+	elseif (numberOfDimensions == 1) and (canBeExpanded) then
 		
 		for i = 1, targetDimensionSize, 1 do table.insert(newTensor, tensor[1]) end
 		
