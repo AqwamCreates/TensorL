@@ -529,29 +529,37 @@ end
 
 function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 	
-	local expandedTensor = {}
-	
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
-
+	
 	local numberOfDimensions = #dimensionSizeArray
 	
 	local dimensionSize = dimensionSizeArray[1]
 	
 	local targetDimensionSize = targetDimensionSizeArray[1]
 	
-	if (numberOfDimensions > 1) then
+	local canBeExpanded = (dimensionSize == 1)
+	
+	local hasSameDimensionSize = (dimensionSize == targetDimensionSize)
+	
+	local newTensor = {}
+	
+	if (not canBeExpanded) and (not hasSameDimensionSize) then
+		
+		error("Cannot expand.")
+	
+	elseif (numberOfDimensions > 1) then
 		
 		local remainingTargetDimensionSizeArray = removeFirstValueFromArray(targetDimensionSizeArray)
 		
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = AqwamTensorLibrary:expand(tensor[i], remainingTargetDimensionSizeArray) end
+		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = AqwamTensorLibrary:expand(tensor[i], remainingTargetDimensionSizeArray) end
+		
+	elseif (numberOfDimensions == 1) and (dimensionSize == 1) then
+		
+		for i = 1, targetDimensionSize, 1 do table.insert(newTensor, tensor[1]) end
 		
 	end
 	
-	local value = tensor[1]
-	
-	for i = 1, targetDimensionSize, 1 do table.insert(expandedTensor, deepCopyTable(value)) end
-	
-	return expandedTensor
+	return newTensor
 	
 end
 
