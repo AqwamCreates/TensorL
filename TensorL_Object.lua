@@ -712,8 +712,6 @@ function AqwamTensorLibrary:broadcastATensorIfDifferentSize(tensor1, tensor2)
 	local expandedTensor = AqwamTensorLibrary:increaseNumberOfDimensions(tensorWithLowestNumberOfDimensions, dimensionSizeToAddArray)
 	
 	expandedTensor = AqwamTensorLibrary:expand(expandedTensor, dimensionSizeArrayWithHighestNumberOfDimensions)
-	
-	print(AqwamTensorLibrary:getSize(expandedTensor))
 
 	if (tensorNumberWithLowestNumberOfDimensions == 1) then
 
