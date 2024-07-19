@@ -1176,172 +1176,6 @@ function AqwamTensorLibrary:transpose(tensor, dimensionIndexArray)
 	
 end
 
-local function dotProduct(tensor1, tensor2) -- Best one. Do not delete!
-
-	local tensor1DimensionSizeArray = AqwamTensorLibrary:getSize(tensor1)
-
-	local tensor2DimensionSizeArray = AqwamTensorLibrary:getSize(tensor2)
-
-	local numberOfDimensions1 = #tensor1DimensionSizeArray
-
-	local numberOfDimensions2 = #tensor2DimensionSizeArray
-
-	local tensor = {}
-	
-	if (numberOfDimensions1 == 1) and (numberOfDimensions2 == 2) then
-		
-		for i = 1, #tensor1, 1 do -- Last dimension, so represents columns.
-			
-			tensor[i] = 0
-			
-			for j = 1, #tensor2[1], 1 do tensor[i] = (tensor1[i] * tensor2[i][j]) end -- Since tensor 1 column size matches with tensor 2 row size, we can use column index from tensor 1.
-			
-		end
-		
-	elseif (numberOfDimensions1 == 2) and (numberOfDimensions2 == 2) then
-		
-		local tensor1Row = #tensor1
-
-		local tensor1Column = #tensor1[1]
-
-		local tensor2Column = #tensor2[1]
-
-		for row = 1, tensor1Row, 1 do
-
-			tensor[row] = {}
-
-			for column = 1, tensor2Column, 1 do
-
-				local sum = 0
-
-				for i = 1, tensor1Column do sum = sum + (tensor1[row][i] * tensor2[i][column]) end
-
-				tensor[row][column] = sum
-
-			end
-
-		end
-		
-	elseif (numberOfDimensions1 > 1) and (numberOfDimensions2 > 2) then
-		
-		for i = 1, tensor1DimensionSizeArray[1] do tensor[i] = dotProduct(tensor1[i], tensor2[i]) end
-		
-	elseif (numberOfDimensions1 > 1) and (numberOfDimensions2 == 2) then
-		
-		for i = 1, tensor1DimensionSizeArray[1] do tensor = dotProduct(tensor1[i], tensor2) end
-		
-	elseif (numberOfDimensions1 == 1) and (numberOfDimensions2 > 2) then
-		
-		for i = 1, tensor2DimensionSizeArray[1] do tensor = dotProduct(tensor1, tensor2[i]) end
-		
-	elseif (numberOfDimensions1 > 1) and (numberOfDimensions2 == 1) then
-		
-		for i = 1, tensor1DimensionSizeArray[1], 1 do
-			
-			for j = 1, tensor1DimensionSizeArray[2], 1 do 
-				
-				tensor[i] = {}
-				
-				local sum = 0
-				
-				for k = 1, tensor2DimensionSizeArray[1] do
-					
-					sum = sum + (tensor1[i][j] * tensor2[k]) 
-					
-				end
-				
-				tensor[i][j] = sum
-				
-			end
-			
-		end
-		
-	elseif (numberOfDimensions1 == 0) or (numberOfDimensions2 == 0) then
-		
-		tensor = AqwamTensorLibrary:multiply(tensor1, tensor2)
-		
-	else
-	
-		error({numberOfDimensions1, numberOfDimensions2})
-	
-	end
-
-	return tensor
-
-end
-
-local function nestedDotProduct(tensor1, tensor2)
-	
-	local numberOfDimensions1 = AqwamTensorLibrary:getNumberOfDimensions(tensor1)
-
-	local numberOfDimensions2 = AqwamTensorLibrary:getNumberOfDimensions(tensor2)
-	
-	local highestNumberOfDimensions = math.max(numberOfDimensions1, numberOfDimensions2)
-
-	local numberOfDimensionsOffset1 = highestNumberOfDimensions - numberOfDimensions1
-
-	local numberOfDimensionsOffset2 = highestNumberOfDimensions - numberOfDimensions2
-
-	local expandedTensor1 = AqwamTensorLibrary:expand(tensor1, table.create(numberOfDimensionsOffset1, 1))
-
-	local expandedTensor2 = AqwamTensorLibrary:expand(tensor2, table.create(numberOfDimensionsOffset2, 1))
-	
-	local function subTensorDotProduct(subTensor1, subTensor2)
-		
-		AqwamTensorLibrary:printTensor(subTensor1)
-
-		AqwamTensorLibrary:printTensor(subTensor2)
-		
-		local subTensor = {}
-		
-		for a = 1, #subTensor2, 1 do
-
-			local sum = 0
-
-			for b = 1, #subTensor1, 1 do sum = sum + (subTensor1[b] * subTensor2[b][a]) end
-
-			subTensor[a] = sum
-
-		end
-		
-		return subTensor
-		
-	end
-	
-	local function recursiveNestedDotProduct(subTensor1, subTensor2)
-		
-		local subDimensionSizeArray1 = AqwamTensorLibrary:getSize(subTensor1)
-		
-		local subDimensionSizeArray2 = AqwamTensorLibrary:getSize(subTensor2)
-		
-		local numberOfDimensions2 = #subDimensionSizeArray2
-		
-		local dotProductedTensor = {}
-		
-		if (numberOfDimensions2 >= 4) then
-			
-			for i = 1, subDimensionSizeArray1[1], 1 do dotProductedTensor[i] = recursiveNestedDotProduct(subTensor1[i], subTensor2[i]) end
-			
-		else
-			
-			for i = 1, subDimensionSizeArray2[1], 1 do dotProductedTensor[i] = subTensorDotProduct(subTensor1[i], subTensor2[i]) end
-			
-		end
-		
-		return dotProductedTensor
-		
-	end
-	
-	print("Dot Product!")
-	
-	local tensor = recursiveNestedDotProduct(expandedTensor1, expandedTensor2)
-	
-	print("Dot end!")
-	
-	return AqwamTensorLibrary:truncateTensorIfRequired(tensor)
-	
-end
-
 --[[
 
 local function dotProduct(tensor1, tensor2) -- Second best one
@@ -1478,6 +1312,186 @@ end
 
 --]]
 
+local function dotProduct(tensor1, tensor2) -- Best one. Do not delete!
+
+	local tensor1DimensionSizeArray = AqwamTensorLibrary:getSize(tensor1)
+
+	local tensor2DimensionSizeArray = AqwamTensorLibrary:getSize(tensor2)
+
+	local numberOfDimensions1 = #tensor1DimensionSizeArray
+
+	local numberOfDimensions2 = #tensor2DimensionSizeArray
+
+	local tensor = {}
+
+	if (numberOfDimensions1 == 1) and (numberOfDimensions2 == 2) then
+
+		for i = 1, #tensor1, 1 do -- Last dimension, so represents columns.
+
+			tensor[i] = 0
+
+			for j = 1, #tensor2[1], 1 do tensor[i] = (tensor1[i] * tensor2[i][j]) end -- Since tensor 1 column size matches with tensor 2 row size, we can use column index from tensor 1.
+
+		end
+
+	elseif (numberOfDimensions1 == 2) and (numberOfDimensions2 == 2) then
+
+		local tensor1Row = #tensor1
+
+		local tensor1Column = #tensor1[1]
+
+		local tensor2Column = #tensor2[1]
+
+		for row = 1, tensor1Row, 1 do
+
+			tensor[row] = {}
+
+			for column = 1, tensor2Column, 1 do
+
+				local sum = 0
+
+				for i = 1, tensor1Column do sum = sum + (tensor1[row][i] * tensor2[i][column]) end
+
+				tensor[row][column] = sum
+
+			end
+
+		end
+
+	elseif (numberOfDimensions1 > 1) and (numberOfDimensions2 > 2) then
+
+		for i = 1, tensor1DimensionSizeArray[1] do tensor[i] = dotProduct(tensor1[i], tensor2[i]) end
+
+	elseif (numberOfDimensions1 > 1) and (numberOfDimensions2 == 2) then
+
+		for i = 1, tensor1DimensionSizeArray[1] do tensor = dotProduct(tensor1[i], tensor2) end
+
+	elseif (numberOfDimensions1 == 1) and (numberOfDimensions2 > 2) then
+
+		for i = 1, tensor2DimensionSizeArray[1] do tensor = dotProduct(tensor1, tensor2[i]) end
+
+	elseif (numberOfDimensions1 > 1) and (numberOfDimensions2 == 1) then
+
+		for i = 1, tensor1DimensionSizeArray[1], 1 do
+
+			for j = 1, tensor1DimensionSizeArray[2], 1 do 
+
+				tensor[i] = {}
+
+				local sum = 0
+
+				for k = 1, tensor2DimensionSizeArray[1] do
+
+					sum = sum + (tensor1[i][j] * tensor2[k]) 
+
+				end
+
+				tensor[i][j] = sum
+
+			end
+
+		end
+
+	elseif (numberOfDimensions1 == 0) or (numberOfDimensions2 == 0) then
+
+		tensor = AqwamTensorLibrary:multiply(tensor1, tensor2)
+
+	else
+
+		error({numberOfDimensions1, numberOfDimensions2})
+
+	end
+
+	return tensor
+
+end
+
+local function tensor2DDotProduct(tensor1, tensor2)
+
+	local subTensor = {}
+
+	local tensor1Row = #tensor1
+
+	local tensor1Column = #tensor1[1]
+
+	local tensor2Column = #tensor2[1]
+
+	for row = 1, tensor1Row, 1 do
+
+		subTensor[row] = {}
+
+		for column = 1, tensor2Column, 1 do
+
+			local sum = 0
+
+			for i = 1, tensor1Column do sum = sum + (tensor1[row][i] * tensor2[i][column]) end
+
+			subTensor[row][column] = sum
+
+		end
+
+	end
+
+	return subTensor
+
+end
+
+local function recursiveExpandedDotProduct(subTensor1, subTensor2)
+
+	local subDimensionSizeArray1 = AqwamTensorLibrary:getSize(subTensor1)
+
+	local subDimensionSizeArray2 = AqwamTensorLibrary:getSize(subTensor2)
+
+	local numberOfDimensions1 = #subDimensionSizeArray2
+
+	local numberOfDimensions2 = #subDimensionSizeArray2
+
+	local subTensor = {}
+
+	if (numberOfDimensions2 >= 4) then
+
+		for i = 1, subDimensionSizeArray1[1], 1 do subTensor[i] = recursiveExpandedDotProduct(subTensor1[i], subTensor2[i]) end
+
+	elseif (numberOfDimensions2 == 3) then
+
+		for i = 1, subDimensionSizeArray2[1], 1 do subTensor[i] = tensor2DDotProduct(subTensor1[i], subTensor2[i]) end
+
+	elseif (numberOfDimensions2 == 2) then
+
+		subTensor = tensor2DDotProduct(subTensor1, subTensor2)
+
+	elseif (numberOfDimensions1 == 1) or (numberOfDimensions2 == 1) then
+
+		subTensor = AqwamTensorLibrary:multiply(subTensor1, subTensor2)
+
+	end
+
+	return subTensor
+
+end
+
+local function expandedDotProduct(tensor1, tensor2)
+
+	local numberOfDimensions1 = AqwamTensorLibrary:getNumberOfDimensions(tensor1)
+
+	local numberOfDimensions2 = AqwamTensorLibrary:getNumberOfDimensions(tensor2)
+
+	local highestNumberOfDimensions = math.max(numberOfDimensions1, numberOfDimensions2)
+
+	local numberOfDimensionsOffset1 = highestNumberOfDimensions - numberOfDimensions1
+
+	local numberOfDimensionsOffset2 = highestNumberOfDimensions - numberOfDimensions2
+
+	local expandedTensor1 = AqwamTensorLibrary:expand(tensor1, table.create(numberOfDimensionsOffset1, 1))
+
+	local expandedTensor2 = AqwamTensorLibrary:expand(tensor2, table.create(numberOfDimensionsOffset2, 1))
+
+	local tensor = recursiveExpandedDotProduct(expandedTensor1, expandedTensor2)
+
+	return AqwamTensorLibrary:truncateTensorIfRequired(tensor)
+
+end
+
 local function hardcodedDotProduct(tensor1, tensor2)
 	
 	local numberOfDimensions1 = AqwamTensorLibrary:getNumberOfDimensions(tensor1)
@@ -1612,7 +1626,7 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 			
 		end
 		
-		tensor = nestedDotProduct(tensor, otherTensor)
+		tensor = expandedDotProduct(tensor, otherTensor)
 		
 	end
 	
