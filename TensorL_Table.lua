@@ -50,6 +50,16 @@ local function removeFirstValueFromArray(array)
 	
 end
 
+local function removeLastValueFromArray(array)
+
+	local newArray = table.clone(array)
+
+	table.remove(newArray, 1)
+
+	return newArray
+
+end
+
 local function deepCopyTable(original, copies)
 
 	copies = copies or {}
@@ -539,6 +549,8 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray, dimensionIn
 		
 	end
 	
+	--AqwamTensorLibrary:printTensor(expandedTensor)
+	
 	local targetDimensionSize = targetDimensionSizeArray[1]
 	
 	local dimensionSizeDifference = targetDimensionSize - dimensionSize
@@ -547,7 +559,45 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray, dimensionIn
 
 	local subTensorToCopy = tensor[dimensionIndexToCopy]
 	
-	for i = 1, dimensionSizeDifference, 1 do table.insert(expandedTensor, deepCopyTable(subTensorToCopy)) end
+	print(dimensionSizeDifference)
+	
+	--for i = 1, dimensionSizeDifference, 1 do table.insert(expandedTensor, deepCopyTable(subTensorToCopy)) end
+	
+	return expandedTensor
+	
+end
+
+function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray, dimensionIndexToCopyArray)
+	
+	dimensionIndexToCopyArray = dimensionIndexToCopyArray or {}
+	
+	local expandedTensor = {}
+	
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
+	local numberOfDimensions = #dimensionSizeArray
+	
+	local dimensionSize = dimensionSizeArray[1]
+	
+	local dimensionIndexToCopy = dimensionIndexToCopyArray[1] or 1
+	
+	if (numberOfDimensions > 1) then
+		
+		local remainingTargetDimensionSizeArray = removeFirstValueFromArray(targetDimensionSizeArray)
+
+		local remainingDimensionIndexToCopyArray = removeFirstValueFromArray(dimensionIndexToCopyArray)
+		
+		for i = 1, dimensionSizeArray[1], 1 do expandedTensor[i] = AqwamTensorLibrary:expand(tensor[i], remainingTargetDimensionSizeArray, remainingDimensionIndexToCopyArray) end
+		
+	end
+	
+	local targetDimensionSize = targetDimensionSizeArray[1]
+	
+	local dimensionSizeDifference = targetDimensionSize - dimensionSize
+	
+	local value = tensor[dimensionIndexToCopy]
+	
+	for i = 1, targetDimensionSizeArray[1], 1 do table.insert(expandedTensor, deepCopyTable(value)) end
 	
 	return expandedTensor
 	
@@ -556,14 +606,16 @@ end
 function AqwamTensorLibrary:increaseNumberOfDimensions(tensor, dimensionSizeToAddArray)
 	
 	local newTensor = {}
+	
+	local numberOfDimensionsToAdd = #dimensionSizeToAddArray
 
-	if (#dimensionSizeToAddArray > 1) then
-
+	if (numberOfDimensionsToAdd > 1) then
+		
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeToAddArray)
 
 		for i = 1, dimensionSizeToAddArray[1], 1 do newTensor[i] = AqwamTensorLibrary:increaseNumberOfDimensions(tensor, remainingDimensionSizeArray) end
 
-	elseif (#dimensionSizeToAddArray == 1) then
+	elseif (numberOfDimensionsToAdd == 1) then
 
 		for i = 1, dimensionSizeToAddArray[1], 1 do newTensor[i] = deepCopyTable(tensor) end
 
