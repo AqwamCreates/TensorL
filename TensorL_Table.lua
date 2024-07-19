@@ -28,6 +28,18 @@
 
 local AqwamTensorLibrary = {}
 
+local function checkIfDimensionIsOutOfBounds(dimension, minimumNumberOfDimensions, maximumNumberOfDimensions)
+	
+	if (dimension < minimumNumberOfDimensions) or  (dimension > maximumNumberOfDimensions) then error("The dimension is out of bounds.") end
+	
+end
+
+local function checkIfDimensionSizeIndexIsOutOfBounds(dimensionSizeIndex, minimumDimensionSizeIndex, maximumDimensionSizeIndex)
+	
+	if (dimensionSizeIndex < minimumDimensionSizeIndex) or (dimensionSizeIndex > maximumDimensionSizeIndex) then error("The dimension size index is out of bounds.") end
+	
+end
+
 local function removeFirstValueFromArray(array)
 	
 	local newArray = {}
@@ -1791,7 +1803,161 @@ local function fullSum(tensor)
 
 end
 
-local function dimensionSum(tensor, targetDimension, currentDimension)
+--[[
+
+local function subTensorSum(tensor)
+	
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+	
+	local sumDimensionalSizeArray = table.clone(dimensionSizeArray)
+	
+	sumDimensionalSizeArray[1] = 1
+	
+	for a = 1, dimensionSizeArray[1], 1 do
+		
+		for b = 1, dimensionSizeArray[2], 1 do
+			
+			for c = 1, dimensionSizeArray[3], 1 do
+				
+				sumDimensionalSizeArray[1][b][c] = sumDimensionalSizeArray[1][b][c] + tensor[a][b][c]
+				
+			end
+			
+		end
+
+	end
+	
+end
+
+--]]
+
+function AqwamTensorLibrary:setTensorValue(tensor, value, dimensionIndexArray)
+	
+	local dimensionIndex = dimensionIndexArray[1]
+	
+	local numberOfDimensionIndices = #dimensionIndexArray
+
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	if (numberOfDimensionIndices > 0) and (numberOfDimensions == 0) then
+
+		error("The number of indices exceeds the tensor's number of dimensions.")
+
+	elseif (numberOfDimensionIndices == 0) and (numberOfDimensions > 0) then
+
+		error("The number of indices is less than the tensor's number of dimensions.")
+	
+	elseif (numberOfDimensionIndices >= 2) then
+		
+		checkIfDimensionSizeIndexIsOutOfBounds(dimensionIndex, 1, dimensionSizeArray[1])
+		
+		local remainingIndexArray = removeFirstValueFromArray(dimensionIndexArray)
+		
+		AqwamTensorLibrary:setTensorValue(tensor[dimensionIndex], value, remainingIndexArray)
+		
+	elseif (numberOfDimensionIndices == 1) and (AqwamTensorLibrary:getNumberOfDimensions(tensor) == 1) then
+		
+		tensor[dimensionIndex] = value
+		
+	else
+	
+		error("An error has occurred when attempting to set a tensor value.")
+		
+	end
+	
+end
+
+function AqwamTensorLibrary:getTensorValue(tensor, dimensionIndexArray)
+
+	local dimensionIndex = dimensionIndexArray[1]
+
+	local numberOfDimensionIndices = #dimensionIndexArray
+	
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+	
+	local numberOfDimensions = #dimensionSizeArray
+	
+	if (numberOfDimensionIndices > 0) and (numberOfDimensions == 0) then
+
+		error("The number of indices exceeds the tensor's number of dimensions.")
+
+	elseif (numberOfDimensionIndices == 0) and (numberOfDimensions > 0) then
+
+		error("The number of indices is less than the tensor's number of dimensions.")
+
+	elseif (numberOfDimensionIndices >= 2) then
+		
+		checkIfDimensionSizeIndexIsOutOfBounds(dimensionIndex, 1, dimensionSizeArray[1])
+
+		local remainingIndexArray = removeFirstValueFromArray(dimensionIndexArray)
+
+		return AqwamTensorLibrary:getTensorValue(tensor[dimensionIndex], remainingIndexArray)
+
+	elseif (numberOfDimensionIndices == 1) and (numberOfDimensions == 1) then
+
+		return tensor[dimensionIndex]
+
+	else
+
+		error("An error has occurred when attempting to get a tensor value.")
+
+	end
+
+end
+
+local function recursiveSubTensorSumAlongFirstDimension(targetTensor, tensor, currentLocationArray)
+	
+	currentLocationArray = currentLocationArray or {}
+
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	if (numberOfDimensions >= 1) then
+
+		for i = 1, dimensionSizeArray[1], 1 do
+
+			local copyOfCurrentLocationArray = table.clone(currentLocationArray)
+
+			table.insert(copyOfCurrentLocationArray, i)
+
+			recursiveSubTensorSumAlongFirstDimension(targetTensor, tensor[i], copyOfCurrentLocationArray)
+
+		end
+
+	else
+		
+		currentLocationArray[1] = 1
+		
+		local targetTensorValue = AqwamTensorLibrary:getTensorValue(targetTensor, currentLocationArray)
+		
+		local value = targetTensorValue + tensor
+
+		AqwamTensorLibrary:setTensorValue(targetTensor, value, currentLocationArray)
+
+	end	
+
+end
+
+local function subTensorSumAlongFirstDimension(tensor)
+
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
+	local sumDimensionalSizeArray = table.clone(dimensionSizeArray)
+
+	sumDimensionalSizeArray[1] = 1
+	
+	local sumTensor = createTensor(sumDimensionalSizeArray, 0)
+	
+	recursiveSubTensorSumAlongFirstDimension(sumTensor, tensor)
+	
+	return sumTensor
+
+end
+
+local function dimensionSum(tensor, targetDimension, currentDimension, currentLocation)
 	
 	currentDimension = currentDimension or 1
 	
@@ -1799,17 +1965,15 @@ local function dimensionSum(tensor, targetDimension, currentDimension)
 
 	local numberOfDimensions = #dimensionSizeArray
 	
-	local newTensor = {}
+	local newTensor
 	
 	if (currentDimension == targetDimension) then
 		
-		for i = 1, dimensionSizeArray[1], 1 do newTensor[1] = dimensionSum(tensor[i], targetDimension, currentDimension + 1) end
-		
-	elseif (currentDimension > targetDimension) then -- Notice that there is still multiple dimension after the target dimension index.
-		
-		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = dimensionSum(tensor[i], targetDimension, currentDimension + 1) end
+		newTensor = subTensorSumAlongFirstDimension(tensor)
 		
 	else
+		
+		newTensor = {}
 		
 		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = dimensionSum(tensor[i], targetDimension, currentDimension + 1) end
 		
@@ -1973,9 +2137,11 @@ function AqwamTensorLibrary:sum(tensor, dimension)
 
 	local numberOfDimensions = #AqwamTensorLibrary:getSize(tensor)
 
-	if (dimension <= 0) or (dimension > numberOfDimensions) then error("The dimension is out of bounds.") end
+	checkIfDimensionIsOutOfBounds(dimension, 1, numberOfDimensions)
+	
+	local sumTensor = dimensionSum(tensor, dimension)
 
-	return dimensionSum(tensor, dimension)
+	return AqwamTensorLibrary:getProperTensorFormatIfRequired(sumTensor)
 
 end
 
