@@ -1448,19 +1448,15 @@ local function recursiveExpandedDotProduct(subTensor1, subTensor2)
 
 	local subTensor = {}
 
-	if (numberOfDimensions2 >= 4) then
+	if (numberOfDimensions1 >= 3) then
 
 		for i = 1, subDimensionSizeArray1[1], 1 do subTensor[i] = recursiveExpandedDotProduct(subTensor1[i], subTensor2[i]) end
 
-	elseif (numberOfDimensions2 == 3) then
-
-		for i = 1, subDimensionSizeArray2[1], 1 do subTensor[i] = tensor2DDotProduct(subTensor1[i], subTensor2[i]) end
-
-	elseif (numberOfDimensions2 == 2) then
+	elseif (numberOfDimensions1 == 2) then
 
 		subTensor = tensor2DDotProduct(subTensor1, subTensor2)
 
-	elseif (numberOfDimensions1 == 1) or (numberOfDimensions2 == 1) then
+	elseif (numberOfDimensions1 == 0) then
 
 		subTensor = AqwamTensorLibrary:multiply(subTensor1, subTensor2)
 
@@ -1809,15 +1805,13 @@ local function dimensionSum(tensor, targetDimension, currentDimension)
 	
 	local newTensor = {}
 	
-	if (currentDimension == targetDimension) and (numberOfDimensions >= 2) then
+	if (currentDimension == targetDimension) then
 		
-		print(dimensionSizeArray)
+		for i = 1, dimensionSizeArray[1], 1 do newTensor[1] = dimensionSum(tensor[i], targetDimension, currentDimension + 1) end
 		
-		for i = 1, dimensionSizeArray[1], 1 do newTensor[1] = fullSum(tensor[i]) end
+	elseif (currentDimension > targetDimension) then -- Notice that there is still multiple dimension after the target dimension index.
 		
-	elseif (currentDimension == targetDimension) and (numberOfDimensions == 1) then
-		
-		newTensor = fullSum(tensor)
+		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = dimensionSum(tensor[i], targetDimension, currentDimension + 1) end
 		
 	else
 		
