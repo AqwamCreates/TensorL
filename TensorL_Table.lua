@@ -1634,32 +1634,6 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 	
 end
 
-local function fullSum(tensor)
-
-	local dimensionArray = AqwamTensorLibrary:getSize(tensor)
-
-	local numberOfValues = dimensionArray[1]
-
-	local result = 0
-
-	for i = 1, numberOfValues, 1 do 
-
-		if (#dimensionArray > 1) then
-
-			result += fullSum(tensor[i]) 
-
-		else
-
-			result += tensor[i]
-
-		end
-
-	end
-
-	return result
-
-end
-
 --[[
 
 local function dimensionSum(tensor, dimension)
@@ -1802,6 +1776,56 @@ local function dimensionSum(tensor, targetDimension, currentDimension)
 end
 
 --]]
+
+local function fullSum(tensor)
+
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+	
+	local numberOfDimensions = #dimensionSizeArray
+
+	local result = 0
+	
+	if (numberOfDimensions > 1) then
+
+		for i = 1, dimensionSizeArray[1], 1 do result = result + fullSum(tensor[i]) end
+
+	elseif (numberOfDimensions == 1) then
+		
+		for i = 1, dimensionSizeArray[1], 1 do result = result + tensor[i] end
+		
+	else
+		
+		print(tensor)
+
+	end
+
+	return result
+
+end
+
+local function dimensionSum(tensor, targetDimension, currentDimension, currentLocationArray)
+	
+	currentDimension = currentDimension or 1
+	
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
+	local numberOfDimensions = #dimensionSizeArray
+	
+	local newTensor = {}
+	
+	if (currentDimension == targetDimension) then
+		
+		for i = 1, numberOfDimensions, 1 do newTensor[i] = fullSum(tensor[i]) end
+		
+	else
+		
+		for i = 1, numberOfDimensions, 1 do newTensor[i] = dimensionSum(tensor[i], targetDimension, currentDimension + 1) end
+		
+	end
+	
+	return newTensor
+	
+end
 
 local function hardcodedDimensionSum(tensor, dimension) -- I don't think it is worth the effort to generalize to the rest of dimensions... That being said, to process videos, you need at most 5 dimensions. Don't get confused about the channels! Only number of channels are changed and not the number of dimensions of the tensor!
 	
@@ -1957,7 +1981,7 @@ function AqwamTensorLibrary:sum(tensor, dimension)
 
 	local numberOfDimensions = #AqwamTensorLibrary:getSize(tensor)
 
-	if (dimension <= 0) or (dimension > numberOfDimensions) then error("Invalid dimensions.") end
+	if (dimension <= 0) or (dimension > numberOfDimensions) then error("The dimension is out of bounds.") end
 
 	return hardcodedDimensionSum(tensor, dimension)
 
