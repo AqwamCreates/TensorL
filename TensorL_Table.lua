@@ -531,55 +531,17 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray, dimensionIn
 	
 	dimensionIndexToCopyArray = dimensionIndexToCopyArray or {}
 	
-	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+	local expandedTensor = {}
 	
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
 	local numberOfDimensions = #dimensionSizeArray
 	
 	local dimensionSize = dimensionSizeArray[1]
 	
-	local expandedTensor = {}
-	
-	if (numberOfDimensions > 1) then
-		
-		local remainingTargetDimensionSizeArray = removeFirstValueFromArray(targetDimensionSizeArray)
-
-		local remainingDimensionIndexToCopyArray = removeFirstValueFromArray(dimensionIndexToCopyArray)
-		
-		for i = 1, dimensionSize, 1 do expandedTensor[i] = AqwamTensorLibrary:expand(tensor[i], remainingTargetDimensionSizeArray, remainingDimensionIndexToCopyArray) end
-		
-	end
-	
-	--AqwamTensorLibrary:printTensor(expandedTensor)
+	local dimensionIndexToCopy = dimensionIndexToCopyArray[1] or 1
 	
 	local targetDimensionSize = targetDimensionSizeArray[1]
-	
-	local dimensionSizeDifference = targetDimensionSize - dimensionSize
-	
-	local dimensionIndexToCopy = dimensionIndexToCopyArray[1] or 1
-
-	local subTensorToCopy = tensor[dimensionIndexToCopy]
-	
-	print(dimensionSizeDifference)
-	
-	--for i = 1, dimensionSizeDifference, 1 do table.insert(expandedTensor, deepCopyTable(subTensorToCopy)) end
-	
-	return expandedTensor
-	
-end
-
-function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray, dimensionIndexToCopyArray)
-	
-	dimensionIndexToCopyArray = dimensionIndexToCopyArray or {}
-	
-	local expandedTensor = {}
-	
-	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
-
-	local numberOfDimensions = #dimensionSizeArray
-	
-	local dimensionSize = dimensionSizeArray[1]
-	
-	local dimensionIndexToCopy = dimensionIndexToCopyArray[1] or 1
 	
 	if (numberOfDimensions > 1) then
 		
@@ -590,10 +552,6 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray, dimensionIn
 		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = AqwamTensorLibrary:expand(tensor[i], remainingTargetDimensionSizeArray, remainingDimensionIndexToCopyArray) end
 		
 	end
-	
-	local targetDimensionSize = targetDimensionSizeArray[1]
-
-	local dimensionSizeDifference = targetDimensionSize - dimensionSize
 	
 	local value = tensor[dimensionIndexToCopy]
 	
