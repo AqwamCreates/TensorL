@@ -527,9 +527,7 @@ local function onBroadcastError(dimensionSizeArray1, dimensionSizeArray2)
 
 end
 
-function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray, dimensionIndexToCopyArray)
-	
-	dimensionIndexToCopyArray = dimensionIndexToCopyArray or {}
+function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 	
 	local expandedTensor = {}
 	
@@ -539,21 +537,17 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray, dimensionIn
 	
 	local dimensionSize = dimensionSizeArray[1]
 	
-	local dimensionIndexToCopy = dimensionIndexToCopyArray[1] or 1
-	
 	local targetDimensionSize = targetDimensionSizeArray[1]
 	
 	if (numberOfDimensions > 1) then
 		
 		local remainingTargetDimensionSizeArray = removeFirstValueFromArray(targetDimensionSizeArray)
-
-		local remainingDimensionIndexToCopyArray = removeFirstValueFromArray(dimensionIndexToCopyArray)
 		
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = AqwamTensorLibrary:expand(tensor[i], remainingTargetDimensionSizeArray, remainingDimensionIndexToCopyArray) end
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = AqwamTensorLibrary:expand(tensor[i], remainingTargetDimensionSizeArray) end
 		
 	end
 	
-	local value = tensor[dimensionIndexToCopy]
+	local value = tensor[1]
 	
 	for i = 1, targetDimensionSize, 1 do table.insert(expandedTensor, deepCopyTable(value)) end
 	
