@@ -747,7 +747,7 @@ end
 
 function AqwamTensorLibrary:createTensor(dimensionSizeArray, initialValue)
 	
-	dimensionSizeArray = AqwamTensorLibrary:truncateTensorIfRequired(dimensionSizeArray)
+	dimensionSizeArray = AqwamTensorLibrary:truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
 	
 	initialValue = initialValue or 0
 	
@@ -1707,38 +1707,6 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 	for i = 2, #tensorArray, 1 do
 		
 		local otherTensor = tensorArray[i]
-		
-		local tensorDimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
-		
-		local otherTensorDimensionSizeArray = AqwamTensorLibrary:getSize(otherTensor)
-		
-		local tensorNumberOfDimensions = #tensorDimensionSizeArray
-		
-		local otherTensorNumberOfDimensions = #otherTensorDimensionSizeArray
-		
-		if (tensorNumberOfDimensions == otherTensorNumberOfDimensions) and (tensorNumberOfDimensions ~= 1) and (otherTensorNumberOfDimensions ~= 1) then
-			
-			if (tensorDimensionSizeArray[tensorNumberOfDimensions] ~= otherTensorDimensionSizeArray[otherTensorNumberOfDimensions - 1]) then error("The size of the last dimension of tensor " .. (i - 1) .. " is not equal to the size of second last dimension of the tensor " .. i .. ".") end
-
-			for j = 1, (otherTensorNumberOfDimensions - 2), 1 do
-
-				if (tensorDimensionSizeArray[i] ~= otherTensorDimensionSizeArray[i]) then error("The size of dimension " .. j .. " of tensor " .. (i - 1) .. " is not equal to the size of dimension " .. j .. " of the tensor " .. i .. ".") end
-
-			end
-			
-		elseif (tensorNumberOfDimensions == 1) and (otherTensorNumberOfDimensions >= 2) then
-			
-			for j = (otherTensorNumberOfDimensions - 1), otherTensorNumberOfDimensions, 1 do
-				
-				if (tensorDimensionSizeArray[1] ~= otherTensorDimensionSizeArray[j]) then error("The size of dimension 1 of tensor " .. (i - 1) .. " is not equal to the size of dimension " .. j .. " of the tensor " .. i .. ".") end
-
-			end
-			
-		elseif (tensorNumberOfDimensions == 1) and (otherTensorNumberOfDimensions == 1) then
-			
-			if (tensorDimensionSizeArray[1] ~= otherTensorDimensionSizeArray[1]) then error("The size of dimension 1 of tensor " .. (i - 1) .. " is not equal to the size of dimension 1 of the tensor " .. i .. ".") end
-			
-		end
 		
 		tensor = expandedDotProduct(tensor, otherTensor)
 		
