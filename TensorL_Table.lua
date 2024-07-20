@@ -2758,7 +2758,7 @@ function AqwamTensorLibrary:printPortableTensor(tensor)
 
 end
 
-function AqwamTensorLibrary:setTensorValue(tensor, value, dimensionIndexArray)
+function AqwamTensorLibrary:setValue(tensor, value, dimensionIndexArray)
 
 	local dimensionIndex = dimensionIndexArray[1]
 
@@ -2782,7 +2782,7 @@ function AqwamTensorLibrary:setTensorValue(tensor, value, dimensionIndexArray)
 
 		local remainingIndexArray = removeFirstValueFromArray(dimensionIndexArray)
 
-		AqwamTensorLibrary:setTensorValue(tensor[dimensionIndex], value, remainingIndexArray)
+		AqwamTensorLibrary:setValue(tensor[dimensionIndex], value, remainingIndexArray)
 
 	elseif (numberOfDimensionIndices == 1) and (AqwamTensorLibrary:getNumberOfDimensions(tensor) == 1) then
 
@@ -2796,7 +2796,7 @@ function AqwamTensorLibrary:setTensorValue(tensor, value, dimensionIndexArray)
 
 end
 
-function AqwamTensorLibrary:getTensorValue(tensor, dimensionIndexArray)
+function AqwamTensorLibrary:getValue(tensor, dimensionIndexArray)
 
 	local dimensionIndex = dimensionIndexArray[1]
 
@@ -2820,7 +2820,7 @@ function AqwamTensorLibrary:getTensorValue(tensor, dimensionIndexArray)
 
 		local remainingIndexArray = removeFirstValueFromArray(dimensionIndexArray)
 
-		return AqwamTensorLibrary:getTensorValue(tensor[dimensionIndex], remainingIndexArray)
+		return AqwamTensorLibrary:getValue(tensor[dimensionIndex], remainingIndexArray)
 
 	elseif (numberOfDimensionIndices == 1) and (numberOfDimensions == 1) then
 
