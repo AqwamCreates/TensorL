@@ -1572,7 +1572,7 @@ local function tensor2DimensionalDotProduct(tensor1, tensor2)
 
 	local tensor2Column = #tensor2[1]
 	
-	if (tensor1Column ~= tensor2Row) then error("Unable to perform the dot product. The number of rows of the first tensor does not equal to the number of columns of the second tensor.") end
+	if (tensor1Column ~= tensor2Row) then error("Unable to perform the dot product. The size of second last dimension of the first tensor does not equal to the size of the last dimension of the second tensor.") end
 
 	for row = 1, tensor1Row, 1 do
 
