@@ -611,7 +611,7 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 
 	if checkIfItHasSameDimensionSizeArray(dimensionSizeArray, targetDimensionSizeArray) then return deepCopyTable(tensor) end -- Do not remove this code even if the code below is related or function similar to this code. You will spend so much time fixing it if you forget that you have removed it.
 	
-	local newTensor = {}
+	local newTensor = tensor -- This needed to be set to "tensor" instead of an empty table. Otherwise, if the if statement is not run and this "newTensor" has an empty table value, it will not receive any updated values from the if statement.
 	
 	local numberOfDimensions = #dimensionSizeArray
 	
@@ -623,7 +623,7 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 
 	end
 	
-	local updatedDimensionSizeArray = AqwamTensorLibrary:getSize(tensor) -- Need to call this again because we may have modified the tensor below it, thus changing the dimension size array.
+	local updatedDimensionSizeArray = AqwamTensorLibrary:getSize(newTensor) -- Need to call this again because we may have modified the tensor below it, thus changing the dimension size array.
 	
 	local dimensionSize = updatedDimensionSizeArray[1]
 
@@ -633,22 +633,22 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 
 	local canDimensionBeExpanded = (dimensionSize == 1)
 
-	if (numberOfDimensions > 1) and (not hasSameDimensionSize) and (canDimensionBeExpanded) then
+	if (numberOfDimensions > 0) and (not hasSameDimensionSize) and (canDimensionBeExpanded) then 
 		
 		local subTensor = newTensor[1]
 
 		for i = 1, targetDimensionSize, 1 do newTensor[i] = deepCopyTable(subTensor) end
-
-	elseif (numberOfDimensions == 1) and (not hasSameDimensionSize) and (canDimensionBeExpanded) then
-
-		for i = 1, targetDimensionSize, 1 do table.insert(newTensor, tensor[1]) end
+		
+	elseif (hasSameDimensionSize) then
+		
+		newTensor = deepCopyTable(newTensor) -- If the "(numberOfDimensions > 1)" does not run, it will return the original tensor. So we need to deep copy it.
 		
 	elseif (not hasSameDimensionSize) and (not canDimensionBeExpanded) then
 		
 		error("Unable to expand.")
 
 	end
-
+	
 	return newTensor
 
 end
