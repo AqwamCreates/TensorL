@@ -30,13 +30,13 @@
 
 local AqwamTensorLibrary = {}
 
-local function checkIfHasSameDimensionSizeArray(dimensionSizeArray1, dimensionSizeArray2)
+local function checkIfItHasSameDimensionSizeArray(dimensionSizeArray, targetDimensionSizeArray)
 	
-	if (#dimensionSizeArray1 ~= #dimensionSizeArray2) then return false end
+	if (#dimensionSizeArray ~= #targetDimensionSizeArray) then return false end
 	
-	for i, size in ipairs(dimensionSizeArray1) do
+	for i, size in ipairs(dimensionSizeArray) do
 		
-		if (size ~= dimensionSizeArray2[i]) then return false end
+		if (size ~= targetDimensionSizeArray[i]) then return false end
 		
 	end
 	
@@ -547,7 +547,7 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 	
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
 	
-	if checkIfHasSameDimensionSizeArray(dimensionSizeArray, targetDimensionSizeArray) then return deepCopyTable(tensor) end -- Do not remove this code even if the code below is related or function similar to this code. You will spend so much time fixing it if you forget that you have removed it.
+	if checkIfItHasSameDimensionSizeArray(dimensionSizeArray, targetDimensionSizeArray) then return deepCopyTable(tensor) end -- Do not remove this code even if the code below is related or function similar to this code. You will spend so much time fixing it if you forget that you have removed it.
 	
 	local numberOfDimensions = #dimensionSizeArray
 	
