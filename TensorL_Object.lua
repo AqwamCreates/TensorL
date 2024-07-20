@@ -1655,11 +1655,6 @@ local function expandedDotProduct(tensor1, tensor2)
 	local expandedTensor1 = AqwamTensorLibrary:increaseNumberOfDimensions(tensor1, table.create(numberOfDimensionsOffset1, 1))
 
 	local expandedTensor2 = AqwamTensorLibrary:increaseNumberOfDimensions(tensor2, table.create(numberOfDimensionsOffset2, 1))
-	
-	print(AqwamTensorLibrary:getSize(expandedTensor1))
-	
-	print(AqwamTensorLibrary:getSize(expandedTensor2))
-
 
 	local tensor = recursiveExpandedDotProduct(expandedTensor1, expandedTensor2)
 
