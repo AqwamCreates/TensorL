@@ -1708,7 +1708,7 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 		
 		local otherTensor = tensorArray[i]
 		
-		if (AqwamTensorLibrary:getNumberOfDimensions(otherTensor) == 1) then error("Unable to perform dot product with the other tensor that has only one dimension.") end
+		if (AqwamTensorLibrary:getNumberOfDimensions(otherTensor) == 1) then error("Unable to perform the dot product. The other tensor has only 1 dimension.") end
 		
 		tensor = expandedDotProduct(tensor, otherTensor)
 		
