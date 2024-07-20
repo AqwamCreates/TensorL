@@ -643,7 +643,7 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 		
 		newTensor = deepCopyTable(newTensor) -- If the "(numberOfDimensions > 1)" from the first "if" statement does not run, it will return the original tensor. So we need to deep copy it.
 		
-	elseif (not hasSameDimensionSize) and (not canDimensionBeExpanded) then
+	else
 		
 		error("Unable to expand.")
 
