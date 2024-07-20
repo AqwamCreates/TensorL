@@ -1567,8 +1567,12 @@ local function tensor2DimensionalDotProduct(tensor1, tensor2)
 	local tensor1Row = #tensor1
 
 	local tensor1Column = #tensor1[1]
+	
+	local tensor2Row = #tensor2
 
 	local tensor2Column = #tensor2[1]
+	
+	if (tensor1Column ~= tensor2Row) then error("Unable to perform the dot product. The number of rows of the first tensor does not equal to the number of columns of the second tensor.") end
 
 	for row = 1, tensor1Row, 1 do
 
@@ -1631,6 +1635,11 @@ local function expandedDotProduct(tensor1, tensor2)
 	local expandedTensor1 = AqwamTensorLibrary:increaseNumberOfDimensions(tensor1, table.create(numberOfDimensionsOffset1, 1))
 
 	local expandedTensor2 = AqwamTensorLibrary:increaseNumberOfDimensions(tensor2, table.create(numberOfDimensionsOffset2, 1))
+	
+	print(AqwamTensorLibrary:getSize(expandedTensor1))
+	
+	print(AqwamTensorLibrary:getSize(expandedTensor2))
+
 
 	local tensor = recursiveExpandedDotProduct(expandedTensor1, expandedTensor2)
 
@@ -1707,8 +1716,6 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 	for i = 2, #tensorArray, 1 do
 		
 		local otherTensor = tensorArray[i]
-		
-		if (AqwamTensorLibrary:getNumberOfDimensions(otherTensor) == 1) then error("Unable to perform the dot product. The other tensor has only 1 dimension.") end
 		
 		tensor = expandedDotProduct(tensor, otherTensor)
 		
