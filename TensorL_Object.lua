@@ -805,11 +805,31 @@ local function createRandomUniformTensor(dimensionSizeArray, minimumValue, maxim
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = createRandomUniformTensor(remainingDimensionSizeArray) end
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = createRandomUniformTensor(remainingDimensionSizeArray, minimumValue, maximumValue) end
 
 	else
 
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = math.random(minimumValue, maximumValue) end
+		for i = 1, dimensionSizeArray[1], 1 do
+			
+			if (minimumValue) and (maximumValue) then
+				
+				tensor[i] = math.random(minimumValue, maximumValue) 
+				
+			elseif (minimumValue) and (not maximumValue) then
+				
+				tensor[i] = math.random(minimumValue)
+				
+			elseif (not minimumValue) and (not maximumValue) then
+				
+				tensor[i] = math.random(minimumValue)
+				
+			elseif (not minimumValue) and (maximumValue) then
+				
+				error("Invalid minimum value.")
+				
+			end
+			
+		end
 
 	end
 
