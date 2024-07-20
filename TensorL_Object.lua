@@ -821,7 +821,7 @@ local function createRandomUniformTensor(dimensionSizeArray, minimumValue, maxim
 				
 			elseif (not minimumValue) and (not maximumValue) then
 				
-				tensor[i] = math.random(minimumValue)
+				tensor[i] = math.random()
 				
 			elseif (not minimumValue) and (maximumValue) then
 				
