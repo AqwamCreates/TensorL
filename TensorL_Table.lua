@@ -611,15 +611,21 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 
 	if checkIfItHasSameDimensionSizeArray(dimensionSizeArray, targetDimensionSizeArray) then return deepCopyTable(tensor) end -- Do not remove this code even if the code below is related or function similar to this code. You will spend so much time fixing it if you forget that you have removed it.
 	
-	local newTensor = tensor -- This needed to be set to "tensor" instead of an empty table. Otherwise, if the if statement is not run and this "newTensor" has an empty table value, it will not receive any updated values from the if statement.
+	local newTensor
 	
 	local numberOfDimensions = #dimensionSizeArray
 	
 	if (numberOfDimensions > 1) then
+		
+		newTensor = {}
 
 		local remainingTargetDimensionSizeArray = removeFirstValueFromArray(targetDimensionSizeArray)
 
 		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = AqwamTensorLibrary:expand(tensor[i], remainingTargetDimensionSizeArray) end
+		
+	else
+		
+		newTensor = deepCopyTable(tensor)  -- If the "(numberOfDimensions > 1)" from the first "if" statement does not run, it will return the original tensor. So we need to deep copy it.
 
 	end
 	
@@ -639,11 +645,7 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 
 		for i = 1, targetDimensionSize, 1 do newTensor[i] = deepCopyTable(subTensor) end
 		
-	elseif (hasSameDimensionSize) then
-		
-		newTensor = deepCopyTable(newTensor) -- If the "(numberOfDimensions > 1)" from the first "if" statement does not run, it will return the original tensor. So we need to deep copy it.
-		
-	else
+	elseif (not hasSameDimensionSize) and (not canDimensionBeExpanded) then
 		
 		error("Unable to expand.")
 
