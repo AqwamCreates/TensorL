@@ -914,8 +914,6 @@ function AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray, minimu
 end
 
 local function createIdentityTensor(dimensionSizeArray, dimensionIndexArray)
-	
-	dimensionIndexArray = dimensionIndexArray or {}
 
 	local numberOfDimensions = #dimensionSizeArray
 
@@ -986,7 +984,7 @@ function AqwamTensorLibrary:createIdentityTensor(dimensionSizeArray)
 
 	local truncatedDimensionSizeArray, numberOfDimensionsOfSize1 = AqwamTensorLibrary:truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
 	
-	local newTensor = createIdentityTensor(truncatedDimensionSizeArray)
+	local newTensor = createIdentityTensor(truncatedDimensionSizeArray, {})
 	
 	for i = 1, numberOfDimensionsOfSize1, 1 do newTensor = {newTensor} end
 
@@ -1877,8 +1875,6 @@ end
 
 local function recursiveSubTensorSumAlongFirstDimension(targetTensor, tensor, targetDimensionIndexArray)
 
-	targetDimensionIndexArray = targetDimensionIndexArray or {}
-
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
 
 	local numberOfDimensions = #dimensionSizeArray
@@ -1919,7 +1915,7 @@ local function subTensorSumAlongFirstDimension(tensor)
 
 	local sumTensor = createTensor(sumDimensionalSizeArray, 0)
 
-	recursiveSubTensorSumAlongFirstDimension(sumTensor, tensor)
+	recursiveSubTensorSumAlongFirstDimension(sumTensor, tensor, {})
 
 	return sumTensor
 
@@ -2219,8 +2215,6 @@ end
 
 local function findMaximumValueDimensionIndexArray(tensor, dimensionIndexArray)
 
-	dimensionIndexArray = dimensionIndexArray or {}
-
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
 
 	local numberOfDimensions = #dimensionSizeArray
@@ -2277,13 +2271,11 @@ end
 
 function AqwamTensorLibrary:findMaximumValueDimensionIndexArray(tensor)
 
-	return findMaximumValueDimensionIndexArray(tensor)
+	return findMaximumValueDimensionIndexArray(tensor, {})
 
 end
 
 local function findMinimumValueDimensionIndexArray(tensor, dimensionIndexArray)
-
-	dimensionIndexArray = dimensionIndexArray or {}
 
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
 
@@ -2341,7 +2333,7 @@ end
 
 function AqwamTensorLibrary:findMinimumValueDimensionIndexArray(tensor)
 
-	return findMinimumValueDimensionIndexArray(tensor)
+	return findMinimumValueDimensionIndexArray(tensor, {})
 
 end
 
@@ -2378,8 +2370,6 @@ end
 local function reshape(flattenedTensor, dimensionSizeArray, dimensionIndex)
 
 	local tensor = {}
-
-	dimensionIndex = dimensionIndex or 0
 
 	if (#dimensionSizeArray >= 2) then
 
@@ -2422,7 +2412,7 @@ function AqwamTensorLibrary:reshape(flattenedTensor, dimensionSizeArray)
 
 	if (totalNumberOfValuesRequired ~= flattenedTensorSizeArray[1]) then error("The number of values in flattened tensor does not equal to total number of values of the reshaped tensor.") end
 
-	local tensor = reshape(flattenedTensor, dimensionSizeArray)
+	local tensor = reshape(flattenedTensor, dimensionSizeArray, 0)
 
 	return tensor
 
