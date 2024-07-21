@@ -400,28 +400,6 @@ function AqwamTensorLibrary:generatePortableTensorString(tensor, textSpacingArra
 
 end
 
-function AqwamTensorLibrary:truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
-
-	local newDimensionSizeArray = table.clone(dimensionSizeArray)
-	
-	local numberOfStartingDimensionsWithTheSizeOf1 = 0
-
-	while true do
-
-		local size = newDimensionSizeArray[1]
-
-		if (size ~= 1) then break end
-
-		table.remove(newDimensionSizeArray, 1)
-		
-		numberOfStartingDimensionsWithTheSizeOf1 = numberOfStartingDimensionsWithTheSizeOf1 + 1
-
-	end
-
-	return newDimensionSizeArray, numberOfStartingDimensionsWithTheSizeOf1
-
-end
-
 function AqwamTensorLibrary:truncate(tensor, numberOfDimensionsToTruncate)
 
 	numberOfDimensionsToTruncate = numberOfDimensionsToTruncate or math.huge
@@ -976,9 +954,31 @@ local function convertTensorToScalar(tensor)
 
 end
 
+local function truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
+
+	local newDimensionSizeArray = table.clone(dimensionSizeArray)
+
+	local numberOfStartingDimensionsWithTheSizeOf1 = 0
+
+	while true do
+
+		local size = newDimensionSizeArray[1]
+
+		if (size ~= 1) then break end
+
+		table.remove(newDimensionSizeArray, 1)
+
+		numberOfStartingDimensionsWithTheSizeOf1 = numberOfStartingDimensionsWithTheSizeOf1 + 1
+
+	end
+
+	return newDimensionSizeArray, numberOfStartingDimensionsWithTheSizeOf1
+
+end
+
 function AqwamTensorLibrary:createIdentityTensor(dimensionSizeArray)
 
-	local truncatedDimensionSizeArray, numberOfDimensionsOfSize1 = AqwamTensorLibrary:truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
+	local truncatedDimensionSizeArray, numberOfDimensionsOfSize1 = truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
 	
 	local newTensor = createIdentityTensor(truncatedDimensionSizeArray, {})
 	
