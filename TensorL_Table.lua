@@ -429,8 +429,14 @@ function AqwamTensorLibrary:truncate(tensor, numberOfDimensionsToTruncate)
 	if (numberOfDimensionsToTruncate ~= math.huge) and (numberOfDimensionsToTruncate ~= nil) then
 
 		local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
-
-		for i, size in ipairs(dimensionSizeArray) do if (size ~= 1) then error("Unable to truncate. Dimension " .. i .. " has the size of " .. size .. ".") end end
+		
+		for dimension = 1, numberOfDimensionsToTruncate, 1 do
+			
+			local size = dimensionSizeArray[dimension]
+			
+			if (size ~= 1) then error("Unable to truncate. Dimension " .. dimension .. " has the size of " .. size .. ".") end
+			
+		end
 
 	end
 
@@ -513,7 +519,7 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 	end
 
-	return  AqwamTensorLibrary:getProperTensorFormatIfRequired(tensor)
+	return tensor
 
 end
 
@@ -1396,8 +1402,12 @@ local function hardcodedTranspose(tensor, dimensionIndexArray) -- I don't think 
 		error("Invalid dimensions!")
 
 	end
+	
+	print(AqwamTensorLibrary:getSize(newTensor))
+	
+	AqwamTensorLibrary:printTensor(newTensor)
 
-	return AqwamTensorLibrary:truncate(newTensor)
+	return AqwamTensorLibrary:truncate(newTensor, offset)
 
 end
 
@@ -1759,9 +1769,7 @@ local function expandedDotProduct(tensor1, tensor2)
 
 	end
 
-	local tensor = recursiveExpandedDotProduct(expandedTensor1, expandedTensor2)
-
-	return AqwamTensorLibrary:truncate(tensor)
+	return recursiveExpandedDotProduct(expandedTensor1, expandedTensor2)
 
 end
 
@@ -1821,7 +1829,7 @@ local function hardcodedDotProduct(tensor1, tensor2)
 
 	end
 
-	return AqwamTensorLibrary:truncate(tensor)
+	return tensor
 
 end
 
@@ -1839,7 +1847,7 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 
 	end
 
-	return AqwamTensorLibrary:getProperTensorFormatIfRequired(tensor)
+	return tensor
 
 end
 
@@ -2083,7 +2091,7 @@ local function hardcodedDimensionSum(tensor, dimension) -- I don't think it is w
 
 	end
 
-	return AqwamTensorLibrary:truncate(newTensor)
+	return AqwamTensorLibrary:truncate(newTensor, offset)
 
 end
 
@@ -2094,10 +2102,10 @@ function AqwamTensorLibrary:sum(tensor, dimension)
 	local numberOfDimensions = #AqwamTensorLibrary:getSize(tensor)
 
 	checkIfDimensionIsOutOfBounds(dimension, 1, numberOfDimensions)
-
+	
 	local sumTensor = dimensionSum(tensor, dimension)
-
-	return AqwamTensorLibrary:getProperTensorFormatIfRequired(sumTensor)
+	
+	return sumTensor
 
 end
 
@@ -2109,7 +2117,7 @@ function AqwamTensorLibrary:mean(tensor, dimension)
 
 	local meanTensor = AqwamTensorLibrary:divide(sumTensor, size)
 
-	return AqwamTensorLibrary:getProperTensorFormatIfRequired(meanTensor)
+	return meanTensor
 
 end
 
@@ -2129,9 +2137,7 @@ function AqwamTensorLibrary:standardDeviation(tensor, dimension)
 
 	local standardDeviationTensor = AqwamTensorLibrary:power(squaredSubractedTensor, 0.5)
 
-	local standardDeviationTensorSizeArray = AqwamTensorLibrary:getSize(standardDeviationTensor)
-
-	return AqwamTensorLibrary:getProperTensorFormatIfRequired(tensor)
+	return standardDeviationTensor
 
 end
 
@@ -2548,7 +2554,7 @@ function AqwamTensorLibrary:extract(tensor, originDimensionIndexArray, targetDim
 
 	local extractedTensor = extract(tensor, originDimensionIndexArray, targetDimensionIndexArray)
 
-	return AqwamTensorLibrary:truncate(extractedTensor)
+	return extractedTensor
 
 end
 
@@ -2573,10 +2579,6 @@ local function concatenate(targetTensor, otherTensor, targetDimension, currentDi
 end
 
 function AqwamTensorLibrary:concatenate(tensor1, tensor2, dimension)
-
-	local tensor1 = AqwamTensorLibrary:truncate(tensor1)
-
-	local tensor2 = AqwamTensorLibrary:truncate(tensor2)
 
 	local dimensionSizeArray1 = AqwamTensorLibrary:getSize(tensor1)
 
@@ -2772,7 +2774,7 @@ function AqwamTensorLibrary:applyFunction(functionToApply, ...)
 
 	local resultTensor = applyFunction(functionToApply, ...)
 
-	return AqwamTensorLibrary:truncate(resultTensor)
+	return resultTensor
 
 end
 
