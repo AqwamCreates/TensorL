@@ -914,6 +914,8 @@ function AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray, minimu
 end
 
 local function createIdentityTensor(dimensionSizeArray, dimensionIndexArray)
+	
+	dimensionIndexArray = dimensionIndexArray or {}
 
 	local numberOfDimensions = #dimensionSizeArray
 
@@ -982,9 +984,9 @@ end
 
 function AqwamTensorLibrary:createIdentityTensor(dimensionSizeArray)
 
-	local truncatedTimensionSizeArray, numberOfDimensionsOfSize1 = AqwamTensorLibrary:truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
+	local truncatedDimensionSizeArray, numberOfDimensionsOfSize1 = AqwamTensorLibrary:truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
 	
-	local newTensor = createIdentityTensor(dimensionSizeArray, {})
+	local newTensor = createIdentityTensor(truncatedDimensionSizeArray)
 	
 	for i = 1, numberOfDimensionsOfSize1, 1 do newTensor = {newTensor} end
 
