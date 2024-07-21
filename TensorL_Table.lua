@@ -129,24 +129,26 @@ end
 local function applyFunctionUsingOneTensor(operation, tensor)
 
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+	
+	local numberOfDimensions = #dimensionSizeArray
 
-	local tensor = {}
-
-	for i = 1, #tensor do  
-
-		if (#dimensionSizeArray > 1) then
-
-			tensor[i] = applyFunctionUsingOneTensor(operation, tensor[i])
-
-		else
-
-			tensor[i] = operation(tensor[i])
-
-		end
-
+	local newTensor = {}
+	
+	if (numberOfDimensions >= 2) then
+		
+		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = applyFunctionUsingOneTensor(operation, tensor[i]) end
+		
+	elseif (numberOfDimensions == 1) then -- Much more efficient than applying recursion again to get the original value.
+		
+		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = operation(tensor[i]) end
+		
+	else -- Sometimes the original tensor can be a number, so we must do the operation directly.
+		
+		newTensor = operation(tensor)
+		
 	end
 
-	return tensor
+	return newTensor
 
 end
 
@@ -157,24 +159,26 @@ local function applyFunctionUsingTwoTensors(operation, tensor1, tensor2)
 	local dimensionSizeArray2 = AqwamTensorLibrary:getSize(tensor2)
 
 	for i, _ in ipairs(dimensionSizeArray1) do if (dimensionSizeArray1[i] ~= dimensionSizeArray2[i]) then error("Invalid dimensions.") end end
+	
+	local numberOfDimensions = #dimensionSizeArray1
 
-	local tensor = {}
+	local newTensor = {}
 
-	for i = 1, #tensor1 do  
+	if (numberOfDimensions >= 2) then
 
-		if (#dimensionSizeArray1 > 1) then
+		for i = 1, dimensionSizeArray1[1], 1 do newTensor[i] = applyFunctionUsingTwoTensors(operation, tensor1[i], tensor2[i]) end
 
-			tensor[i] = applyFunctionUsingTwoTensors(operation, tensor1[i], tensor2[i])
+	elseif (numberOfDimensions == 1) then -- Much more efficient than applying recursion again to get the original value.
 
-		else
+		for i = 1, dimensionSizeArray1[1], 1 do newTensor[i] = operation(tensor1[i], tensor2[i]) end
 
-			tensor[i] = operation(tensor1[i], tensor2[i])
+	else -- Sometimes the original tensor can be a number, so we must do the operation directly.
 
-		end
+		newTensor = operation(tensor1, tensor2)
 
 	end
 
-	return tensor
+	return newTensor
 
 end
 
