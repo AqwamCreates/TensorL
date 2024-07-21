@@ -1685,37 +1685,41 @@ local function tensor2DimensionalDotProduct(tensor1, tensor2)
 
 end
 
-local function recursiveExpandedDotProduct(subTensor1, subTensor2) -- Since both have equal number of dimensions now, we only need to use only one dimension size array.
+local function recursiveExpandedDotProduct(tensor1, tensor2) -- Since both have equal number of dimensions now, we only need to use only one dimension size array.
 
-	local subDimensionSizeArray1 = AqwamTensorLibrary:getSize(subTensor1)
+	local dimensionSizeArray1 = AqwamTensorLibrary:getSize(tensor1)
 
-	local numberOfDimensions1 = #subDimensionSizeArray1
+	local numberOfDimensions1 = #dimensionSizeArray1
 
-	local subTensor = {}
+	local tensor = {}
 
 	if (numberOfDimensions1 >= 3) then
 
-		for i = 1, subDimensionSizeArray1[1], 1 do subTensor[i] = recursiveExpandedDotProduct(subTensor1[i], subTensor2[i]) end
+		for i = 1, dimensionSizeArray1[1], 1 do tensor[i] = recursiveExpandedDotProduct(tensor1[i], tensor2[i]) end
 
 	elseif (numberOfDimensions1 == 2) then -- No need an elseif statement where number of dimension is 1. This operation requires 2D tensors.
 
-		subTensor = tensor2DimensionalDotProduct(subTensor1, subTensor2)
+		tensor = tensor2DimensionalDotProduct(tensor1, tensor2)
 
 	elseif (numberOfDimensions1 == 0) then
 
-		subTensor = AqwamTensorLibrary:multiply(subTensor1, subTensor2)
+		tensor = AqwamTensorLibrary:multiply(tensor1, tensor2)
 
 	end
 
-	return subTensor
+	return tensor
 
 end
 
 local function expandedDotProduct(tensor1, tensor2)
+	
+	local dimensionSizeArray1 =  AqwamTensorLibrary:getSize(tensor1)
+	
+	local dimensionSizeArray2 =  AqwamTensorLibrary:getSize(tensor2)
 
-	local numberOfDimensions1 = AqwamTensorLibrary:getNumberOfDimensions(tensor1)
+	local numberOfDimensions1 = #dimensionSizeArray1
 
-	local numberOfDimensions2 = AqwamTensorLibrary:getNumberOfDimensions(tensor2)
+	local numberOfDimensions2 = #dimensionSizeArray2
 
 	local highestNumberOfDimensions = math.max(numberOfDimensions1, numberOfDimensions2)
 
@@ -1723,9 +1727,37 @@ local function expandedDotProduct(tensor1, tensor2)
 
 	local numberOfDimensionsOffset2 = highestNumberOfDimensions - numberOfDimensions2
 
-	local expandedTensor1 = AqwamTensorLibrary:increaseNumberOfDimensions(tensor1, table.create(numberOfDimensionsOffset1, 1))
+	local expandedTensor1
 
-	local expandedTensor2 = AqwamTensorLibrary:increaseNumberOfDimensions(tensor2, table.create(numberOfDimensionsOffset2, 1))
+	local expandedTensor2
+	
+	if (numberOfDimensionsOffset1 ~= 0) then
+		
+		local dimensionSizeToAddArray = {}
+		
+		for i = 1, numberOfDimensionsOffset1, 1 do table.insert(dimensionSizeToAddArray, dimensionSizeArray1[i]) end
+		
+		expandedTensor1 = AqwamTensorLibrary:increaseNumberOfDimensions(tensor1, dimensionSizeToAddArray)
+		
+	else
+		
+		expandedTensor1 = tensor1
+		
+	end
+	
+	if (numberOfDimensionsOffset2 ~= 0) then
+		
+		local dimensionSizeToAddArray = {}
+		
+		for i = 1, numberOfDimensionsOffset2, 1 do table.insert(dimensionSizeToAddArray, dimensionSizeArray2[i]) end
+
+		expandedTensor2 = AqwamTensorLibrary:increaseNumberOfDimensions(tensor2, dimensionSizeToAddArray)
+
+	else
+		
+		expandedTensor2 = tensor2
+
+	end
 
 	local tensor = recursiveExpandedDotProduct(expandedTensor1, expandedTensor2)
 
