@@ -1402,10 +1402,6 @@ local function hardcodedTranspose(tensor, dimensionIndexArray) -- I don't think 
 		error("Invalid dimensions!")
 
 	end
-	
-	print(AqwamTensorLibrary:getSize(newTensor))
-	
-	AqwamTensorLibrary:printTensor(newTensor)
 
 	return AqwamTensorLibrary:truncate(newTensor, offset)
 
@@ -2781,7 +2777,9 @@ end
 function AqwamTensorLibrary:printTensor(tensor)
 
 	local textSpacingArray = AqwamTensorLibrary:get2DTensorTextSpacing(tensor)
-
+	
+	error()
+	
 	print("\n\n" .. AqwamTensorLibrary:generateTensorString(tensor, textSpacingArray) .. "\n\n")
 
 end
