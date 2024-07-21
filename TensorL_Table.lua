@@ -801,8 +801,6 @@ end
 
 function AqwamTensorLibrary:createTensor(dimensionSizeArray, initialValue)
 	
-	dimensionSizeArray = AqwamTensorLibrary:truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
-	
 	initialValue = initialValue or 0
 	
 	return createTensor(dimensionSizeArray, initialValue)
@@ -840,8 +838,6 @@ local function createRandomNormalTensor(dimensionSizeArray, mean, standardDeviat
 end
 
 function AqwamTensorLibrary:createRandomNormalTensor(dimensionSizeArray, mean, standardDeviation)
-	
-	dimensionSizeArray = AqwamTensorLibrary:truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
 	
 	mean = mean or 0
 
@@ -892,8 +888,6 @@ local function createRandomUniformTensor(dimensionSizeArray, minimumValue, maxim
 end
 
 function AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue)
-	
-	dimensionSizeArray = AqwamTensorLibrary:truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
 	
 	return createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue)
 
@@ -967,8 +961,6 @@ local function convertTensorToScalar(tensor)
 end
 
 function AqwamTensorLibrary:createIdentityTensor(dimensionSizeArray)
-	
-	dimensionSizeArray = AqwamTensorLibrary:truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
 	
 	return createIdentityTensor(dimensionSizeArray, {})
 	
@@ -1839,11 +1831,11 @@ local function recursiveSubTensorSumAlongFirstDimension(targetTensor, tensor, ta
 		
 		targetDimensionIndexArray[1] = 1 -- The target dimension only have a size of 1 for summing.
 		
-		local targetTensorValue = AqwamTensorLibrary:getTensorValue(targetTensor, targetDimensionIndexArray)
+		local targetTensorValue = AqwamTensorLibrary:getValue(targetTensor, targetDimensionIndexArray)
 		
 		local value = targetTensorValue + tensor
 
-		AqwamTensorLibrary:setTensorValue(targetTensor, value, targetDimensionIndexArray)
+		AqwamTensorLibrary:setValue(targetTensor, value, targetDimensionIndexArray)
 
 	end	
 
