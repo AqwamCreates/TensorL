@@ -2392,27 +2392,27 @@ local function extract(tensor, originDimensionIndexArray, targetDimensionIndexAr
 	
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
 	
-	local remainingOriginDimensionIndexArray = removeFirstValueFromArray(originDimensionIndexArray)
-
-	local remainingTargetDimensionIndexArray = removeFirstValueFromArray(targetDimensionIndexArray)
+	local numberOfDimensions = #dimensionSizeArray
 	
 	local extractedTensor = {}
 	
-	if (#dimensionSizeArray >= 2) then
+	if (numberOfDimensions >= 2) then
+		
+		local remainingOriginDimensionIndexArray = removeFirstValueFromArray(originDimensionIndexArray)
+
+		local remainingTargetDimensionIndexArray = removeFirstValueFromArray(targetDimensionIndexArray)
 
 		for i = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do 
-
-			extractedTensor[i] = extract(tensor[i], remainingOriginDimensionIndexArray, remainingTargetDimensionIndexArray)
-
+			
+			local extractedSubTensor = extract(tensor[i], remainingOriginDimensionIndexArray, remainingTargetDimensionIndexArray) 
+			
+			table.insert(extractedTensor, extractedSubTensor)
+			
 		end
 
 	else
 		
-		for i = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do 
-
-			table.insert(extractedTensor, tensor[i]) 
-
-		end
+		for i = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do table.insert(extractedTensor, tensor[i]) end
 
 	end
 	
