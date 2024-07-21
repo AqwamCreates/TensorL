@@ -2808,15 +2808,11 @@ function AqwamTensorLibrary:setValue(tensor, value, dimensionIndexArray)
 
 	local numberOfDimensions = #dimensionSizeArray
 
-	if (numberOfDimensionIndices > 0) and (numberOfDimensions == 0) then
+	if (numberOfDimensionIndices > numberOfDimensions) then
 
 		error("The number of indices exceeds the tensor's number of dimensions.")
 
-	elseif (numberOfDimensionIndices == 0) and (numberOfDimensions > 0) then
-
-		error("The number of indices is less than the tensor's number of dimensions.")
-
-	elseif (numberOfDimensionIndices >= 2) then
+	elseif (numberOfDimensions >= 2) then
 
 		checkIfDimensionSizeIndexIsOutOfBounds(dimensionIndex, 1, dimensionSizeArray[1])
 
@@ -2824,7 +2820,7 @@ function AqwamTensorLibrary:setValue(tensor, value, dimensionIndexArray)
 
 		AqwamTensorLibrary:setValue(tensor[dimensionIndex], value, remainingIndexArray)
 
-	elseif (numberOfDimensionIndices == 1) and (AqwamTensorLibrary:getNumberOfDimensions(tensor) == 1) then
+	elseif (numberOfDimensions == 1) then
 
 		tensor[dimensionIndex] = value
 
@@ -2846,15 +2842,11 @@ function AqwamTensorLibrary:getValue(tensor, dimensionIndexArray)
 
 	local numberOfDimensions = #dimensionSizeArray
 
-	if (numberOfDimensionIndices > 0) and (numberOfDimensions == 0) then
+	if (numberOfDimensionIndices > numberOfDimensions) then
 
 		error("The number of indices exceeds the tensor's number of dimensions.")
 
-	elseif (numberOfDimensionIndices == 0) and (numberOfDimensions > 0) then
-
-		error("The number of indices is less than the tensor's number of dimensions.")
-
-	elseif (numberOfDimensionIndices >= 2) then
+	elseif (numberOfDimensions >= 2) then
 
 		checkIfDimensionSizeIndexIsOutOfBounds(dimensionIndex, 1, dimensionSizeArray[1])
 
@@ -2862,7 +2854,7 @@ function AqwamTensorLibrary:getValue(tensor, dimensionIndexArray)
 
 		return AqwamTensorLibrary:getValue(tensor[dimensionIndex], remainingIndexArray)
 
-	elseif (numberOfDimensionIndices == 1) and (numberOfDimensions == 1) then
+	elseif (numberOfDimensions == 1) then
 
 		return tensor[dimensionIndex]
 
