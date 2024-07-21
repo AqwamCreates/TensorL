@@ -428,12 +428,6 @@ function AqwamTensorLibrary:truncateDimensionSizeArrayIfRequired(dimensionSizeAr
 
 end
 
-local function truncate(tensor, numberOfDimensionsToTruncate)
-
-
-
-end
-
 function AqwamTensorLibrary:truncate(tensor, numberOfDimensionsToTruncate)
 
 	numberOfDimensionsToTruncate = numberOfDimensionsToTruncate or math.huge
