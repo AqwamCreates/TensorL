@@ -2778,8 +2778,6 @@ function AqwamTensorLibrary:printTensor(tensor)
 
 	local textSpacingArray = AqwamTensorLibrary:get2DTensorTextSpacing(tensor)
 	
-	error()
-	
 	print("\n\n" .. AqwamTensorLibrary:generateTensorString(tensor, textSpacingArray) .. "\n\n")
 
 end
