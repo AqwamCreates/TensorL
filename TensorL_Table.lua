@@ -116,16 +116,6 @@ local function deepCopyTable(original, copies)
 
 end
 
-local function getSubTensorLength(tensor, targetDimension)
-
-	local numberOfDimensions = AqwamTensorLibrary:getNumberOfDimensions(tensor)
-
-	if (numberOfDimensions == targetDimension) then return #tensor end
-
-	return getSubTensorLength(tensor[1], targetDimension)
-
-end
-
 local function applyFunctionUsingOneTensor(operation, tensor)
 
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
@@ -992,19 +982,21 @@ function AqwamTensorLibrary:createIdentityTensor(dimensionSizeArray)
 
 end
 
+local function getSize(tensor, sizeArray)
+	
+	if (type(tensor) ~= "table") then return end
+		
+	table.insert(sizeArray, #tensor)
+		
+	getSize(tensor[1], sizeArray)
+	
+end
+
 function AqwamTensorLibrary:getSize(tensor)
-
-	local numberOfDimensions = AqwamTensorLibrary:getNumberOfDimensions(tensor)
-
+	
 	local dimensionSizeArray = {}
-
-	for dimension = numberOfDimensions, 1, -1  do
-
-		local length = getSubTensorLength(tensor, dimension)
-
-		table.insert(dimensionSizeArray, length)
-
-	end
+	
+	getSize(tensor, dimensionSizeArray)
 
 	return dimensionSizeArray
 
