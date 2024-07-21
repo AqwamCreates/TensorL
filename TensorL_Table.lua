@@ -1743,7 +1743,7 @@ local function expandedDotProduct(tensor1, tensor2)
 		
 		local dimensionSizeToAddArray = {}
 		
-		for i = 1, numberOfDimensionsOffset1, 1 do table.insert(dimensionSizeToAddArray, dimensionSizeArray1[i]) end
+		for i = 1, numberOfDimensionsOffset1, 1 do table.insert(dimensionSizeToAddArray, dimensionSizeArray2[i]) end
 		
 		expandedTensor1 = AqwamTensorLibrary:increaseNumberOfDimensions(tensor1, dimensionSizeToAddArray)
 		
@@ -1757,7 +1757,7 @@ local function expandedDotProduct(tensor1, tensor2)
 		
 		local dimensionSizeToAddArray = {}
 		
-		for i = 1, numberOfDimensionsOffset2, 1 do table.insert(dimensionSizeToAddArray, dimensionSizeArray2[i]) end
+		for i = 1, numberOfDimensionsOffset2, 1 do table.insert(dimensionSizeToAddArray, dimensionSizeArray1[i]) end
 
 		expandedTensor2 = AqwamTensorLibrary:increaseNumberOfDimensions(tensor2, dimensionSizeToAddArray)
 
