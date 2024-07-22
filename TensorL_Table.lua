@@ -1149,7 +1149,7 @@ local function hardcodedTranspose(tensor, dimensionArray) -- I don't think it is
 	local dimension1 = dimensionArray[1] + offset
 	local dimension2 = dimensionArray[2] + offset
 
-	local newDimensionIndexArray = {dimension1, dimension2}
+	local newDimensionArray = {dimension1, dimension2}
 
 	local expandedDimensionSizeArray = AqwamTensorLibrary:getSize(expandedTensor)
 
@@ -1157,7 +1157,7 @@ local function hardcodedTranspose(tensor, dimensionArray) -- I don't think it is
 
 	local newTensor = createTensor(expandedDimensionSizeArray, true)
 
-	if (table.find(newDimensionIndexArray, 1)) and (table.find(newDimensionIndexArray, 2)) then
+	if (table.find(newDimensionArray, 1)) and (table.find(newDimensionArray, 2)) then
 
 		for a = 1, expandedDimensionSizeArray[1], 1 do
 
@@ -1181,7 +1181,7 @@ local function hardcodedTranspose(tensor, dimensionArray) -- I don't think it is
 
 		end
 
-	elseif (table.find(newDimensionIndexArray, 1)) and (table.find(newDimensionIndexArray, 3)) then
+	elseif (table.find(newDimensionArray, 1)) and (table.find(newDimensionArray, 3)) then
 
 		for a = 1, expandedDimensionSizeArray[1], 1 do
 
@@ -1205,7 +1205,7 @@ local function hardcodedTranspose(tensor, dimensionArray) -- I don't think it is
 
 		end
 
-	elseif (table.find(newDimensionIndexArray, 2)) and (table.find(newDimensionIndexArray, 3)) then
+	elseif (table.find(newDimensionArray, 2)) and (table.find(newDimensionArray, 3)) then
 
 		for a = 1, expandedDimensionSizeArray[1], 1 do
 
@@ -1229,7 +1229,7 @@ local function hardcodedTranspose(tensor, dimensionArray) -- I don't think it is
 
 		end
 
-	elseif (table.find(newDimensionIndexArray, 1)) and (table.find(newDimensionIndexArray, 4)) then
+	elseif (table.find(newDimensionArray, 1)) and (table.find(newDimensionArray, 4)) then
 
 		for a = 1, expandedDimensionSizeArray[1], 1 do
 
@@ -1253,7 +1253,7 @@ local function hardcodedTranspose(tensor, dimensionArray) -- I don't think it is
 
 		end
 
-	elseif (table.find(newDimensionIndexArray, 1)) and (table.find(newDimensionIndexArray, 5)) then
+	elseif (table.find(newDimensionArray, 1)) and (table.find(newDimensionArray, 5)) then
 
 		for a = 1, expandedDimensionSizeArray[1], 1 do
 
@@ -1277,7 +1277,7 @@ local function hardcodedTranspose(tensor, dimensionArray) -- I don't think it is
 
 		end
 
-	elseif (table.find(newDimensionIndexArray, 2)) and (table.find(newDimensionIndexArray, 4)) then
+	elseif (table.find(newDimensionArray, 2)) and (table.find(newDimensionArray, 4)) then
 
 		for a = 1, expandedDimensionSizeArray[1], 1 do
 
@@ -1301,7 +1301,7 @@ local function hardcodedTranspose(tensor, dimensionArray) -- I don't think it is
 
 		end
 
-	elseif (table.find(newDimensionIndexArray, 2)) and (table.find(newDimensionIndexArray, 5)) then
+	elseif (table.find(newDimensionArray, 2)) and (table.find(newDimensionArray, 5)) then
 
 		for a = 1, expandedDimensionSizeArray[1], 1 do
 
@@ -1325,7 +1325,7 @@ local function hardcodedTranspose(tensor, dimensionArray) -- I don't think it is
 
 		end
 
-	elseif (table.find(newDimensionIndexArray, 3)) and (table.find(newDimensionIndexArray, 4)) then
+	elseif (table.find(newDimensionArray, 3)) and (table.find(newDimensionArray, 4)) then
 
 		for a = 1, expandedDimensionSizeArray[1], 1 do
 
@@ -1349,7 +1349,7 @@ local function hardcodedTranspose(tensor, dimensionArray) -- I don't think it is
 
 		end
 
-	elseif (table.find(newDimensionIndexArray, 3)) and (table.find(newDimensionIndexArray, 5)) then
+	elseif (table.find(newDimensionArray, 3)) and (table.find(newDimensionArray, 5)) then
 
 		for a = 1, expandedDimensionSizeArray[1], 1 do
 
@@ -1373,7 +1373,7 @@ local function hardcodedTranspose(tensor, dimensionArray) -- I don't think it is
 
 		end
 
-	elseif (table.find(newDimensionIndexArray, 4)) and (table.find(newDimensionIndexArray, 5)) then
+	elseif (table.find(newDimensionArray, 4)) and (table.find(newDimensionArray, 5)) then
 
 		for a = 1, expandedDimensionSizeArray[1], 1 do
 
