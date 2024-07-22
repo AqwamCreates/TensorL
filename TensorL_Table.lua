@@ -2149,7 +2149,7 @@ function AqwamTensorLibrary:standardDeviation(tensor, dimension)
 
 end
 
-function AqwamTensorLibrary:zScoreNormalize(tensor, dimension)
+function AqwamTensorLibrary:zScoreNormalization(tensor, dimension)
 
 	local meanTensor = AqwamTensorLibrary:mean(tensor, dimension)
 
