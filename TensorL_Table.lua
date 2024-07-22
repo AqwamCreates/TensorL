@@ -1149,15 +1149,15 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 	local targetDimension1 = targetDimensionArray[1] + offset
 	local targetDimension2 = targetDimensionArray[2] + offset
 
-	local newTargetDimensionArray = {targetDimension1, targetDimension2}
-
 	local expandedDimensionSizeArray = AqwamTensorLibrary:getSize(expandedTensor)
+	
+	targetDimensionArray = {targetDimension1, targetDimension2}
 
 	expandedDimensionSizeArray[targetDimension1], expandedDimensionSizeArray[targetDimension2] = expandedDimensionSizeArray[targetDimension2], expandedDimensionSizeArray[targetDimension1]
 
 	local newTensor = createTensor(expandedDimensionSizeArray, true)
 
-	if (table.find(newTargetDimensionArray, 1)) and (table.find(newTargetDimensionArray, 2)) then
+	if (table.find(targetDimensionArray, 1)) and (table.find(targetDimensionArray, 2)) then
 
 		for a = 1, expandedDimensionSizeArray[1], 1 do
 
@@ -1181,7 +1181,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 		end
 
-	elseif (table.find(newTargetDimensionArray, 1)) and (table.find(newTargetDimensionArray, 3)) then
+	elseif (table.find(targetDimensionArray, 1)) and (table.find(targetDimensionArray, 3)) then
 
 		for a = 1, expandedDimensionSizeArray[1], 1 do
 
@@ -1205,7 +1205,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 		end
 
-	elseif (table.find(newTargetDimensionArray, 2)) and (table.find(newTargetDimensionArray, 3)) then
+	elseif (table.find(targetDimensionArray, 2)) and (table.find(targetDimensionArray, 3)) then
 
 		for a = 1, expandedDimensionSizeArray[1], 1 do
 
@@ -1229,7 +1229,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 		end
 
-	elseif (table.find(newTargetDimensionArray, 1)) and (table.find(newTargetDimensionArray, 4)) then
+	elseif (table.find(targetDimensionArray, 1)) and (table.find(targetDimensionArray, 4)) then
 
 		for a = 1, expandedDimensionSizeArray[1], 1 do
 
@@ -1253,7 +1253,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 		end
 
-	elseif (table.find(newTargetDimensionArray, 1)) and (table.find(newTargetDimensionArray, 5)) then
+	elseif (table.find(targetDimensionArray, 1)) and (table.find(targetDimensionArray, 5)) then
 
 		for a = 1, expandedDimensionSizeArray[1], 1 do
 
@@ -1277,7 +1277,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 		end
 
-	elseif (table.find(newTargetDimensionArray, 2)) and (table.find(newTargetDimensionArray, 4)) then
+	elseif (table.find(targetDimensionArray, 2)) and (table.find(targetDimensionArray, 4)) then
 
 		for a = 1, expandedDimensionSizeArray[1], 1 do
 
@@ -1301,7 +1301,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 		end
 
-	elseif (table.find(newTargetDimensionArray, 2)) and (table.find(newTargetDimensionArray, 5)) then
+	elseif (table.find(targetDimensionArray, 2)) and (table.find(targetDimensionArray, 5)) then
 
 		for a = 1, expandedDimensionSizeArray[1], 1 do
 
@@ -1325,7 +1325,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 		end
 
-	elseif (table.find(newTargetDimensionArray, 3)) and (table.find(newTargetDimensionArray, 4)) then
+	elseif (table.find(targetDimensionArray, 3)) and (table.find(targetDimensionArray, 4)) then
 
 		for a = 1, expandedDimensionSizeArray[1], 1 do
 
@@ -1349,7 +1349,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 		end
 
-	elseif (table.find(newTargetDimensionArray, 3)) and (table.find(newTargetDimensionArray, 5)) then
+	elseif (table.find(targetDimensionArray, 3)) and (table.find(targetDimensionArray, 5)) then
 
 		for a = 1, expandedDimensionSizeArray[1], 1 do
 
@@ -1373,7 +1373,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 		end
 
-	elseif (table.find(newTargetDimensionArray, 4)) and (table.find(newTargetDimensionArray, 5)) then
+	elseif (table.find(targetDimensionArray, 4)) and (table.find(targetDimensionArray, 5)) then
 
 		for a = 1, expandedDimensionSizeArray[1], 1 do
 
