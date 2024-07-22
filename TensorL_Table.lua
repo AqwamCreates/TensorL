@@ -1134,7 +1134,7 @@ end
 
 --]]
 
-local function hardcodedTranspose(tensor, dimensionIndexArray) -- I don't think it is worth the effort to generalize to the rest of dimensions... That being said, to process videos, you need at most 5 dimensions. Don't get confused about the channels! Only number of channels are changed and not the number of dimensions of the tensor!
+local function hardcodedTranspose(tensor, dimensionArray) -- I don't think it is worth the effort to generalize to the rest of dimensions... That being said, to process videos, you need at most 5 dimensions. Don't get confused about the channels! Only number of channels are changed and not the number of dimensions of the tensor!
 
 	local dimensionArray = AqwamTensorLibrary:getSize(tensor)
 
@@ -1146,8 +1146,8 @@ local function hardcodedTranspose(tensor, dimensionIndexArray) -- I don't think 
 
 	local expandedTensor = AqwamTensorLibrary:increaseNumberOfDimensions(tensor, dimensionSizeToAddArray)
 
-	local dimension1 = dimensionIndexArray[1] + offset
-	local dimension2 = dimensionIndexArray[2] + offset
+	local dimension1 = dimensionArray[1] + offset
+	local dimension2 = dimensionArray[2] + offset
 
 	local newDimensionIndexArray = {dimension1, dimension2}
 
@@ -1407,15 +1407,15 @@ local function hardcodedTranspose(tensor, dimensionIndexArray) -- I don't think 
 
 end
 
-function AqwamTensorLibrary:transpose(tensor, dimensionIndexArray)
+function AqwamTensorLibrary:transpose(tensor, dimensionArray)
 
 	if (AqwamTensorLibrary:getNumberOfDimensions(tensor) == 0) then return tensor end
 
-	if (#dimensionIndexArray ~= 2) then error("Dimension index array must contain exactly 2 dimensions.") end
+	if (#dimensionArray ~= 2) then error("Dimension array must contain exactly 2 dimensions.") end
 
-	if (dimensionIndexArray[1] == dimensionIndexArray[2]) then return tensor end
+	if (dimensionArray[1] == dimensionArray[2]) then return tensor end
 
-	return hardcodedTranspose(tensor, dimensionIndexArray)
+	return hardcodedTranspose(tensor, dimensionArray)
 
 end
 
