@@ -1695,17 +1695,25 @@ local function recursiveExpandedDotProduct(tensor1, tensor2) -- Since both have 
 
 	local tensor = {}
 
-	if (numberOfDimensions1 >= 3) and (numberOfDimensions2 >= 3) then
+	if (numberOfDimensions1 >= 3) and (numberOfDimensions2 >= 3) and (dimensionSizeArray1[1] == dimensionSizeArray2[1]) then
 
 		for i = 1, dimensionSizeArray1[1], 1 do tensor[i] = recursiveExpandedDotProduct(tensor1[i], tensor2[i]) end
 
-	elseif (numberOfDimensions1 == 2) and (numberOfDimensions2 == 2) then -- No need an elseif statement where number of dimension is 1. This operation requires 2D tensors.
+	elseif (numberOfDimensions1 == 2) and (numberOfDimensions2 == 2) and (dimensionSizeArray1[2] == dimensionSizeArray2[1]) then -- No need an elseif statement where number of dimension is 1. This operation requires 2D tensors.
 
 		tensor = tensor2DimensionalDotProduct(tensor1, tensor2)
 
 	elseif (numberOfDimensions1 == 0) or (numberOfDimensions2 == 0) then
 
 		tensor = AqwamTensorLibrary:multiply(tensor1, tensor2)
+		
+	elseif (numberOfDimensions1 >= 3) and (numberOfDimensions2 >= 3) and (dimensionSizeArray1[1] ~= dimensionSizeArray2[1]) then
+		
+		error("Unable to dot product. The starting dimension sizes of the first tensor does not equal to the starting dimension sizes of the second tensor.")
+		
+	elseif (numberOfDimensions1 == 2) and (numberOfDimensions2 == 2) and (dimensionSizeArray1[2] ~= dimensionSizeArray2[1]) then
+		
+		error("Unable to dot product. The final dimension size of the first tensor does not equal to the second final dimension size of the second tensor.")
 		
 	else
 		
