@@ -1693,9 +1693,11 @@ local function recursiveExpandedDotProduct(tensor1, tensor2) -- Since both have 
 	
 	local numberOfDimensions2 = #dimensionSizeArray2
 
-	local tensor = {}
+	local tensor
 
 	if (numberOfDimensions1 >= 3) and (numberOfDimensions2 >= 3) and (dimensionSizeArray1[1] == dimensionSizeArray2[1]) then
+		
+		tensor = {}
 
 		for i = 1, dimensionSizeArray1[1], 1 do tensor[i] = recursiveExpandedDotProduct(tensor1[i], tensor2[i]) end
 
