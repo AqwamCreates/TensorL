@@ -2102,8 +2102,10 @@ local function hardcodedDimensionSum(tensor, dimension) -- I don't think it is w
 end
 
 function AqwamTensorLibrary:sum(tensor, dimension)
+	
+	dimension = dimension or 0
 
-	if (not dimension) then return fullSum(tensor) end
+	if (dimension == 0) then return fullSum(tensor) end
 
 	local numberOfDimensions = #AqwamTensorLibrary:getSize(tensor)
 
