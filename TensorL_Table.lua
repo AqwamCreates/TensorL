@@ -623,7 +623,7 @@ local function expand(tensor, dimensionSizeArray, targetDimensionSizeArray)
 
 	local numberOfDimensions = #dimensionSizeArray
 
-	if (numberOfDimensions > 1) then
+	if (numberOfDimensions >= 2) then
 
 		newTensor = {}
 		
