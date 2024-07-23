@@ -617,8 +617,6 @@ local function expand(tensor, dimensionSizeArray, targetDimensionSizeArray)
 	
 	-- Does not do the same thing with inefficient expand function. This one expand at the lowest dimension first and then the parent dimension will make copy of this.
 
-	if checkIfItHasSameDimensionSizeArray(dimensionSizeArray, targetDimensionSizeArray) then return deepCopyTable(tensor) end -- Do not remove this code even if the code below is related or function similar to this code. You will spend so much time fixing it if you forget that you have removed it.
-
 	local newTensor
 
 	local numberOfDimensions = #dimensionSizeArray
@@ -668,6 +666,8 @@ end
 function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 	
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+	
+	if checkIfItHasSameDimensionSizeArray(dimensionSizeArray, targetDimensionSizeArray) then return deepCopyTable(tensor) end -- Do not remove this code even if the code below is related or function similar to this code. You will spend so much time fixing it if you forget that you have removed it.
 
 	return expand(tensor, dimensionSizeArray, targetDimensionSizeArray)
 
