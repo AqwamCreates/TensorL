@@ -2506,9 +2506,7 @@ function AqwamTensorLibrary:reshape(tensor, dimensionSizeArray)
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
 	
-	local totalNumberOfValue = 1
-	
-	for _, size in ipairs(tensorDimensionSizeArray) do totalNumberOfValue = totalNumberOfValue * size end
+	local totalNumberOfValue = AqwamTensorLibrary:getTotalSize(tensor)
 	
 	local totalNumberOfValuesRequired = 1
 
