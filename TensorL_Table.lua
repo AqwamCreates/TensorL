@@ -471,15 +471,9 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 	local firstTensor = tensorArray[1]
 
-	local firstTensor = AqwamTensorLibrary:truncate(firstTensor)
-
 	if (numberOfTensors == 1) then 
 
-		local tensor = applyFunctionUsingOneTensor(functionToApply, firstTensor)
-
-		tensor = AqwamTensorLibrary:truncate(tensor)
-
-		return tensor
+		return applyFunctionUsingOneTensor(functionToApply, firstTensor)
 
 	end
 
@@ -488,8 +482,6 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 	for i = 2, numberOfTensors, 1 do
 
 		local otherTensor = tensorArray[i]
-
-		local otherTensor = AqwamTensorLibrary:truncate(otherTensor)
 
 		tensor, otherTensor = AqwamTensorLibrary:broadcastATensorIfDifferentSize(tensor, otherTensor)
 
