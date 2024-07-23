@@ -70,7 +70,7 @@ local function removeLastValueFromArray(array)
 
 	local newArray = table.clone(array)
 
-	table.remove(newArray, 1)
+	table.remove(newArray, #newArray)
 
 	return newArray
 
