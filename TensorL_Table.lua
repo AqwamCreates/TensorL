@@ -2500,7 +2500,7 @@ local function reshape(tensor, dimensionSizeArray, targetTensor, targetDimension
 
 end
 
-function AqwamTensorLibrary:inefficientReshape(tensor, dimensionSizeArray)
+function AqwamTensorLibrary:inefficientReshape(tensor, dimensionSizeArray) -- This one requires higher space complexity due to storing the target dimension index array for each of the values. It is also less efficient because it needs to use recursion to get and set values from and to the target tensor.
 	
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
 
@@ -2534,7 +2534,7 @@ function AqwamTensorLibrary:inefficientReshape(tensor, dimensionSizeArray)
 	
 end
 
-function AqwamTensorLibrary:reshape(tensor, dimensionSizeArray)
+function AqwamTensorLibrary:reshape(tensor, dimensionSizeArray) -- This one requires lower space complexity as it only need to flatten the tensor. Then only need a single target dimension index array that will be used by all values from the original tebsor.
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
 
