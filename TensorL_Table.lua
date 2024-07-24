@@ -2716,7 +2716,7 @@ end
 
 function AqwamTensorLibrary:concatenate(tensor1, tensor2, dimension)
 	
-	if (type(dimension) ~= "number") then error("Invalid dimension") end
+	if (type(dimension) ~= "number") then error("Invalid dimension.") end
 
 	local dimensionSizeArray1 = AqwamTensorLibrary:getSize(tensor1)
 
