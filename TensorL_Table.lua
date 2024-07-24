@@ -1056,19 +1056,21 @@ function AqwamTensorLibrary:getNumberOfDimensions(tensor)
 
 end
 
+local function getTotalSizeFromDimensionSizeArray(dimensionSizeArray)
+	
+	local totalSize = 1
+
+	for _, value in ipairs(dimensionSizeArray) do totalSize = value * totalSize end
+	
+	return totalSize
+	
+end
+
 function AqwamTensorLibrary:getTotalSize(tensor)
 
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
 
-	local totalSize = 1
-
-	for _, value in ipairs(dimensionSizeArray) do
-
-		totalSize = value * totalSize
-
-	end
-
-	return totalSize
+	return getTotalSizeFromDimensionSizeArray(dimensionSizeArray)
 
 end
 
@@ -2504,11 +2506,9 @@ function AqwamTensorLibrary:inefficientReshape(tensor, dimensionSizeArray) -- Th
 	
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
 
-	local totalNumberOfValue = AqwamTensorLibrary:getTotalSize(tensor)
+	local totalNumberOfValue = getTotalSizeFromDimensionSizeArray(tensorDimensionSizeArray)
 
-	local totalNumberOfValuesRequired = 1
-
-	for _, size in ipairs(dimensionSizeArray) do totalNumberOfValuesRequired = totalNumberOfValuesRequired * size end
+	local totalNumberOfValuesRequired = getTotalSizeFromDimensionSizeArray(dimensionSizeArray)
 
 	if (totalNumberOfValue ~= totalNumberOfValuesRequired) then error("The number of values in flattened tensor does not equal to total number of values of the reshaped tensor.") end
 
@@ -2538,11 +2538,9 @@ function AqwamTensorLibrary:reshape(tensor, dimensionSizeArray) -- This one requ
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
 
-	local totalNumberOfValue = AqwamTensorLibrary:getTotalSize(tensor)
+	local totalNumberOfValue = getTotalSizeFromDimensionSizeArray(tensorDimensionSizeArray)
 
-	local totalNumberOfValuesRequired = 1
-
-	for _, size in ipairs(dimensionSizeArray) do totalNumberOfValuesRequired = totalNumberOfValuesRequired * size end
+	local totalNumberOfValuesRequired = getTotalSizeFromDimensionSizeArray(dimensionSizeArray)
 
 	if (totalNumberOfValue ~= totalNumberOfValuesRequired) then error("The number of values in flattened tensor does not equal to total number of values of the reshaped tensor.") end
 
