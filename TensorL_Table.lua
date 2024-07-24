@@ -647,7 +647,7 @@ local function expand(tensor, dimensionSizeArray, targetDimensionSizeArray)
 
 	local canDimensionBeExpanded = (dimensionSize == 1)
 
-	if (numberOfDimensions > 0) and (not hasSameDimensionSize) and (canDimensionBeExpanded) then 
+	if (numberOfDimensions >= 1) and (not hasSameDimensionSize) and (canDimensionBeExpanded) then 
 
 		local subTensor = newTensor[1]
 
