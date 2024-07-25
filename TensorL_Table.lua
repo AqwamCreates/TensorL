@@ -2629,6 +2629,8 @@ function AqwamTensorLibrary:extract(tensor, originDimensionIndexArray, targetDim
 	local outOfBoundsTargetIndexArray = getOutOfBoundsIndexArray(dimensionSizeArray, targetDimensionIndexArray)
 
 	local falseBooleanIndexArray = getFalseBooleanIndexArray(function(a, b) return (a <= b) end, originDimensionIndexArray, targetDimensionIndexArray)
+	
+	print(originDimensionIndexArray, targetDimensionIndexArray)
 
 	local outOfBoundsOriginIndexArraySize = #outOfBoundsOriginIndexArray
 
@@ -2676,7 +2678,7 @@ function AqwamTensorLibrary:extract(tensor, originDimensionIndexArray, targetDim
 
 		local errorString = "The origin dimension index is larger than the target dimension index for dimensions at "
 
-		for i, index in ipairs(outOfBoundsOriginIndexArray) do
+		for i, index in ipairs(falseBooleanIndexArray) do
 
 			errorString = errorString .. index
 
