@@ -1739,13 +1739,9 @@ local function recursiveExpandedDotProduct(tensor1, tensor2, dimensionSizeArray1
 
 		tensor = AqwamTensorLibrary:multiply(tensor1, tensor2)
 		
-	elseif (numberOfDimensions1 >= 3) and (numberOfDimensions2 >= 3) and (dimensionSizeArray1[1] ~= dimensionSizeArray2[1]) then
+	elseif (numberOfDimensions1 >= 2) and (numberOfDimensions2 >= 2) and (dimensionSizeArray1[1] ~= dimensionSizeArray2[1]) then
 		
 		error("Unable to dot product. The starting dimension sizes of the first tensor does not equal to the starting dimension sizes of the second tensor.")
-		
-	elseif (numberOfDimensions1 == 2) and (numberOfDimensions2 == 2) and (dimensionSizeArray1[2] ~= dimensionSizeArray2[1]) then
-		
-		error("Unable to dot product. The final dimension size of the first tensor does not equal to the second final dimension size of the second tensor.")
 		
 	else
 		
@@ -2629,8 +2625,6 @@ function AqwamTensorLibrary:extract(tensor, originDimensionIndexArray, targetDim
 	local outOfBoundsTargetIndexArray = getOutOfBoundsIndexArray(dimensionSizeArray, targetDimensionIndexArray)
 
 	local falseBooleanIndexArray = getFalseBooleanIndexArray(function(a, b) return (a <= b) end, originDimensionIndexArray, targetDimensionIndexArray)
-	
-	print(originDimensionIndexArray, targetDimensionIndexArray)
 
 	local outOfBoundsOriginIndexArraySize = #outOfBoundsOriginIndexArray
 
@@ -2687,8 +2681,6 @@ function AqwamTensorLibrary:extract(tensor, originDimensionIndexArray, targetDim
 		end
 
 		errorString = errorString .. "."
-
-		error(errorString)
 
 	end
 
