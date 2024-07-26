@@ -911,6 +911,44 @@ function AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray, minimu
 
 end
 
+local function convertTensorToScalar(tensor)
+
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
+	if (#dimensionSizeArray >= 1) then
+
+		return convertTensorToScalar(tensor[1])
+
+	else
+
+		return tensor
+
+	end
+
+end
+
+local function truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
+
+	local newDimensionSizeArray = table.clone(dimensionSizeArray)
+
+	local numberOfStartingDimensionsWithTheSizeOf1 = 0
+
+	while true do
+
+		local size = newDimensionSizeArray[1]
+
+		if (size ~= 1) then break end
+
+		table.remove(newDimensionSizeArray, 1)
+
+		numberOfStartingDimensionsWithTheSizeOf1 = numberOfStartingDimensionsWithTheSizeOf1 + 1
+
+	end
+
+	return newDimensionSizeArray, numberOfStartingDimensionsWithTheSizeOf1
+
+end
+
 local function createIdentityTensor(dimensionSizeArray, dimensionIndexArray)
 
 	local numberOfDimensions = #dimensionSizeArray
@@ -959,44 +997,6 @@ local function createIdentityTensor(dimensionSizeArray, dimensionIndexArray)
 	end
 
 	return tensor
-
-end
-
-local function convertTensorToScalar(tensor)
-
-	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
-
-	if (#dimensionSizeArray >= 1) then
-
-		return convertTensorToScalar(tensor[1])
-
-	else
-
-		return tensor
-
-	end
-
-end
-
-local function truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
-
-	local newDimensionSizeArray = table.clone(dimensionSizeArray)
-
-	local numberOfStartingDimensionsWithTheSizeOf1 = 0
-
-	while true do
-
-		local size = newDimensionSizeArray[1]
-
-		if (size ~= 1) then break end
-
-		table.remove(newDimensionSizeArray, 1)
-
-		numberOfStartingDimensionsWithTheSizeOf1 = numberOfStartingDimensionsWithTheSizeOf1 + 1
-
-	end
-
-	return newDimensionSizeArray, numberOfStartingDimensionsWithTheSizeOf1
 
 end
 
