@@ -541,7 +541,7 @@ local function onBroadcastError(dimensionSizeArray1, dimensionSizeArray2)
 
 	local tensor2DimensionSizeArrayString = getTensorDimensionSizeArrayString(dimensionSizeArray2)
 
-	local errorMessage = "Unable to broadcast. \n\n" .. "Tensor 1 size: " .. tensor1DimensionSizeArrayString .."\n" .. "Tensor 2 size: " .. tensor2DimensionSizeArrayString .."\n\n"
+	local errorMessage = "Unable to broadcast. " .. "Tensor 1 size: " .. tensor1DimensionSizeArrayString .. " Tensor 2 size: " .. tensor2DimensionSizeArrayString
 
 	error(errorMessage)
 
