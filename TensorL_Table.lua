@@ -1887,7 +1887,7 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 
 end
 
-local function fullSum(tensor, dimensionSizeArray)
+local function sumFromAllDimensions(tensor, dimensionSizeArray)
 
 	local numberOfDimensions = #dimensionSizeArray
 
@@ -1897,7 +1897,7 @@ local function fullSum(tensor, dimensionSizeArray)
 		
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		for i = 1, dimensionSizeArray[1], 1 do result = result + fullSum(tensor[i], remainingDimensionSizeArray) end
+		for i = 1, dimensionSizeArray[1], 1 do result = result + sumFromAllDimensions(tensor[i], remainingDimensionSizeArray) end
 
 	else
 
@@ -1955,7 +1955,7 @@ local function subTensorSumAlongFirstDimension(tensor, dimensionSizeArray)
 
 end
 
-local function dimensionSum(tensor, dimensionSizeArray, targetDimension, currentDimension)
+local function sumAlongOneDimension(tensor, dimensionSizeArray, targetDimension, currentDimension)
 
 	local newTensor
 
@@ -1969,7 +1969,7 @@ local function dimensionSum(tensor, dimensionSizeArray, targetDimension, current
 		
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = dimensionSum(tensor[i], remainingDimensionSizeArray, targetDimension, currentDimension + 1) end
+		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = sumAlongOneDimension(tensor[i], remainingDimensionSizeArray, targetDimension, currentDimension + 1) end
 
 	end
 
@@ -2133,11 +2133,11 @@ function AqwamTensorLibrary:sum(tensor, dimension)
 	
 	local numberOfDimensions = #dimensionSizeArray
 
-	if (dimension == 0) then return fullSum(tensor, dimensionSizeArray) end
+	if (dimension == 0) then return sumFromAllDimensions(tensor, dimensionSizeArray) end
 
 	checkIfDimensionIsOutOfBounds(dimension, 1, numberOfDimensions)
 	
-	local sumTensor = dimensionSum(tensor, dimensionSizeArray, dimension, 1)
+	local sumTensor = sumAlongOneDimension(tensor, dimensionSizeArray, dimension, 1)
 	
 	return sumTensor
 
@@ -2387,13 +2387,13 @@ function AqwamTensorLibrary:findMinimumValueDimensionIndexArray(tensor)
 
 end
 
-local function flatten(tensor, dimensionSizeArray, targetTensor)
+local function flattenIntoASingleDimension(tensor, dimensionSizeArray, targetTensor)
 
 	if (#dimensionSizeArray >= 2) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		for i = 1, dimensionSizeArray[1], 1 do flatten(tensor[i], remainingDimensionSizeArray, targetTensor) end
+		for i = 1, dimensionSizeArray[1], 1 do flattenIntoASingleDimension(tensor[i], remainingDimensionSizeArray, targetTensor) end
 
 	else
 
@@ -2405,13 +2405,61 @@ local function flatten(tensor, dimensionSizeArray, targetTensor)
 
 end
 
-function AqwamTensorLibrary:flatten(tensor)
+local function flattenAlongSpecifiedDimensions(tensor, dimensionSizeArray, startDimension, endDimension)
+	
+	local numberOfDimensions = #dimensionSizeArray
+
+	local flattenedDimensionSize = 1
+
+	local newDimensionSizeArray = {}
+
+	for currentDimension = numberOfDimensions, 1, -1 do
+
+		local currentDimensionSize = dimensionSizeArray[currentDimension]
+
+		if (currentDimension > startDimension) and (currentDimension <= endDimension) then 
+
+			flattenedDimensionSize = flattenedDimensionSize * currentDimensionSize
+
+		elseif (currentDimension == startDimension) then
+
+			flattenedDimensionSize = flattenedDimensionSize * currentDimensionSize
+
+			table.insert(newDimensionSizeArray, 1, flattenedDimensionSize)
+
+		else
+
+			table.insert(newDimensionSizeArray, 1, currentDimensionSize)
+
+		end
+
+	end
+	
+	return AqwamTensorLibrary:reshape(tensor, newDimensionSizeArray)
+	
+end
+
+function AqwamTensorLibrary:flatten(tensor, startDimension, endDimension)
 
 	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
 	
-	local flattenedTensor = {}
-
-	flatten(tensor, dimensionSizeArray, flattenedTensor)
+	local flattenedTensor
+	
+	if (not startDimension) and (not endDimension) then
+		
+		flattenedTensor = {}
+		
+		flattenIntoASingleDimension(tensor, dimensionSizeArray, flattenedTensor)
+		
+	else
+		
+		startDimension = startDimension or 1
+		
+		endDimension = endDimension or math.huge
+		
+		flattenedTensor = flattenAlongSpecifiedDimensions(tensor, dimensionSizeArray, startDimension, endDimension)
+		
+	end
 
 	return flattenedTensor
 
