@@ -511,25 +511,23 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 	local numberOfTensors = #tensorArray
 
-	local firstTensor = tensorArray[1]
+	local tensor = tensorArray[1]
 
 	if (numberOfTensors == 1) then 
 		
-		local dimensionSizeArray = AqwamTensorLibrary:getSize(firstTensor)
+		local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
 		
-		if (type(firstTensor) == "table") then
+		if (type(tensor) == "table") then
 			
-			return applyFunctionUsingOneTensor(functionToApply, firstTensor, dimensionSizeArray)
+			return applyFunctionUsingOneTensor(functionToApply, tensor, dimensionSizeArray)
 			
 		else
 			
-			return functionToApply(firstTensor, dimensionSizeArray)
+			return functionToApply(tensor, dimensionSizeArray)
 			
 		end
 
 	end
-
-	local tensor = firstTensor
 
 	for i = 2, numberOfTensors, 1 do
 
