@@ -194,6 +194,54 @@ local function applyFunctionUsingWhenTheOtherIsAScalar(functionToApply, tensor, 
 
 end
 
+local function applyFunctionOnMultipleTensors(functionToApply, ...)
+
+	local tensorArray = {...}
+
+	local numberOfTensors = #tensorArray
+
+	local tensor = tensorArray[1]
+
+	if (numberOfTensors == 1) then 
+
+		local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
+		if (type(tensor) == "table") then
+
+			return applyFunctionUsingOneTensor(functionToApply, tensor, dimensionSizeArray)
+
+		else
+
+			return functionToApply(tensor, dimensionSizeArray)
+
+		end
+
+	end
+
+	for i = 2, numberOfTensors, 1 do
+
+		local otherTensor = tensorArray[i]
+
+		local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
+		if (type(otherTensor) == "table") then
+
+			tensor, otherTensor = AqwamTensorLibrary:broadcastATensorIfDifferentSize(tensor, otherTensor)
+
+			tensor = applyFunctionUsingTwoTensors(functionToApply, tensor, otherTensor, dimensionSizeArray)
+
+		else
+
+			tensor = applyFunctionUsingWhenTheOtherIsAScalar(functionToApply, tensor, otherTensor, dimensionSizeArray)
+
+		end
+
+	end
+
+	return tensor
+
+end
+
 local function get2DTensorTextSpacing(tensor, dimensionSizeArray, textSpacingArray) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
 
 	if (#dimensionSizeArray > 1) then
@@ -502,54 +550,6 @@ local function containAFalseBooleanInTensor(booleanTensor, dimensionSizeArray)
 	end
 
 	return containsAFalseBoolean
-
-end
-
-local function applyFunctionOnMultipleTensors(functionToApply, ...)
-
-	local tensorArray = {...}
-
-	local numberOfTensors = #tensorArray
-
-	local tensor = tensorArray[1]
-
-	if (numberOfTensors == 1) then 
-		
-		local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
-		
-		if (type(tensor) == "table") then
-			
-			return applyFunctionUsingOneTensor(functionToApply, tensor, dimensionSizeArray)
-			
-		else
-			
-			return functionToApply(tensor, dimensionSizeArray)
-			
-		end
-
-	end
-
-	for i = 2, numberOfTensors, 1 do
-
-		local otherTensor = tensorArray[i]
-		
-		local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
-		
-		if (type(otherTensor) == "table") then
-			
-			tensor, otherTensor = AqwamTensorLibrary:broadcastATensorIfDifferentSize(tensor, otherTensor)
-			
-			tensor = applyFunctionUsingTwoTensors(functionToApply, tensor, otherTensor, dimensionSizeArray)
-			
-		else
-			
-			tensor = applyFunctionUsingWhenTheOtherIsAScalar(functionToApply, tensor, otherTensor, dimensionSizeArray)
-			
-		end
-
-	end
-
-	return tensor
 
 end
 
