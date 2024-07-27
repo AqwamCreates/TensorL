@@ -116,7 +116,7 @@ local function deepCopyTable(original, copies)
 
 end
 
-local function applyFunctionUsingOneTensor(operation, tensor, dimensionSizeArray) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
+local function applyFunctionUsingOneTensor(functionToApply, tensor, dimensionSizeArray) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
 	
 	local numberOfDimensions = #dimensionSizeArray
 
@@ -126,15 +126,15 @@ local function applyFunctionUsingOneTensor(operation, tensor, dimensionSizeArray
 		
 		local remainingDimensionSizeArray = removeLastValueFromArray(dimensionSizeArray)
 		
-		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = applyFunctionUsingOneTensor(operation, tensor[i], remainingDimensionSizeArray) end
+		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = applyFunctionUsingOneTensor(functionToApply, tensor[i], remainingDimensionSizeArray) end
 		
 	elseif (numberOfDimensions == 1) then -- Much more efficient than applying recursion again to get the original value.
 		
-		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = operation(tensor[i]) end
+		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = functionToApply(tensor[i]) end
 		
 	else -- Sometimes the original tensor can be a number, so we must do the operation directly.
 		
-		newTensor = operation(tensor)
+		newTensor = functionToApply(tensor)
 		
 	end
 
@@ -142,7 +142,7 @@ local function applyFunctionUsingOneTensor(operation, tensor, dimensionSizeArray
 
 end
 
-local function applyFunctionUsingTwoTensors(operation, tensor1, tensor2, dimensionSizeArray) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
+local function applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2, dimensionSizeArray) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
 	
 	local numberOfDimensions = #dimensionSizeArray
 
@@ -152,15 +152,41 @@ local function applyFunctionUsingTwoTensors(operation, tensor1, tensor2, dimensi
 		
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 		
-		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = applyFunctionUsingTwoTensors(operation, tensor1[i], tensor2[i], remainingDimensionSizeArray) end
+		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = applyFunctionUsingTwoTensors(functionToApply, tensor1[i], tensor2[i], remainingDimensionSizeArray) end
 
 	elseif (numberOfDimensions == 1) then -- Much more efficient than applying recursion again to get the original value.
 
-		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = operation(tensor1[i], tensor2[i]) end
+		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = functionToApply(tensor1[i], tensor2[i]) end
 
 	else -- Sometimes the original tensor can be a number, so we must do the operation directly.
 
-		newTensor = operation(tensor1, tensor2)
+		newTensor = functionToApply(tensor1, tensor2)
+
+	end
+
+	return newTensor
+
+end
+
+local function applyFunctionUsingWhenTheOtherIsAScalar(functionToApply, tensor, scalar, dimensionSizeArray) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	local newTensor = {}
+
+	if (numberOfDimensions >= 2) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = applyFunctionUsingWhenTheOtherIsAScalar(functionToApply, tensor[i], scalar, remainingDimensionSizeArray) end
+
+	elseif (numberOfDimensions == 1) then -- Much more efficient than applying recursion again to get the original value.
+
+		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = functionToApply(tensor[i], scalar) end
+
+	else -- Sometimes the original tensor can be a number, so we must do the operation directly.
+
+		newTensor = functionToApply(tensor, scalar)
 
 	end
 
@@ -488,8 +514,18 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 	local firstTensor = tensorArray[1]
 
 	if (numberOfTensors == 1) then 
-
-		return applyFunctionUsingOneTensor(functionToApply, firstTensor)
+		
+		local dimensionSizeArray = AqwamTensorLibrary:getSize(firstTensor)
+		
+		if (type(firstTensor) == "table") then
+			
+			return applyFunctionUsingOneTensor(functionToApply, firstTensor, dimensionSizeArray)
+			
+		else
+			
+			return functionToApply(firstTensor, dimensionSizeArray)
+			
+		end
 
 	end
 
@@ -498,12 +534,20 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 	for i = 2, numberOfTensors, 1 do
 
 		local otherTensor = tensorArray[i]
-
-		tensor, otherTensor = AqwamTensorLibrary:broadcastATensorIfDifferentSize(tensor, otherTensor)
 		
 		local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
-
-		tensor = applyFunctionUsingTwoTensors(functionToApply, tensor, otherTensor, dimensionSizeArray)
+		
+		if (type(otherTensor) == "table") then
+			
+			tensor, otherTensor = AqwamTensorLibrary:broadcastATensorIfDifferentSize(tensor, otherTensor)
+			
+			tensor = applyFunctionUsingTwoTensors(functionToApply, tensor, otherTensor, dimensionSizeArray)
+			
+		else
+			
+			tensor = applyFunctionUsingWhenTheOtherIsAScalar(functionToApply, tensor, otherTensor, dimensionSizeArray)
+			
+		end
 
 	end
 
