@@ -1980,4 +1980,100 @@ function AqwamTensorLibrary:printPortableTensor()
 
 end
 
+local function expand(tensor, dimensionSizeArray, targetDimensionSizeArray)
+
+	-- Does not do the same thing with inefficient expand function. This one expand at the lowest dimension first and then the parent dimension will make copy of this.
+
+	local newTensor
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	if (numberOfDimensions >= 2) then
+
+		newTensor = {}
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		local remainingTargetDimensionSizeArray = removeFirstValueFromArray(targetDimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = expand(tensor[i], remainingDimensionSizeArray, remainingTargetDimensionSizeArray) end
+
+	else
+
+		newTensor = deepCopyTable(tensor)  -- If the "(numberOfDimensions > 1)" from the first "if" statement does not run, it will return the original tensor. So we need to deep copy it.
+
+	end
+
+	local updatedDimensionSizeArray = AqwamTensorLibrary:getSize(newTensor) -- Need to call this again because we may have modified the tensor below it, thus changing the dimension size array.
+
+	local dimensionSize = updatedDimensionSizeArray[1]
+
+	local targetDimensionSize = targetDimensionSizeArray[1]
+
+	local hasSameDimensionSize = (dimensionSize == targetDimensionSize)
+
+	local canDimensionBeExpanded = (dimensionSize == 1)
+
+	if (numberOfDimensions >= 1) and (not hasSameDimensionSize) and (canDimensionBeExpanded) then 
+
+		local subTensor = newTensor[1]
+
+		for i = 1, targetDimensionSize, 1 do newTensor[i] = deepCopyTable(subTensor) end
+
+	elseif (not hasSameDimensionSize) and (not canDimensionBeExpanded) then
+
+		error("Unable to expand.")
+
+	end
+
+	return newTensor
+
+end
+
+function AqwamTensorLibrary:expand(targetDimensionSizeArray)
+
+	local dimensionSizeArray = self:getSize()
+
+	if checkIfItHasSameDimensionSizeArray(dimensionSizeArray, targetDimensionSizeArray) then return deepCopyTable(tensor) end -- Do not remove this code even if the code below is related or function similar to this code. You will spend so much time fixing it if you forget that you have removed it.
+	
+	local newTensor = expand(self, dimensionSizeArray, targetDimensionSizeArray)
+	
+	return self.new(newTensor)
+
+end
+
+function AqwamTensorLibrary:increaseNumberOfDimensions(dimensionSizeToAddArray)
+
+	local newTensor = {}
+
+	local numberOfDimensionsToAdd = #dimensionSizeToAddArray
+
+	if (numberOfDimensionsToAdd > 1) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeToAddArray)
+
+		for i = 1, dimensionSizeToAddArray[1], 1 do newTensor[i] = self:increaseNumberOfDimensions(remainingDimensionSizeArray) end
+
+	elseif (numberOfDimensionsToAdd == 1) then
+
+		for i = 1, dimensionSizeToAddArray[1], 1 do newTensor[i] = deepCopyTable(self) end
+
+	else
+
+		newTensor = self.Values
+
+	end
+	
+	if (#dimensionSizeToAddArray == #self:getSize()) then
+		
+		return self.new(newTensor)
+			
+	else
+		
+		return newTensor
+		
+	end
+
+end
+
 return AqwamTensorLibrary
