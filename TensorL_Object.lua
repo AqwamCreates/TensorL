@@ -146,32 +146,24 @@ local function getNumberOfDimensions(tensor)
 	
 end
 
-local function getSubTensorLength(tensor, targetDimension)
-	
-	local numberOfDimensions = getNumberOfDimensions(tensor)
-	
-	if (numberOfDimensions == targetDimension) then return #tensor end
-	
-	return getSubTensorLength(tensor[1], targetDimension)
-	
+local function getSize(tensor, sizeArray)
+
+	if (type(tensor) ~= "table") then return end
+
+	table.insert(sizeArray, #tensor)
+
+	getSize(tensor[1], sizeArray)
+
 end
 
-local function getDimensionArray(tensor)
-	
-	local numberOfDimensions = getNumberOfDimensions(tensor)
+function AqwamTensorLibrary:getSize(tensor)
 
-	local dimensionArray = {}
+	local dimensionSizeArray = {}
 
-	for dimension = numberOfDimensions, 1, -1  do
+	getSize(tensor, dimensionSizeArray)
 
-		local length = getSubTensorLength(tensor, dimension)
+	return dimensionSizeArray
 
-		table.insert(dimensionArray, length)
-
-	end
-	
-	return dimensionArray
-	
 end
 
 local function applyFunctionUsingOneTensor(functionToApply, tensor, dimensionSizeArray) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
@@ -342,52 +334,6 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 end
 
-local function createString(tensor)
-
-	local dimensionArray = getDimensionArray(tensor)
-	
-	local tensorLength = #tensor
-
-	local result = " "
-
-	if (#dimensionArray > 1) then
-		
-		result = result .. "{"
-
-		for i = 1, #tensor do 
-			
-			result = result .. createString(tensor[i])
-			
-			if (i == tensorLength) then continue end
-			
-			result = result .. "\n"
-			
-		end
-		
-		result = result .. " }"
-
-	else
-
-		result = result .. "{ "
-
-		for i = 1, tensorLength do 
-
-			result = result .. tensor[i]
-
-			if (i == tensorLength) then continue end
-
-			result = result .. ", "
-
-		end
-
-		result = result .. " }"
-
-	end
-
-	return result
-
-end
-
 local function sumFromAllDimensions(tensor, dimensionSizeArray)
 
 	local numberOfDimensions = #dimensionSizeArray
@@ -498,9 +444,9 @@ end
 
 local function tensorProduct(tensor1, tensor2)
 	
-	local dimensionArray1 = getDimensionArray(tensor1)
+	local dimensionArray1 = getSize(tensor1)
 	
-	local dimensionArray2 = getDimensionArray(tensor2)
+	local dimensionArray2 = getSize(tensor2)
 
 	for i, _ in ipairs(dimensionArray1) do if (dimensionArray1[i] ~= dimensionArray2[i]) then error("Invalid dimensions.") end end
 
@@ -529,9 +475,9 @@ end
 
 local function innerProduct(tensor1, tensor2)
 	
-	local dimensionArray1 = getDimensionArray(tensor1)
+	local dimensionArray1 = getSize(tensor1)
 
-	local dimensionArray2 = getDimensionArray(tensor2)
+	local dimensionArray2 = getSize(tensor2)
 
 	for i, _ in ipairs(dimensionArray1) do if (dimensionArray1[i] ~= dimensionArray2[i]) then error("Invalid dimensions.") end end
 	
@@ -559,9 +505,9 @@ end
 
 local function outerProduct(tensor1, tensor2)
 	
-	local dimensionArray1 = getDimensionArray(tensor1)
+	local dimensionArray1 = getSize(tensor1)
 	
-	local dimensionArray2 = getDimensionArray(tensor2)
+	local dimensionArray2 = getSize(tensor2)
 
 	for i, _ in ipairs(dimensionArray1) do if dimensionArray1[i] ~= dimensionArray2[i] then error("Invalid dimensions.") end end
 
@@ -591,7 +537,7 @@ end
 
 local function eq(booleanTensor)
 	
-	local dimensionArray1 = getDimensionArray(booleanTensor)
+	local dimensionArray1 = getSize(booleanTensor)
 
 	local numberOfValues = dimensionArray1[1]
 
@@ -834,12 +780,6 @@ function AqwamTensorLibrary:getNumberOfDimensions()
 
 	return getNumberOfDimensions(self)
 
-end
-
-function AqwamTensorLibrary:getDimensionArray()
-	
-	return getDimensionArray(self)
-	
 end
 
 function AqwamTensorLibrary:print()
@@ -1301,10 +1241,8 @@ function AqwamTensorLibrary:unaryMinus()
 end
 
 function AqwamTensorLibrary:__tostring()
-	
-	local text = "\n\n" .. createString(self) .. "\n\n"
 
-	return text
+	return self:generateTensorString()
 	
 end
 
