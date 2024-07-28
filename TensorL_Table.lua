@@ -2,7 +2,7 @@
 
 	--------------------------------------------------------------------
 
-	Version 0.3.0
+	Version 0.4.0
 
 	Aqwam's Tensor Library (TensorL)
 
@@ -168,7 +168,7 @@ local function applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2, d
 
 end
 
-local function applyFunctionWhenTheSecondValueIsScalar(functionToApply, tensor, scalar, dimensionSizeArray) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
+local function applyFunctionWhenTheSecondValueIsAScalar(functionToApply, tensor, scalar, dimensionSizeArray) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
 
 	local numberOfDimensions = #dimensionSizeArray
 
@@ -178,7 +178,7 @@ local function applyFunctionWhenTheSecondValueIsScalar(functionToApply, tensor, 
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = applyFunctionWhenTheSecondValueIsScalar(functionToApply, tensor[i], scalar, remainingDimensionSizeArray) end
+		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = applyFunctionWhenTheSecondValueIsAScalar(functionToApply, tensor[i], scalar, remainingDimensionSizeArray) end
 
 	elseif (numberOfDimensions == 1) then -- Much more efficient than applying recursion again to get the original value.
 
@@ -194,7 +194,7 @@ local function applyFunctionWhenTheSecondValueIsScalar(functionToApply, tensor, 
 
 end
 
-local function applyFunctionWhenTheFirstValueIsScalar(functionToApply, scalar, tensor, dimensionSizeArray) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
+local function applyFunctionWhenTheFirstValueIsAScalar(functionToApply, scalar, tensor, dimensionSizeArray) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
 
 	local numberOfDimensions = #dimensionSizeArray
 
@@ -204,7 +204,7 @@ local function applyFunctionWhenTheFirstValueIsScalar(functionToApply, scalar, t
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = applyFunctionWhenTheFirstValueIsScalar(functionToApply, scalar, tensor[i], remainingDimensionSizeArray) end
+		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = applyFunctionWhenTheFirstValueIsAScalar(functionToApply, scalar, tensor[i], remainingDimensionSizeArray) end
 
 	elseif (numberOfDimensions == 1) then -- Much more efficient than applying recursion again to get the original value.
 
@@ -264,13 +264,13 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 			
 			local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
 			
-			tensor = applyFunctionWhenTheSecondValueIsScalar(functionToApply, tensor, otherTensor, dimensionSizeArray)
+			tensor = applyFunctionWhenTheSecondValueIsAScalar(functionToApply, tensor, otherTensor, dimensionSizeArray)
 			
 		elseif (not isFirstTensorATensor) and (isSecondTensorATensor) then
 			
 			local dimensionSizeArray = AqwamTensorLibrary:getSize(otherTensor)
 			
-			tensor = applyFunctionWhenTheFirstValueIsScalar(functionToApply, tensor, otherTensor, dimensionSizeArray)
+			tensor = applyFunctionWhenTheFirstValueIsAScalar(functionToApply, tensor, otherTensor, dimensionSizeArray)
 			
 		else
 			
