@@ -950,38 +950,36 @@ function AqwamTensorLibrary:createRandomNormalTensor(dimensionSizeArray, mean, s
 end
 
 local function createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue)
+	
+	local numberOfDimensions = #dimensionSizeArray
 
 	local tensor = {}
-
-	if (#dimensionSizeArray >= 2) then
+	
+	if (numberOfDimensions >= 2) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
 		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = createRandomUniformTensor(remainingDimensionSizeArray, minimumValue, maximumValue) end
 
+	elseif (numberOfDimensions == 1) and (minimumValue) and (maximumValue) then
+		
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = math.random(minimumValue, maximumValue) end
+		
+	elseif (numberOfDimensions == 1) and (minimumValue) and (not maximumValue) then
+		
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = math.random(minimumValue) end
+		
+	elseif (numberOfDimensions == 1) and (not minimumValue) and (not maximumValue) then
+		
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = math.random() end
+
+	elseif (numberOfDimensions == 1) and (not minimumValue) and (maximumValue) then
+
+		error("Invalid minimum value.")
+		
 	else
-
-		for i = 1, dimensionSizeArray[1], 1 do
-
-			if (minimumValue) and (maximumValue) then
-
-				tensor[i] = math.random(minimumValue, maximumValue) 
-
-			elseif (minimumValue) and (not maximumValue) then
-
-				tensor[i] = math.random(minimumValue)
-
-			elseif (not minimumValue) and (not maximumValue) then
-
-				tensor[i] = math.random()
-
-			elseif (not minimumValue) and (maximumValue) then
-
-				error("Invalid minimum value.")
-
-			end
-
-		end
+		
+		error("An unknown error has occured when creating the random uniform tensor")
 
 	end
 
