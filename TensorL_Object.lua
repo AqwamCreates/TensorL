@@ -478,19 +478,19 @@ local function sumAlongOneDimension(tensor, dimensionSizeArray, targetDimension,
 
 end
 
-function AqwamTensorLibrary:sum(tensor, dimension)
+function AqwamTensorLibrary:sum(dimension)
 	
 	dimension = dimension or 0
 
-	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(self)
 
 	local numberOfDimensions = #dimensionSizeArray
 
-	if (dimension == 0) then return sumFromAllDimensions(tensor, dimensionSizeArray) end
+	if (dimension == 0) then return sumFromAllDimensions(self, dimensionSizeArray) end
 
 	checkIfDimensionIsOutOfBounds(dimension, 1, numberOfDimensions)
 
-	local sumTensor = sumAlongOneDimension(tensor, dimensionSizeArray, dimension, 1)
+	local sumTensor = sumAlongOneDimension(self, dimensionSizeArray, dimension, 1)
 
 	return self.new(sumTensor)
 	
