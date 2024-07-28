@@ -2696,20 +2696,6 @@ local function getOutOfBoundsIndexArray(array, arrayToBeCheckedForOutOfBounds)
 
 end
 
-local function getFalseBooleanIndexArray(functionToApply, array1, array2)
-
-	local falseBooleanIndexArray = {}
-
-	for i, value in ipairs(array1) do
-
-		if (not functionToApply(value, array2[i])) then table.insert(falseBooleanIndexArray, i) end
-
-	end
-
-	return falseBooleanIndexArray
-
-end
-
 local function extract(tensor, dimensionSizeArray, originDimensionIndexArray, targetDimensionIndexArray)
 
 	local numberOfDimensions = #dimensionSizeArray
@@ -2765,8 +2751,6 @@ function AqwamTensorLibrary:extract(tensor, originDimensionIndexArray, targetDim
 	local outOfBoundsOriginIndexArray = getOutOfBoundsIndexArray(dimensionSizeArray, originDimensionIndexArray)
 
 	local outOfBoundsTargetIndexArray = getOutOfBoundsIndexArray(dimensionSizeArray, targetDimensionIndexArray)
-
-	local falseBooleanIndexArray = getFalseBooleanIndexArray(function(a, b) return (a <= b) end, originDimensionIndexArray, targetDimensionIndexArray)
 
 	local outOfBoundsOriginIndexArraySize = #outOfBoundsOriginIndexArray
 
