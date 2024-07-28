@@ -388,167 +388,111 @@ local function createString(tensor)
 
 end
 
-local function fullSum(tensor)
-	
-	local dimensionArray = getDimensionArray(tensor)
+local function sumFromAllDimensions(tensor, dimensionSizeArray)
 
-	local numberOfValues = dimensionArray[1]
+	local numberOfDimensions = #dimensionSizeArray
 
 	local result = 0
-	
-	for i = 1, numberOfValues, 1 do 
-		
-		if (#dimensionArray > 1) then
 
-			result += fullSum(tensor[i]) 
+	if (numberOfDimensions > 1) then
 
-		else
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-			result += tensor[i]
-			
-		end
-		
-	end
-	
-	return result
-	
-end
+		for i = 1, dimensionSizeArray[1], 1 do result = result + sumFromAllDimensions(tensor[i], remainingDimensionSizeArray) end
 
-local function dimensionSumRecursive(result, tensor, dimension)
-	
-	local dimensionArray = getDimensionArray(tensor)
-	
-	local numberOfDimensions = #dimensionArray
-	
-	local numberOfValues = dimensionArray[1]
-	
-	for i = 1, numberOfValues, 1 do 	
-		
-		if (numberOfDimensions == dimension) then
-
-			dimensionSumRecursive(result[i], tensor[i], dimension)
-
-		else
-
-			result[i] += tensor[i]
-
-		end
-		
-	end
-
-end
-
-local function accumulateDimension(result, tensor, dimension, dimensionIndices, dimensionArray)
-	if dimension == #dimensionIndices then
-		for i = 1, dimensionArray[dimensionIndices[dimension]], 1 do
-			local indices = {}
-			for j = 1, #dimensionIndices do
-				indices[j] = dimensionIndices[j]
-			end
-			indices[dimension] = i
-			result[table.unpack(indices)] = (result[table.unpack(indices)] or 0) + tensor[table.unpack(indices)]
-		end
 	else
-		for i = 1, dimensionArray[dimensionIndices[dimension]], 1 do
-			dimensionIndices[dimension] = i
-			accumulateDimension(result, tensor, dimension + 1, dimensionIndices, dimensionArray)
-		end
-	end
-end
 
-local function dimSumRecursive(result, tensor, targetDimension)
-	
-	local dimensionArray = getDimensionArray(tensor)
-	
-	local currentDimension = #dimensionArray
-	
-	local numberOfValues = dimensionArray[1]
-	
-	for i = 1, numberOfValues, 1 do
-		
-		if (currentDimension == targetDimension) then
-			
-			print(getDimensionArray(result))
-			
-			print(getDimensionArray(tensor))
-			
-			result[i] += tensor[i]
-
-		else
-
-			dimensionSumRecursive(result[i], tensor[i], targetDimension)
-
-		end
-		
-	end
-	
-end
-
-local function dimensionSum(tensor, targetDimension)
-	
-	local dimensionArray = getDimensionArray(tensor)
-	
-	local newDimensionArray = deepCopyTable(dimensionArray)
-	
-	dimensionArray[targetDimension] = 1
-	
-	local result = createTensor(dimensionArray, 0)
-
-	dimSumRecursive(result, tensor, targetDimension)
-	
-	--[[
-
-	for dimension1 = 1, dimensionArray[1], 1 do
-
-		for dimension2 = 1, dimensionArray[2], 1 do
-
-			for dimension3 = 1, dimensionArray[3], 1 do
-
-				if (dimension == 1) then
-
-					result[1][dimension2][dimension3] += tensor[dimension1][dimension2][dimension3]	
-
-				elseif (dimension == 2) then
-
-					result[dimension1][1][dimension3] += tensor[dimension1][dimension2][dimension3]
-
-				elseif (dimension == 3) then
-
-					result[dimension1][dimension2][1] += tensor[dimension1][dimension2][dimension3]
-
-				else
-
-					error("Invalid dimension.")
-
-				end 
-
-			end
-
-		end	
+		for i = 1, dimensionSizeArray[1], 1 do result = result + tensor[i] end
 
 	end
-	
-	--]]
-	
+
 	return result
-	
+
 end
 
-local function sum(tensor, dimension)
+local function recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArray, targetTensor, targetDimensionIndexArray)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	if (numberOfDimensions >= 1) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do
+
+			local copiedTargetDimensionIndexArray = table.clone(targetDimensionIndexArray)
+
+			table.insert(copiedTargetDimensionIndexArray, i)
+
+			recursiveSubTensorSumAlongFirstDimension(tensor[i], remainingDimensionSizeArray, targetTensor, copiedTargetDimensionIndexArray)
+
+		end
+
+	else
+
+		targetDimensionIndexArray[1] = 1 -- The target dimension only have a size of 1 for summing.
+
+		local targetTensorValue = AqwamTensorLibrary:getValue(targetTensor, targetDimensionIndexArray)
+
+		local value = targetTensorValue + tensor
+
+		AqwamTensorLibrary:setValue(targetTensor, value, targetDimensionIndexArray)
+
+	end	
+
+end
+
+local function subTensorSumAlongFirstDimension(tensor, dimensionSizeArray)
+
+	local sumDimensionalSizeArray = table.clone(dimensionSizeArray)
+
+	sumDimensionalSizeArray[1] = 1
+
+	local sumTensor = createTensor(sumDimensionalSizeArray, 0)
+
+	recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArray, sumTensor, {})
+
+	return sumTensor
+
+end
+
+local function sumAlongOneDimension(tensor, dimensionSizeArray, targetDimension, currentDimension)
+
+	local newTensor
+
+	if (currentDimension == targetDimension) then
+
+		newTensor = subTensorSumAlongFirstDimension(tensor, dimensionSizeArray)
+
+	else
+
+		newTensor = {}
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = sumAlongOneDimension(tensor[i], remainingDimensionSizeArray, targetDimension, currentDimension + 1) end
+
+	end
+
+	return newTensor
+
+end
+
+function AqwamTensorLibrary:sum(tensor, dimension)
 	
-	if not dimension then return fullSum(tensor) end
-	
-	local numberOfDimension = getNumberOfDimensions(tensor)
-	
-	if (dimension > numberOfDimension) or (dimension < 1) then error("Invalid dimensions.") end
-	
-	local reversedSequence = {}
-	
-	for i = numberOfDimension, 1, -1 do table.insert(reversedSequence, i) end
-	
-	local selectedDimension = reversedSequence[dimension]
-	
-	return dimensionSum(tensor, selectedDimension)
+	dimension = dimension or 0
+
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	if (dimension == 0) then return sumFromAllDimensions(tensor, dimensionSizeArray) end
+
+	checkIfDimensionIsOutOfBounds(dimension, 1, numberOfDimensions)
+
+	local sumTensor = sumAlongOneDimension(tensor, dimensionSizeArray, dimension, 1)
+
+	return self.new(sumTensor)
 	
 end
 
@@ -793,16 +737,6 @@ function AqwamTensorLibrary:isLessOrEqualTo(other)
 
 	return self.new(result)
 
-end
-
-function AqwamTensorLibrary:sum(dimension)
-	
-	local result = sum(self, dimension)
-	
-	if not dimension then return result end
-	
-	return result
-	
 end
 
 function AqwamTensorLibrary:tensorProduct(other)
