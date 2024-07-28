@@ -959,7 +959,7 @@ function AqwamTensorLibrary:extract(tensor, originDimensionIndexArray, targetDim
 
 	local extractedTensor = extract(tensor, dimensionSizeArray, originDimensionIndexArray, targetDimensionIndexArray)
 
-	return extractedTensor
+	return self.new(extractedTensor)
 
 end
 
