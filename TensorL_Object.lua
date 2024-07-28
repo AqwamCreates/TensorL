@@ -903,9 +903,9 @@ local function extract(tensor, dimensionSizeArray, originDimensionIndexArray, ta
 
 end
 
-function AqwamTensorLibrary:extract(tensor, originDimensionIndexArray, targetDimensionIndexArray)
+function AqwamTensorLibrary:extract(originDimensionIndexArray, targetDimensionIndexArray)
 
-	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(self)
 
 	local numberOfDimensions = #dimensionSizeArray
 
@@ -957,7 +957,7 @@ function AqwamTensorLibrary:extract(tensor, originDimensionIndexArray, targetDim
 
 	end
 
-	local extractedTensor = extract(tensor, dimensionSizeArray, originDimensionIndexArray, targetDimensionIndexArray)
+	local extractedTensor = extract(self, dimensionSizeArray, originDimensionIndexArray, targetDimensionIndexArray)
 
 	return self.new(extractedTensor)
 
