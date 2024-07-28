@@ -728,6 +728,98 @@ function AqwamTensorLibrary.createIdentityTensor(dimensionSizeArray)
 
 end
 
+local function createRandomNormalTensor(dimensionSizeArray, mean, standardDeviation)
+
+	local tensor = {}
+
+	if (#dimensionSizeArray >= 2) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = createRandomNormalTensor(remainingDimensionSizeArray, mean, standardDeviation) end
+
+	else
+
+		for i = 1, dimensionSizeArray[1], 1 do 
+
+			local randomNumber1 = math.random()
+
+			local randomNumber2 = math.random()
+
+			local zScore = math.sqrt(-2 * math.log(randomNumber1)) * math.cos(2 * math.pi * randomNumber2) -- Box–Muller transform formula.
+
+			tensor[i] = (zScore * standardDeviation) + mean
+
+		end
+
+	end
+
+	return tensor
+
+end
+
+function AqwamTensorLibrary.createRandomNormalTensor(dimensionSizeArray, mean, standardDeviation)
+
+	mean = mean or 0
+
+	standardDeviation = standardDeviation or 1
+	
+	local self = setmetatable({}, AqwamTensorLibrary)
+
+	self.Values = createRandomNormalTensor(dimensionSizeArray, mean, standardDeviation)
+
+	return self
+
+end
+
+local function createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	local tensor = {}
+
+	if (numberOfDimensions >= 2) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = createRandomUniformTensor(remainingDimensionSizeArray, minimumValue, maximumValue) end
+
+	elseif (numberOfDimensions == 1) and (minimumValue) and (maximumValue) then
+
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = math.random(minimumValue, maximumValue) end
+
+	elseif (numberOfDimensions == 1) and (minimumValue) and (not maximumValue) then
+
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = math.random(minimumValue) end
+
+	elseif (numberOfDimensions == 1) and (not minimumValue) and (not maximumValue) then
+
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = math.random() end
+
+	elseif (numberOfDimensions == 1) and (not minimumValue) and (maximumValue) then
+
+		error("Invalid minimum value.")
+
+	else
+
+		error("An unknown error has occured when creating the random uniform tensor")
+
+	end
+
+	return tensor
+
+end
+
+function AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue)
+	
+	local self = setmetatable({}, AqwamTensorLibrary)
+	
+	self.Values = createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue)
+
+	return self
+
+end
+
 function AqwamTensorLibrary:broadcast(dimensionsArray, values)
 
 	local isNumber = typeof(values) == "number"
