@@ -2706,7 +2706,7 @@ local function extract(tensor, dimensionSizeArray, originDimensionIndexArray, ta
 	
 	local targetDimensionIndex = targetDimensionIndexArray[1]
 
-	if (numberOfDimensions >= 2) then
+	if (numberOfDimensions >= 2) and (originDimensionIndex <= targetDimensionIndex) then
 		
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -2721,12 +2721,36 @@ local function extract(tensor, dimensionSizeArray, originDimensionIndexArray, ta
 			table.insert(extractedTensor, extractedSubTensor)
 
 		end
+		
+	elseif (numberOfDimensions >= 2) and (originDimensionIndex > targetDimensionIndex) then
 
-	elseif (originDimensionIndex <= targetDimensionIndex) then
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		local remainingOriginDimensionIndexArray = removeFirstValueFromArray(originDimensionIndexArray)
+
+		local remainingTargetDimensionIndexArray = removeFirstValueFromArray(targetDimensionIndexArray)
+		
+		for i = targetDimensionIndex, #tensor, 1 do 
+
+			local extractedSubTensor = extract(tensor[i], remainingDimensionSizeArray, remainingOriginDimensionIndexArray, remainingTargetDimensionIndexArray) 
+
+			table.insert(extractedTensor, extractedSubTensor)
+
+		end
+
+		for i = 1, originDimensionIndex, 1 do 
+
+			local extractedSubTensor = extract(tensor[i], remainingDimensionSizeArray, remainingOriginDimensionIndexArray, remainingTargetDimensionIndexArray) 
+
+			table.insert(extractedTensor, extractedSubTensor)
+
+		end
+
+	elseif (numberOfDimensions == 1) and (originDimensionIndex <= targetDimensionIndex) then
 
 		for i = originDimensionIndex, targetDimensionIndex, 1 do table.insert(extractedTensor, tensor[i]) end
 		
-	elseif (originDimensionIndex > targetDimensionIndex) then
+	elseif (numberOfDimensions == 1) and (originDimensionIndex > targetDimensionIndex) then
 		
 		for i = targetDimensionIndex, #tensor, 1 do table.insert(extractedTensor, tensor[i]) end
 
