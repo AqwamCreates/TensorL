@@ -1774,4 +1774,272 @@ function AqwamTensorLibrary:dotProduct(other) -- Refer to this article. It was a
 
 end
 
+local function get2DTensorTextSpacing(tensor, dimensionSizeArray, textSpacingArray) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
+
+	if (#dimensionSizeArray > 1) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do textSpacingArray = get2DTensorTextSpacing(tensor[i], remainingDimensionSizeArray, textSpacingArray) end
+
+	else
+
+		for i = 1, dimensionSizeArray[1], 1 do textSpacingArray[i] = math.max(textSpacingArray[i], string.len(tostring(tensor[i]))) end
+
+	end
+
+	return textSpacingArray
+
+end
+
+function AqwamTensorLibrary:get2DTensorTextSpacing()
+
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(self)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	local sizeAtFinalDimension = dimensionSizeArray[numberOfDimensions]
+
+	local textSpacingArray = table.create(sizeAtFinalDimension, 0)
+
+	return get2DTensorTextSpacing(self, dimensionSizeArray, textSpacingArray)
+
+end
+
+local function generateTensorString(tensor, dimensionSizeArray, textSpacingArray, dimensionDepth)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	local tensorLength = #tensor
+
+	local text = " "
+
+	if (numberOfDimensions > 1) then
+
+		local spacing = ""
+
+		text = text .. "{"
+
+		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
+
+		local remainingDimensionSizeArray = removeLastValueFromArray(dimensionSizeArray)
+
+		for i = 1, #tensor do
+
+			if (i > 1) then text = text .. spacing end
+
+			text = text .. generateTensorString(tensor[i], remainingDimensionSizeArray, textSpacingArray, dimensionDepth + 1)
+
+			if (i == tensorLength) then continue end
+
+			text = text .. "\n"
+
+		end
+
+		text = text .. " }"
+
+	else
+
+		text = text .. "{ "
+
+		for i = 1, tensorLength do
+
+			local cellValue = tensor[i]
+
+			local cellText = tostring(cellValue)
+
+			local cellWidth = string.len(cellText)
+
+			local padding = textSpacingArray[i] - cellWidth
+
+			text = text .. string.rep(" ", padding) .. cellText
+
+			if (i == tensorLength) then continue end
+
+			text = text .. " "
+
+		end
+
+		text = text .. " }"
+
+	end
+
+	return text
+
+end
+
+function AqwamTensorLibrary:generateTensorString()
+
+	local textSpacingArray = self:get2DTensorTextSpacing()
+
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(self)
+
+	return generateTensorString(self, dimensionSizeArray, textSpacingArray, 1)
+
+end
+
+local function generateTensorStringWithComma(tensor, dimensionSizeArray, textSpacingArray, dimensionDepth)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	local tensorLength = #tensor
+
+	local text = " "
+
+	if (numberOfDimensions > 1) then
+
+		local spacing = ""
+
+		text = text .. "{"
+
+		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
+
+		local remainingDimensionSizeArray = removeLastValueFromArray(dimensionSizeArray)
+
+		for i = 1, #tensor do
+
+			if (i > 1) then text = text .. spacing end
+
+			text = text .. generateTensorStringWithComma(tensor[i], remainingDimensionSizeArray, textSpacingArray, dimensionDepth + 1)
+
+			if (i == tensorLength) then continue end
+
+			text = text .. "\n"
+
+		end
+
+		text = text .. " }"
+
+	else
+
+		text = text .. "{ "
+
+		for i = 1, tensorLength do 
+
+			local cellValue = tensor[i]
+
+			local cellText = tostring(cellValue)
+
+			local cellWidth = string.len(cellText)
+
+			local padding = textSpacingArray[i] - cellWidth
+
+			text = text .. string.rep(" ", padding) .. cellText
+
+			if (i == tensorLength) then continue end
+
+			text = text .. ", "
+
+		end
+
+		text = text .. " }"
+
+	end
+
+	return text
+
+end
+
+function AqwamTensorLibrary:generateTensorStringWithComma()
+
+	local textSpacingArray = self:get2DTensorTextSpacing()
+
+	local dimensionSizeArray = self:getSize()
+
+	return generateTensorString(self, dimensionSizeArray, textSpacingArray, 1)
+
+end
+
+local function generatePortableTensorString(tensor, dimensionSizeArray, textSpacingArray, dimensionDepth)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	local tensorLength = #tensor
+
+	local text = " "
+
+	if (numberOfDimensions > 1) then
+
+		local spacing = ""
+
+		text = text .. "{"
+
+		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
+
+		local remainingDimensionSizeArray = removeLastValueFromArray(dimensionSizeArray)
+
+		for i = 1, #tensor do
+
+			if (i > 1) then text = text .. spacing end
+
+			text = text .. generatePortableTensorString(tensor[i], remainingDimensionSizeArray, textSpacingArray, dimensionDepth + 1)
+
+			if (i == tensorLength) then continue end
+
+			text = text .. "\n"
+
+		end
+
+		text = text .. " }"
+
+		if (dimensionDepth > 1) then text = text .. "," end
+
+	else
+
+		text = text .. "{ "
+
+		for i = 1, tensorLength do 
+
+			local cellValue = tensor[i]
+
+			local cellText = tostring(cellValue)
+
+			local cellWidth = string.len(cellText)
+
+			local padding = textSpacingArray[i] - cellWidth
+
+			text = text .. string.rep(" ", padding) .. cellText
+
+			if (i == tensorLength) then continue end
+
+			text = text .. ", "
+
+		end
+
+		text = text .. " },"
+
+	end
+
+	return text
+
+end
+
+function AqwamTensorLibrary:generatePortableTensorString()
+
+	local textSpacingArray = self:get2DTensorTextSpacing()
+
+	local dimensionSizeArray = self:getSize()
+
+	return generatePortableTensorString(self, dimensionSizeArray, textSpacingArray, 1)
+
+end
+
+function AqwamTensorLibrary:printTensor(tensor)
+
+	print("\n\n" .. self:generateTensorString() .. "\n\n")
+
+end
+
+function AqwamTensorLibrary:printTensorWithComma()
+
+	print("\n\n" .. self:generateTensorStringWithComma() .. "\n\n")
+
+end
+
+function AqwamTensorLibrary:printPortableTensor()
+
+	print("\n\n" .. self:generatePortableTensorString() .. "\n\n")
+
+end
+
 return AqwamTensorLibrary
