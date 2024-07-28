@@ -847,4 +847,120 @@ function AqwamTensorLibrary:__newindex(index, value)
 	
 end
 
+local function getOutOfBoundsIndexArray(array, arrayToBeCheckedForOutOfBounds)
+
+	local outOfBoundsIndexArray = {}
+
+	for i, value in ipairs(arrayToBeCheckedForOutOfBounds) do
+
+		if (value < 1) or (value > array[i]) then table.insert(outOfBoundsIndexArray, i) end
+
+	end
+
+	return outOfBoundsIndexArray
+
+end
+
+local function extract(tensor, dimensionSizeArray, originDimensionIndexArray, targetDimensionIndexArray)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	local extractedTensor = {}
+
+	local originDimensionIndex = originDimensionIndexArray[1]
+
+	local targetDimensionIndex = targetDimensionIndexArray[1]
+
+	if (numberOfDimensions >= 2) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		local remainingOriginDimensionIndexArray = removeFirstValueFromArray(originDimensionIndexArray)
+
+		local remainingTargetDimensionIndexArray = removeFirstValueFromArray(targetDimensionIndexArray)
+
+		for i = originDimensionIndex, targetDimensionIndex, 1 do 
+
+			local extractedSubTensor = extract(tensor[i], remainingDimensionSizeArray, remainingOriginDimensionIndexArray, remainingTargetDimensionIndexArray) 
+
+			table.insert(extractedTensor, extractedSubTensor)
+
+		end
+
+	elseif (originDimensionIndex <= targetDimensionIndex) then
+
+		for i = originDimensionIndex, targetDimensionIndex, 1 do table.insert(extractedTensor, tensor[i]) end
+
+	elseif (originDimensionIndex > targetDimensionIndex) then
+
+		for index = targetDimensionIndex, #tensor do table.insert(extractedTensor, tensor[index]) end
+
+		for index = 1, originDimensionIndex, 1 do table.insert(extractedTensor, tensor[index]) end
+
+	end
+
+	return extractedTensor
+
+end
+
+function AqwamTensorLibrary:extract(tensor, originDimensionIndexArray, targetDimensionIndexArray)
+
+	local dimensionSizeArray = AqwamTensorLibrary:getSize(tensor)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	if (numberOfDimensions ~= #originDimensionIndexArray) then error("Invalid origin dimension index array.") end
+
+	if (numberOfDimensions ~= #targetDimensionIndexArray) then error("Invalid target dimension index array.") end
+
+	local outOfBoundsOriginIndexArray = getOutOfBoundsIndexArray(dimensionSizeArray, originDimensionIndexArray)
+
+	local outOfBoundsTargetIndexArray = getOutOfBoundsIndexArray(dimensionSizeArray, targetDimensionIndexArray)
+
+	local outOfBoundsOriginIndexArraySize = #outOfBoundsOriginIndexArray
+
+	local outOfBoundsTargetIndexArraySize = #outOfBoundsTargetIndexArray
+
+	if (outOfBoundsOriginIndexArraySize > 0) then
+
+		local errorString = "Attempting to set an origin dimension index that is out of bounds for dimension at "
+
+		for i, index in ipairs(outOfBoundsOriginIndexArray) do
+
+			errorString = errorString .. index
+
+			if (i < outOfBoundsOriginIndexArraySize) then errorString = errorString .. ", " end
+
+		end
+
+		errorString = errorString .. "."
+
+		error(errorString)
+
+	end
+
+	if (outOfBoundsTargetIndexArraySize > 0) then
+
+		local errorString = "Attempting to set an target dimension index that is out of bounds for dimension at "
+
+		for i, index in ipairs(outOfBoundsTargetIndexArray) do
+
+			errorString = errorString .. index
+
+			if (i < outOfBoundsTargetIndexArraySize) then errorString = errorString .. ", " end
+
+		end
+
+		errorString = errorString .. "."
+
+		error(errorString)
+
+	end
+
+	local extractedTensor = extract(tensor, dimensionSizeArray, originDimensionIndexArray, targetDimensionIndexArray)
+
+	return extractedTensor
+
+end
+
 return AqwamTensorLibrary
