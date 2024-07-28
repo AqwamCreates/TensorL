@@ -627,7 +627,7 @@ function AqwamTensorLibrary.new(...)
 	
 end
 
-function AqwamTensorLibrary.create(dimensionArray, initialValue)
+function AqwamTensorLibrary.createTensor(dimensionArray, initialValue)
 	
 	initialValue = initialValue or 0
 	
@@ -637,6 +637,95 @@ function AqwamTensorLibrary.create(dimensionArray, initialValue)
 	
 	return self
 	
+end
+
+local function truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
+
+	local newDimensionSizeArray = table.clone(dimensionSizeArray)
+
+	local numberOfStartingDimensionsWithTheSizeOf1 = 0
+
+	while true do
+
+		local size = newDimensionSizeArray[1]
+
+		if (size ~= 1) then break end
+
+		table.remove(newDimensionSizeArray, 1)
+
+		numberOfStartingDimensionsWithTheSizeOf1 = numberOfStartingDimensionsWithTheSizeOf1 + 1
+
+	end
+
+	return newDimensionSizeArray, numberOfStartingDimensionsWithTheSizeOf1
+
+end
+
+local function createIdentityTensor(dimensionSizeArray, dimensionIndexArray)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	local tensor = {}
+
+	if (numberOfDimensions >= 2) then
+
+		for i = 1, dimensionSizeArray[1] do 
+
+			local copiedDimensionIndexArray = table.clone(dimensionIndexArray)
+
+			table.insert(copiedDimensionIndexArray, i)
+
+			local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+			tensor[i] = createIdentityTensor(remainingDimensionSizeArray, copiedDimensionIndexArray) 
+
+		end
+
+	else
+
+		for i = 1, dimensionSizeArray[1], 1 do
+
+			local copiedDimensionIndexArray = table.clone(dimensionIndexArray)
+
+			local firstDimensionIndex = copiedDimensionIndexArray[1]
+
+			table.insert(copiedDimensionIndexArray, i)
+
+			tensor[i] = 1
+
+			for _, dimensionIndex in ipairs(copiedDimensionIndexArray) do
+
+				if (dimensionIndex ~= firstDimensionIndex) then
+
+					tensor[i] = 0
+					break
+
+				end
+
+			end
+
+		end
+
+	end
+
+	return tensor
+
+end
+
+function AqwamTensorLibrary.createIdentityTensor(dimensionSizeArray)
+
+	local truncatedDimensionSizeArray, numberOfDimensionsOfSize1 = truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
+
+	local newTensor = createIdentityTensor(truncatedDimensionSizeArray, {})
+
+	for i = 1, numberOfDimensionsOfSize1, 1 do newTensor = {newTensor} end
+	
+	local self = setmetatable({}, AqwamTensorLibrary)
+	
+	self.Values = newTensor
+
+	return self
+
 end
 
 function AqwamTensorLibrary:broadcast(dimensionsArray, values)
@@ -1023,7 +1112,7 @@ function AqwamTensorLibrary:outerProduct(other)
 	
 	local result = outerProduct(self, other)
 
-	return self.create(result)
+	return self.new(result)
 
 end
 
@@ -1047,6 +1136,14 @@ function AqwamTensorLibrary:__add(other)
 	
 end
 
+function AqwamTensorLibrary:add(other)
+	
+	local result = applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, self, other)
+
+	return self.new(result)
+	
+end
+
 function AqwamTensorLibrary:__sub(other)
 
 	local result = applyFunctionOnMultipleTensors(function(a, b) return (a - b) end, self, other)
@@ -1055,9 +1152,25 @@ function AqwamTensorLibrary:__sub(other)
 	
 end
 
-function AqwamTensorLibrary:__mul(other)
+function AqwamTensorLibrary:subtract(other)
+	
+	local result = applyFunctionOnMultipleTensors(function(a, b) return (a - b) end, self, other)
 
-	local result = applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, self, other)
+	return self.new(result)
+	
+end
+
+function AqwamTensorLibrary:__mul(...)
+
+	local result = applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, self, ...)
+
+	return self.new(result)
+	
+end
+
+function AqwamTensorLibrary:multiply(...)
+	
+	local result = applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, self, ...)
 
 	return self.new(result)
 	
@@ -1071,12 +1184,28 @@ function AqwamTensorLibrary:__div(other)
 	
 end
 
-function AqwamTensorLibrary:__unm(other)
+function AqwamTensorLibrary:divide(...)
 
-	local result = applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, self, other)
+	local result = applyFunctionOnMultipleTensors(function(a, b) return (a / b) end, self, ...)
+
+	return self.new(result)
+
+end
+
+function AqwamTensorLibrary:__unm()
+
+	local result = applyFunctionOnMultipleTensors(function(a) return (-a) end, self)
 
 	return self.new(result)
 	
+end
+
+function AqwamTensorLibrary:unaryMinus()
+
+	local result = applyFunctionOnMultipleTensors(function(a) return (-a) end, self)
+
+	return self.new(result)
+
 end
 
 function AqwamTensorLibrary:__tostring()
