@@ -3076,7 +3076,7 @@ local function setValue(tensor, dimensionSizeArray, value, dimensionIndexArray)
 
 	else
 
-		error("An error has occurred when attempting to set a tensor value.")
+		error("An error has occurred when attempting to set the tensor value.")
 
 	end
 	
@@ -3118,7 +3118,7 @@ function AqwamTensorLibrary:getValue(tensor, dimensionIndexArray)
 
 	else
 
-		error("An error has occurred when attempting to get a tensor value.")
+		error("An error has occurred when attempting to get the tensor value.")
 
 	end
 
