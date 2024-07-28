@@ -2755,6 +2755,10 @@ local function extract(tensor, dimensionSizeArray, originDimensionIndexArray, ta
 		for i = targetDimensionIndex, #tensor, 1 do table.insert(extractedTensor, tensor[i]) end
 
 		for i = 1, originDimensionIndex, 1 do table.insert(extractedTensor, tensor[i]) end
+		
+	else
+		
+		error("An unknown error has occured while extracting a tensor.")
 
 	end
 
