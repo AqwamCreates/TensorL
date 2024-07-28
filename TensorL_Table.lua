@@ -2594,7 +2594,7 @@ local function reshapeFromFlattenedTensor(tensor, dimensionSizeArray, dimensionI
 
 end
 
-local function incrementFinalDimensionIndexWhenRequired(targetDimensionSizeArray, currentTargetDimensionIndexArray)
+local function incrementFinalDimensionIndex(targetDimensionSizeArray, currentTargetDimensionIndexArray)
 	
 	local numberOfDimensions = #currentTargetDimensionIndexArray
 	
@@ -2634,7 +2634,7 @@ local function reshape(tensor, dimensionSizeArray, targetTensor, targetDimension
 			
 			AqwamTensorLibrary:setValue(targetTensor, tensor[i], currentTargetDimensionIndexArray)
 			
-			currentTargetDimensionIndexArray = incrementFinalDimensionIndexWhenRequired(targetDimensionSizeArray, currentTargetDimensionIndexArray)
+			currentTargetDimensionIndexArray = incrementFinalDimensionIndex(targetDimensionSizeArray, currentTargetDimensionIndexArray)
 
 		end
 
