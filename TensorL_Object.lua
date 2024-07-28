@@ -2034,7 +2034,7 @@ function AqwamTensorLibrary:expand(targetDimensionSizeArray)
 
 	local dimensionSizeArray = self:getSize()
 
-	if checkIfItHasSameDimensionSizeArray(dimensionSizeArray, targetDimensionSizeArray) then return deepCopyTable(tensor) end -- Do not remove this code even if the code below is related or function similar to this code. You will spend so much time fixing it if you forget that you have removed it.
+	if checkIfItHasSameDimensionSizeArray(dimensionSizeArray, targetDimensionSizeArray) then return deepCopyTable(self) end -- Do not remove this code even if the code below is related or function similar to this code. You will spend so much time fixing it if you forget that you have removed it.
 	
 	local newTensor = expand(self, dimensionSizeArray, targetDimensionSizeArray)
 	
