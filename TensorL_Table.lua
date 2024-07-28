@@ -2756,8 +2756,6 @@ function AqwamTensorLibrary:extract(tensor, originDimensionIndexArray, targetDim
 
 	local outOfBoundsTargetIndexArraySize = #outOfBoundsTargetIndexArray
 
-	local falseBooleanIndexArraySize = #falseBooleanIndexArray
-
 	if (outOfBoundsOriginIndexArraySize > 0) then
 
 		local errorString = "Attempting to set an origin dimension index that is out of bounds for dimension at "
