@@ -810,7 +810,7 @@ local function createRandomUniformTensor(dimensionSizeArray, minimumValue, maxim
 
 end
 
-function AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue)
+function AqwamTensorLibrary.createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue)
 	
 	local self = setmetatable({}, AqwamTensorLibrary)
 	
