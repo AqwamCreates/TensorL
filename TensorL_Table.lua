@@ -534,6 +534,24 @@ function AqwamTensorLibrary:generatePortableTensorString(tensor)
 
 end
 
+function AqwamTensorLibrary:printTensor(tensor)
+
+	print("\n\n" .. AqwamTensorLibrary:generateTensorString(tensor) .. "\n\n")
+
+end
+
+function AqwamTensorLibrary:printTensorWithComma(tensor)
+
+	print("\n\n" .. AqwamTensorLibrary:generateTensorStringWithComma(tensor) .. "\n\n")
+
+end
+
+function AqwamTensorLibrary:printPortableTensor(tensor)
+
+	print("\n\n" .. AqwamTensorLibrary:generatePortableTensorString(tensor) .. "\n\n")
+
+end
+
 function AqwamTensorLibrary:truncate(tensor, numberOfDimensionsToTruncate)
 
 	numberOfDimensionsToTruncate = numberOfDimensionsToTruncate or math.huge
@@ -3025,24 +3043,6 @@ function AqwamTensorLibrary:applyFunction(functionToApply, ...)
 	local resultTensor = applyFunction(functionToApply, dimensionSizeArray, ...)
 
 	return resultTensor
-
-end
-
-function AqwamTensorLibrary:printTensor(tensor)
-	
-	print("\n\n" .. AqwamTensorLibrary:generateTensorString(tensor) .. "\n\n")
-
-end
-
-function AqwamTensorLibrary:printTensorWithComma(tensor)
-
-	print("\n\n" .. AqwamTensorLibrary:generateTensorStringWithComma(tensor) .. "\n\n")
-
-end
-
-function AqwamTensorLibrary:printPortableTensor(tensor)
-
-	print("\n\n" .. AqwamTensorLibrary:generatePortableTensorString(tensor) .. "\n\n")
 
 end
 
