@@ -2598,8 +2598,6 @@ local function incrementFinalDimensionIndexWhenRequired(targetDimensionSizeArray
 	
 	local numberOfDimensions = #currentTargetDimensionIndexArray
 	
-	local areAllZeros = true
-	
 	currentTargetDimensionIndexArray[numberOfDimensions] = currentTargetDimensionIndexArray[numberOfDimensions] + 1
 	
 	for dimension = numberOfDimensions, 1, -1 do
