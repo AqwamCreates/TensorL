@@ -748,7 +748,7 @@ local function createRandomUniformTensor(dimensionSizeArray, minimumValue, maxim
 
 	else
 
-		error("An unknown error has occured when creating the random uniform tensor")
+		error("An unknown error has occured when creating the random uniform tensor.")
 
 	end
 
