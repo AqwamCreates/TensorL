@@ -2715,6 +2715,10 @@ local function extract(tensor, dimensionSizeArray, originDimensionIndexArray, ta
 	local numberOfDimensions = #dimensionSizeArray
 
 	local extractedTensor = {}
+	
+	local originDimensionIndex = originDimensionIndexArray[1]
+	
+	local targetDimensionIndex = targetDimensionIndexArray[1]
 
 	if (numberOfDimensions >= 2) then
 		
@@ -2724,7 +2728,7 @@ local function extract(tensor, dimensionSizeArray, originDimensionIndexArray, ta
 
 		local remainingTargetDimensionIndexArray = removeFirstValueFromArray(targetDimensionIndexArray)
 
-		for i = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do 
+		for i = originDimensionIndex, targetDimensionIndex, 1 do 
 
 			local extractedSubTensor = extract(tensor[i], remainingDimensionSizeArray, remainingOriginDimensionIndexArray, remainingTargetDimensionIndexArray) 
 
@@ -2732,9 +2736,15 @@ local function extract(tensor, dimensionSizeArray, originDimensionIndexArray, ta
 
 		end
 
-	else
+	elseif (originDimensionIndex <= targetDimensionIndex) then
 
-		for i = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do table.insert(extractedTensor, tensor[i]) end
+		for i = originDimensionIndex, targetDimensionIndex, 1 do table.insert(extractedTensor, tensor[i]) end
+		
+	elseif (originDimensionIndex > targetDimensionIndex) then
+		
+		for index = targetDimensionIndex, #tensor do table.insert(extractedTensor, tensor[index]) end
+
+		for index = 1, originDimensionIndex, 1 do table.insert(extractedTensor, tensor[index]) end
 
 	end
 
@@ -2797,22 +2807,6 @@ function AqwamTensorLibrary:extract(tensor, originDimensionIndexArray, targetDim
 		errorString = errorString .. "."
 
 		error(errorString)
-
-	end
-
-	if (falseBooleanIndexArraySize > 0) then
-
-		local errorString = "The origin dimension index is larger than the target dimension index for dimensions at "
-
-		for i, index in ipairs(falseBooleanIndexArray) do
-
-			errorString = errorString .. index
-
-			if (i < falseBooleanIndexArraySize) then errorString = errorString .. ", " end
-
-		end
-
-		errorString = errorString .. "."
 
 	end
 
