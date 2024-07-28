@@ -1159,9 +1159,9 @@ local function extract(tensor, dimensionSizeArray, originDimensionIndexArray, ta
 
 	elseif (originDimensionIndex > targetDimensionIndex) then
 
-		for index = targetDimensionIndex, #tensor do table.insert(extractedTensor, tensor[index]) end
+		for i = targetDimensionIndex, #tensor, 1 do table.insert(extractedTensor, tensor[i]) end
 
-		for index = 1, originDimensionIndex, 1 do table.insert(extractedTensor, tensor[index]) end
+		for i = 1, originDimensionIndex, 1 do table.insert(extractedTensor, tensor[i]) end
 
 	end
 
