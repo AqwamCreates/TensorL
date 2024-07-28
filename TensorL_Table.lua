@@ -2872,33 +2872,25 @@ end
 
 function AqwamTensorLibrary:add(...)
 
-	local functionToApply = function(a, b) return (a + b) end
-
-	return applyFunctionOnMultipleTensors(functionToApply, ...)
+	return applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, ...)
 
 end
 
 function AqwamTensorLibrary:subtract(...)
 
-	local functionToApply = function(a, b) return (a - b) end
-
-	return applyFunctionOnMultipleTensors(functionToApply, ...)
+	return applyFunctionOnMultipleTensors(function(a, b) return (a - b) end, ...)
 
 end
 
 function AqwamTensorLibrary:multiply(...)
 
-	local functionToApply = function(a, b) return (a * b) end
-
-	return applyFunctionOnMultipleTensors(functionToApply, ...)
+	return applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, ...)
 
 end
 
 function AqwamTensorLibrary:divide(...)
 
-	local functionToApply = function(a, b) return (a / b) end
-
-	return applyFunctionOnMultipleTensors(functionToApply, ...)
+	return applyFunctionOnMultipleTensors(function(a, b) return (a / b) end, ...)
 
 end
 
@@ -2930,41 +2922,31 @@ end
 
 function AqwamTensorLibrary:isEqualTo(tensor1, tensor2)
 
-	local functionToApply = function(a, b) return (a == b) end
-
-	return applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2)
+	return applyFunctionUsingTwoTensors(function(a, b) return (a == b) end, tensor1, tensor2)
 
 end
 
 function AqwamTensorLibrary:isGreaterThan(tensor1, tensor2)
 
-	local functionToApply = function(a, b) return (a > b) end
-
-	return applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2)
+	return applyFunctionUsingTwoTensors(function(a, b) return (a > b) end, tensor1, tensor2)
 
 end
 
 function AqwamTensorLibrary:isGreaterOrEqualTo(tensor1, tensor2)
 
-	local functionToApply = function(a, b) return (a >= b) end
-
-	return applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2)
+	return applyFunctionUsingTwoTensors(function(a, b) return (a >= b) end, tensor1, tensor2)
 
 end
 
 function AqwamTensorLibrary:isLessThan(tensor1, tensor2)
 
-	local functionToApply = function(a, b) return (a < b) end
-
-	return applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2)
+	return applyFunctionUsingTwoTensors(function(a, b) return (a < b) end, tensor1, tensor2)
 
 end
 
 function AqwamTensorLibrary:isLessOrEqualTo(tensor1, tensor2)
 
-	local functionToApply = function(a, b) return (a <= b) end
-
-	return applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2)
+	return applyFunctionUsingTwoTensors(function(a, b) return (a <= b) end, tensor1, tensor2)
 
 end
 
