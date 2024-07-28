@@ -1189,7 +1189,7 @@ local function extract(tensor, dimensionSizeArray, originDimensionIndexArray, ta
 		
 	else
 
-		error("An unknown error has occured while extracting a tensor.")
+		error("An unknown error has occured while extracting the tensor.")
 
 	end
 
