@@ -379,10 +379,10 @@ local function generateTensorString(tensor, dimensionSizeArray, textSpacingArray
 end
 
 function AqwamTensorLibrary:generateTensorString(tensor)
+	
+	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local textSpacingArray = AqwamTensorLibrary:get2DTensorTextSpacing(tensor)
-
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	return generateTensorString(tensor, dimensionSizeArray, textSpacingArray, 1)
 
@@ -451,10 +451,10 @@ local function generateTensorStringWithComma(tensor, dimensionSizeArray, textSpa
 end
 
 function AqwamTensorLibrary:generateTensorStringWithComma(tensor)
+	
+	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local textSpacingArray = AqwamTensorLibrary:get2DTensorTextSpacing(tensor)
-
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	return generateTensorString(tensor, dimensionSizeArray, textSpacingArray, 1)
 
@@ -525,10 +525,10 @@ local function generatePortableTensorString(tensor, dimensionSizeArray, textSpac
 end
 
 function AqwamTensorLibrary:generatePortableTensorString(tensor)
+	
+	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local textSpacingArray = AqwamTensorLibrary:get2DTensorTextSpacing(tensor)
-
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	return generatePortableTensorString(tensor, dimensionSizeArray, textSpacingArray, 1)
 
