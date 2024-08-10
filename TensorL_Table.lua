@@ -379,7 +379,7 @@ local function generateTensorString(tensor, dimensionSizeArray, textSpacingArray
 end
 
 function AqwamTensorLibrary:generateTensorString(tensor)
-	
+
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local textSpacingArray = AqwamTensorLibrary:get2DTensorTextSpacing(tensor)
@@ -451,7 +451,7 @@ local function generateTensorStringWithComma(tensor, dimensionSizeArray, textSpa
 end
 
 function AqwamTensorLibrary:generateTensorStringWithComma(tensor)
-	
+
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local textSpacingArray = AqwamTensorLibrary:get2DTensorTextSpacing(tensor)
@@ -525,7 +525,7 @@ local function generatePortableTensorString(tensor, dimensionSizeArray, textSpac
 end
 
 function AqwamTensorLibrary:generatePortableTensorString(tensor)
-	
+
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local textSpacingArray = AqwamTensorLibrary:get2DTensorTextSpacing(tensor)
@@ -842,6 +842,8 @@ function AqwamTensorLibrary:broadcast(tensor1, tensor2)
 	local dimensionSizeArray1 = AqwamTensorLibrary:getDimensionSizeArray(tensor1)
 
 	local dimensionSizeArray2 = AqwamTensorLibrary:getDimensionSizeArray(tensor2)
+	
+	if checkIfItHasSameDimensionSizeArray(dimensionSizeArray1, dimensionSizeArray2) then return tensor1, tensor2 end
 
 	local numberOfDimensions1 = #dimensionSizeArray1 
 
