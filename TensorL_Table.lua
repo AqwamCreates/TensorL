@@ -120,25 +120,25 @@ local function applyFunctionUsingOneTensor(functionToApply, tensor, dimensionSiz
 
 	local numberOfDimensions = #dimensionSizeArray
 
-	local newTensor = {}
+	local resultTensor = {}
 
 	if (numberOfDimensions >= 2) then
 
 		local remainingDimensionSizeArray = removeLastValueFromArray(dimensionSizeArray)
 
-		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = applyFunctionUsingOneTensor(functionToApply, tensor[i], remainingDimensionSizeArray) end
+		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = applyFunctionUsingOneTensor(functionToApply, tensor[i], remainingDimensionSizeArray) end
 
 	elseif (numberOfDimensions == 1) then -- Much more efficient than applying recursion again to get the original value.
 
-		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = functionToApply(tensor[i]) end
+		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = functionToApply(tensor[i]) end
 
 	else -- Sometimes the original tensor can be a number, so we must do the operation directly.
 
-		newTensor = functionToApply(tensor)
+		resultTensor = functionToApply(tensor)
 
 	end
 
-	return newTensor
+	return resultTensor
 
 end
 
@@ -146,25 +146,25 @@ local function applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2, d
 
 	local numberOfDimensions = #dimensionSizeArray
 
-	local newTensor = {}
+	local resultTensor = {}
 
 	if (numberOfDimensions >= 2) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = applyFunctionUsingTwoTensors(functionToApply, tensor1[i], tensor2[i], remainingDimensionSizeArray) end
+		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = applyFunctionUsingTwoTensors(functionToApply, tensor1[i], tensor2[i], remainingDimensionSizeArray) end
 
 	elseif (numberOfDimensions == 1) then -- Much more efficient than applying recursion again to get the original value.
 
-		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = functionToApply(tensor1[i], tensor2[i]) end
+		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = functionToApply(tensor1[i], tensor2[i]) end
 
 	else -- Sometimes the original tensor can be a number, so we must do the operation directly.
 
-		newTensor = functionToApply(tensor1, tensor2)
+		resultTensor = functionToApply(tensor1, tensor2)
 
 	end
 
-	return newTensor
+	return resultTensor
 
 end
 
@@ -172,25 +172,25 @@ local function applyFunctionWhenTheFirstValueIsAScalar(functionToApply, scalar, 
 
 	local numberOfDimensions = #dimensionSizeArray
 
-	local newTensor = {}
+	local resultTensor = {}
 
 	if (numberOfDimensions >= 2) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = applyFunctionWhenTheFirstValueIsAScalar(functionToApply, scalar, tensor[i], remainingDimensionSizeArray) end
+		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = applyFunctionWhenTheFirstValueIsAScalar(functionToApply, scalar, tensor[i], remainingDimensionSizeArray) end
 
 	elseif (numberOfDimensions == 1) then -- Much more efficient than applying recursion again to get the original value.
 
-		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = functionToApply(scalar, tensor[i]) end
+		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = functionToApply(scalar, tensor[i]) end
 
 	else -- Sometimes the original tensor can be a number, so we must do the operation directly.
 
-		newTensor = functionToApply(scalar, tensor)
+		resultTensor = functionToApply(scalar, tensor)
 
 	end
 
-	return newTensor
+	return resultTensor
 
 end
 
@@ -198,25 +198,25 @@ local function applyFunctionWhenTheSecondValueIsAScalar(functionToApply, tensor,
 
 	local numberOfDimensions = #dimensionSizeArray
 
-	local newTensor = {}
+	local resultTensor = {}
 
 	if (numberOfDimensions >= 2) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = applyFunctionWhenTheSecondValueIsAScalar(functionToApply, tensor[i], scalar, remainingDimensionSizeArray) end
+		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = applyFunctionWhenTheSecondValueIsAScalar(functionToApply, tensor[i], scalar, remainingDimensionSizeArray) end
 
 	elseif (numberOfDimensions == 1) then -- Much more efficient than applying recursion again to get the original value.
 
-		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = functionToApply(tensor[i], scalar) end
+		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = functionToApply(tensor[i], scalar) end
 
 	else -- Sometimes the original tensor can be a number, so we must do the operation directly.
 
-		newTensor = functionToApply(tensor, scalar)
+		resultTensor = functionToApply(tensor, scalar)
 
 	end
 
-	return newTensor
+	return resultTensor
 
 end
 
@@ -669,7 +669,7 @@ local function inefficientExpand(tensor, dimensionSizeArray, targetDimensionSize
 
 	local canNextDimensionBeExpanded = (nextDimensionSize == 1)
 
-	local newTensor = {}
+	local resultTensor = {}
 
 	if (not canNextDimensionBeExpanded) and (not hasSameNextDimensionSize) then
 
@@ -679,19 +679,19 @@ local function inefficientExpand(tensor, dimensionSizeArray, targetDimensionSize
 
 		for i = 1, targetDimensionSize, 1 do
 
-			newTensor[i] = {} 
+			resultTensor[i] = {} 
 
-			for j = 1, nextTargetDimensionSize, 1 do newTensor[i][j] = deepCopyTable(tensor[i][1]) end
+			for j = 1, nextTargetDimensionSize, 1 do resultTensor[i][j] = deepCopyTable(tensor[i][1]) end
 
 		end
 
 	elseif (numberOfDimensions > 2) and (hasSameNextDimensionSize) then -- Do not remove this code even if the code above is related or function similar to this code. You will spend so much time fixing it if you forget that you have removed it.
 
-		newTensor = deepCopyTable(tensor)
+		resultTensor = deepCopyTable(tensor)
 
 	elseif (numberOfDimensions == 1) and (dimensionSize == 1) then
 
-		for i = 1, targetDimensionSize, 1 do table.insert(newTensor, tensor[1]) end
+		for i = 1, targetDimensionSize, 1 do table.insert(resultTensor, tensor[1]) end
 
 	end
 
@@ -701,7 +701,7 @@ local function inefficientExpand(tensor, dimensionSizeArray, targetDimensionSize
 
 		local remainingTargetDimensionSizeArray = removeFirstValueFromArray(targetDimensionSizeArray)
 
-		for i = 1, targetDimensionSizeArray[1], 1 do newTensor[i] = inefficientExpand(newTensor[i], remainingDimensionSizeArray, remainingTargetDimensionSizeArray) end
+		for i = 1, targetDimensionSizeArray[1], 1 do resultTensor[i] = inefficientExpand(resultTensor[i], remainingDimensionSizeArray, remainingTargetDimensionSizeArray) end
 
 	end
 
@@ -719,27 +719,27 @@ local function expand(tensor, dimensionSizeArray, targetDimensionSizeArray)
 
 	-- Does not do the same thing with inefficient expand function. This one expand at the lowest dimension first and then the parent dimension will make copy of this.
 
-	local newTensor
+	local resultTensor
 
 	local numberOfDimensions = #dimensionSizeArray
 
 	if (numberOfDimensions >= 2) then
 
-		newTensor = {}
+		resultTensor = {}
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
 		local remainingTargetDimensionSizeArray = removeFirstValueFromArray(targetDimensionSizeArray)
 
-		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = expand(tensor[i], remainingDimensionSizeArray, remainingTargetDimensionSizeArray) end
+		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = expand(tensor[i], remainingDimensionSizeArray, remainingTargetDimensionSizeArray) end
 
 	else
 
-		newTensor = deepCopyTable(tensor)  -- If the "(numberOfDimensions > 1)" from the first "if" statement does not run, it will return the original tensor. So we need to deep copy it.
+		resultTensor = deepCopyTable(tensor)  -- If the "(numberOfDimensions > 1)" from the first "if" statement does not run, it will return the original tensor. So we need to deep copy it.
 
 	end
 
-	local updatedDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(newTensor) -- Need to call this again because we may have modified the tensor below it, thus changing the dimension size array.
+	local updatedDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(resultTensor) -- Need to call this again because we may have modified the tensor below it, thus changing the dimension size array.
 
 	local dimensionSize = updatedDimensionSizeArray[1]
 
@@ -751,9 +751,9 @@ local function expand(tensor, dimensionSizeArray, targetDimensionSizeArray)
 
 	if (numberOfDimensions >= 1) and (not hasSameDimensionSize) and (canDimensionBeExpanded) then 
 
-		local subTensor = newTensor[1]
+		local subTensor = resultTensor[1]
 
-		for i = 1, targetDimensionSize, 1 do newTensor[i] = deepCopyTable(subTensor) end
+		for i = 1, targetDimensionSize, 1 do resultTensor[i] = deepCopyTable(subTensor) end
 
 	elseif (not hasSameDimensionSize) and (not canDimensionBeExpanded) then
 
@@ -761,7 +761,7 @@ local function expand(tensor, dimensionSizeArray, targetDimensionSizeArray)
 
 	end
 
-	return newTensor
+	return resultTensor
 
 end
 
@@ -777,7 +777,7 @@ end
 
 function AqwamTensorLibrary:increaseNumberOfDimensions(tensor, dimensionSizeToAddArray)
 
-	local newTensor = {}
+	local resultTensor = {}
 
 	local numberOfDimensionsToAdd = #dimensionSizeToAddArray
 
@@ -785,19 +785,19 @@ function AqwamTensorLibrary:increaseNumberOfDimensions(tensor, dimensionSizeToAd
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeToAddArray)
 
-		for i = 1, dimensionSizeToAddArray[1], 1 do newTensor[i] = AqwamTensorLibrary:increaseNumberOfDimensions(tensor, remainingDimensionSizeArray) end
+		for i = 1, dimensionSizeToAddArray[1], 1 do resultTensor[i] = AqwamTensorLibrary:increaseNumberOfDimensions(tensor, remainingDimensionSizeArray) end
 
 	elseif (numberOfDimensionsToAdd == 1) then
 
-		for i = 1, dimensionSizeToAddArray[1], 1 do newTensor[i] = deepCopyTable(tensor) end
+		for i = 1, dimensionSizeToAddArray[1], 1 do resultTensor[i] = deepCopyTable(tensor) end
 
 	else
 
-		newTensor = tensor
+		resultTensor = tensor
 
 	end
 
-	return newTensor
+	return resultTensor
 
 end
 
@@ -1104,11 +1104,11 @@ function AqwamTensorLibrary:createIdentityTensor(dimensionSizeArray)
 
 	local truncatedDimensionSizeArray, numberOfDimensionsOfSize1 = truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
 
-	local newTensor = createIdentityTensor(truncatedDimensionSizeArray, {})
+	local resultTensor = createIdentityTensor(truncatedDimensionSizeArray, {})
 
-	for i = 1, numberOfDimensionsOfSize1, 1 do newTensor = {newTensor} end
+	for i = 1, numberOfDimensionsOfSize1, 1 do resultTensor = {resultTensor} end
 
-	return newTensor
+	return resultTensor
 
 end
 
@@ -1281,7 +1281,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 	expandedDimensionSizeArray[targetDimension1], expandedDimensionSizeArray[targetDimension2] = expandedDimensionSizeArray[targetDimension2], expandedDimensionSizeArray[targetDimension1]
 
-	local newTensor = createTensor(expandedDimensionSizeArray, true)
+	local resultTensor = createTensor(expandedDimensionSizeArray, true)
 
 	if (table.find(targetDimensionArray, 1)) and (table.find(targetDimensionArray, 2)) then
 
@@ -1295,7 +1295,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 						for e = 1, expandedDimensionSizeArray[5], 1 do
 
-							newTensor[a][b][c][d][e] = expandedTensor[b][a][c][d][e]
+							resultTensor[a][b][c][d][e] = expandedTensor[b][a][c][d][e]
 
 						end
 
@@ -1319,7 +1319,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 						for e = 1, expandedDimensionSizeArray[5], 1 do
 
-							newTensor[a][b][c][d][e] = expandedTensor[c][b][a][d][e]
+							resultTensor[a][b][c][d][e] = expandedTensor[c][b][a][d][e]
 
 						end
 
@@ -1343,7 +1343,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 						for e = 1, expandedDimensionSizeArray[5], 1 do
 
-							newTensor[a][b][c][d][e] = expandedTensor[a][c][b][d][e]
+							resultTensor[a][b][c][d][e] = expandedTensor[a][c][b][d][e]
 
 						end
 
@@ -1367,7 +1367,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 						for e = 1, expandedDimensionSizeArray[5], 1 do
 
-							newTensor[a][b][c][d][e] = expandedTensor[d][b][c][a][e]
+							resultTensor[a][b][c][d][e] = expandedTensor[d][b][c][a][e]
 
 						end
 
@@ -1391,7 +1391,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 						for e = 1, expandedDimensionSizeArray[5], 1 do
 
-							newTensor[a][b][c][d][e] = expandedTensor[e][b][c][d][a]
+							resultTensor[a][b][c][d][e] = expandedTensor[e][b][c][d][a]
 
 						end
 
@@ -1415,7 +1415,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 						for e = 1, expandedDimensionSizeArray[5], 1 do
 
-							newTensor[a][b][c][d][e] = expandedTensor[a][d][c][b][e]
+							resultTensor[a][b][c][d][e] = expandedTensor[a][d][c][b][e]
 
 						end
 
@@ -1439,7 +1439,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 						for e = 1, expandedDimensionSizeArray[5], 1 do
 
-							newTensor[a][b][c][d][e] = expandedTensor[a][e][c][d][b]
+							resultTensor[a][b][c][d][e] = expandedTensor[a][e][c][d][b]
 
 						end
 
@@ -1463,7 +1463,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 						for e = 1, expandedDimensionSizeArray[5], 1 do
 
-							newTensor[a][b][c][d][e] = expandedTensor[a][b][d][c][e]
+							resultTensor[a][b][c][d][e] = expandedTensor[a][b][d][c][e]
 
 						end
 
@@ -1487,7 +1487,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 						for e = 1, expandedDimensionSizeArray[5], 1 do
 
-							newTensor[a][b][c][d][e] = expandedTensor[a][b][e][d][c]
+							resultTensor[a][b][c][d][e] = expandedTensor[a][b][e][d][c]
 
 						end
 
@@ -1511,7 +1511,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 						for e = 1, expandedDimensionSizeArray[5], 1 do
 
-							newTensor[a][b][c][d][e] = expandedTensor[a][b][c][e][d]
+							resultTensor[a][b][c][d][e] = expandedTensor[a][b][c][e][d]
 
 						end
 
@@ -1529,7 +1529,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 	end
 
-	return AqwamTensorLibrary:truncate(newTensor, offset)
+	return AqwamTensorLibrary:truncate(resultTensor, offset)
 
 end
 
@@ -2057,23 +2057,23 @@ end
 
 local function sumAlongOneDimension(tensor, dimensionSizeArray, targetDimension, currentDimension)
 
-	local newTensor
+	local resultTensor
 
 	if (currentDimension == targetDimension) then
 
-		newTensor = subTensorSumAlongFirstDimension(tensor, dimensionSizeArray)
+		resultTensor = subTensorSumAlongFirstDimension(tensor, dimensionSizeArray)
 
 	else
 
-		newTensor = {}
+		resultTensor = {}
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		for i = 1, dimensionSizeArray[1], 1 do newTensor[i] = sumAlongOneDimension(tensor[i], remainingDimensionSizeArray, targetDimension, currentDimension + 1) end
+		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = sumAlongOneDimension(tensor[i], remainingDimensionSizeArray, targetDimension, currentDimension + 1) end
 
 	end
 
-	return newTensor
+	return resultTensor
 
 end
 
@@ -2097,7 +2097,7 @@ local function hardcodedDimensionSum(tensor, dimension) -- I don't think it is w
 
 	expandedSumDimensionArray[dimension] = 1
 
-	local newTensor = createTensor(expandedSumDimensionArray, 0)
+	local resultTensor = createTensor(expandedSumDimensionArray, 0)
 
 	if (dimension == 1) then
 
@@ -2111,7 +2111,7 @@ local function hardcodedDimensionSum(tensor, dimension) -- I don't think it is w
 
 						for e = 1, expandedDimensionSizeArray[5], 1 do
 
-							newTensor[1][b][c][d][e] = newTensor[1][b][c][d][e] + expandedTensor[a][b][c][d][e]
+							resultTensor[1][b][c][d][e] = resultTensor[1][b][c][d][e] + expandedTensor[a][b][c][d][e]
 
 						end
 
@@ -2135,7 +2135,7 @@ local function hardcodedDimensionSum(tensor, dimension) -- I don't think it is w
 
 						for e = 1, expandedDimensionSizeArray[5], 1 do
 
-							newTensor[a][1][c][d][e] = newTensor[a][1][c][d][e] + expandedTensor[a][b][c][d][e]
+							resultTensor[a][1][c][d][e] = resultTensor[a][1][c][d][e] + expandedTensor[a][b][c][d][e]
 
 						end
 
@@ -2159,7 +2159,7 @@ local function hardcodedDimensionSum(tensor, dimension) -- I don't think it is w
 
 						for e = 1, expandedDimensionSizeArray[5], 1 do
 
-							newTensor[a][b][1][d][e] = newTensor[a][b][1][d][e] + expandedTensor[a][b][c][d][e]
+							resultTensor[a][b][1][d][e] = resultTensor[a][b][1][d][e] + expandedTensor[a][b][c][d][e]
 
 						end
 
@@ -2183,7 +2183,7 @@ local function hardcodedDimensionSum(tensor, dimension) -- I don't think it is w
 
 						for e = 1, expandedDimensionSizeArray[5], 1 do
 
-							newTensor[a][b][c][1][e] = newTensor[a][b][c][1][e] + expandedTensor[a][b][c][d][e]
+							resultTensor[a][b][c][1][e] = resultTensor[a][b][c][1][e] + expandedTensor[a][b][c][d][e]
 
 						end
 
@@ -2207,7 +2207,7 @@ local function hardcodedDimensionSum(tensor, dimension) -- I don't think it is w
 
 						for e = 1, expandedDimensionSizeArray[5], 1 do
 
-							newTensor[a][b][c][d][1] = newTensor[a][b][c][d][1] + expandedTensor[a][b][c][d][e]
+							resultTensor[a][b][c][d][1] = resultTensor[a][b][c][d][1] + expandedTensor[a][b][c][d][e]
 
 						end
 
@@ -2221,7 +2221,7 @@ local function hardcodedDimensionSum(tensor, dimension) -- I don't think it is w
 
 	end
 
-	return AqwamTensorLibrary:truncate(newTensor, offset)
+	return AqwamTensorLibrary:truncate(resultTensor, offset)
 
 end
 
@@ -2567,7 +2567,7 @@ end
 
 local function reshapeFromFlattenedTensor(tensor, dimensionSizeArray, dimensionIndex)
 
-	local newTensor = {}
+	local resultTensor = {}
 
 	if (#dimensionSizeArray >= 2) then
 
@@ -2575,7 +2575,7 @@ local function reshapeFromFlattenedTensor(tensor, dimensionSizeArray, dimensionI
 
 		for i = 1, dimensionSizeArray[1], 1 do 
 
-			newTensor[i], dimensionIndex = reshapeFromFlattenedTensor(tensor, remainingDimensionSizeArray, dimensionIndex) 
+			resultTensor[i], dimensionIndex = reshapeFromFlattenedTensor(tensor, remainingDimensionSizeArray, dimensionIndex) 
 
 		end
 
@@ -2583,14 +2583,14 @@ local function reshapeFromFlattenedTensor(tensor, dimensionSizeArray, dimensionI
 
 		for i = 1, dimensionSizeArray[1], 1 do 
 
-			table.insert(newTensor, tensor[dimensionIndex])
+			table.insert(resultTensor, tensor[dimensionIndex])
 			dimensionIndex = dimensionIndex + 1
 
 		end
 
 	end
 
-	return newTensor, dimensionIndex
+	return resultTensor, dimensionIndex
 
 end
 
@@ -2656,23 +2656,23 @@ function AqwamTensorLibrary:inefficientReshape(tensor, dimensionSizeArray) -- Th
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
-	local newTensor
+	local resultTensor
 
 	if (numberOfDimensions == 1) then
 
-		newTensor = reshapeFromFlattenedTensor(tensor, dimensionSizeArray, 1)
+		resultTensor = reshapeFromFlattenedTensor(tensor, dimensionSizeArray, 1)
 
 	else
 
-		newTensor = AqwamTensorLibrary:createTensor(dimensionSizeArray, true)
+		resultTensor = AqwamTensorLibrary:createTensor(dimensionSizeArray, true)
 
 		local currentTargetDimensionIndexArray = table.create(#dimensionSizeArray, 1)
 
-		reshape(tensor, tensorDimensionSizeArray, newTensor, dimensionSizeArray, currentTargetDimensionIndexArray)
+		reshape(tensor, tensorDimensionSizeArray, resultTensor, dimensionSizeArray, currentTargetDimensionIndexArray)
 
 	end
 
-	return newTensor
+	return resultTensor
 
 end
 
@@ -2690,9 +2690,9 @@ function AqwamTensorLibrary:reshape(tensor, dimensionSizeArray) -- This one requ
 
 	if (numberOfDimensions >= 2) then tensor = AqwamTensorLibrary:flatten(tensor) end
 
-	local newTensor = reshapeFromFlattenedTensor(tensor, dimensionSizeArray, 1)
+	local resultTensor = reshapeFromFlattenedTensor(tensor, dimensionSizeArray, 1)
 
-	return newTensor
+	return resultTensor
 
 end
 
@@ -2972,7 +2972,7 @@ local function applyFunction(functionToApply, dimensionSizeArray, ...)
 
 	local tensorArray = {...}
 
-	local newTensor = {}
+	local resultTensor = {}
 
 	if (#dimensionSizeArray >= 2) then
 
@@ -2984,7 +2984,7 @@ local function applyFunction(functionToApply, dimensionSizeArray, ...)
 
 			for _, tensor in ipairs(tensorArray) do table.insert(subTensorArray, tensor[i]) end
 
-			newTensor[i] = applyFunction(functionToApply, remainingDimensionSizeArray, table.unpack(subTensorArray)) 
+			resultTensor[i] = applyFunction(functionToApply, remainingDimensionSizeArray, table.unpack(subTensorArray)) 
 
 		end
 
@@ -2996,13 +2996,13 @@ local function applyFunction(functionToApply, dimensionSizeArray, ...)
 
 			for _, tensor in ipairs(tensorArray) do table.insert(subTensorArray, tensor[i]) end
 
-			newTensor[i] = functionToApply(table.unpack(subTensorArray)) 
+			resultTensor[i] = functionToApply(table.unpack(subTensorArray)) 
 
 		end
 
 	end
 
-	return newTensor
+	return resultTensor
 
 end
 
