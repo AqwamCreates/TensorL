@@ -254,7 +254,7 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 		if (isFirstValueATensor) and (isSecondValueATensor) then
 
-			tensor, otherTensor = AqwamTensorLibrary:broadcastATensorIfDifferentSize(tensor, otherTensor)
+			tensor, otherTensor = AqwamTensorLibrary:broadcast(tensor, otherTensor)
 
 			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
@@ -837,7 +837,7 @@ local function getTheDimensionSizeArrayWithFewestNumberOfDimensionSizeOf1(dimens
 
 end
 
-function AqwamTensorLibrary:broadcastATensorIfDifferentSize(tensor1, tensor2)
+function AqwamTensorLibrary:broadcast(tensor1, tensor2)
 
 	local dimensionSizeArray1 = AqwamTensorLibrary:getDimensionSizeArray(tensor1)
 
