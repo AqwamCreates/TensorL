@@ -2,7 +2,7 @@
 
 	--------------------------------------------------------------------
 
-	Version 0.5.0
+	Version 0.6.0
 
 	Aqwam's Tensor Library (TensorL)
 
@@ -1535,15 +1535,109 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 end
 
+function AqwamTensorLibrary:hardcodedTranspose(tensor, dimensionArray)
+	
+	local numberOfDimensions = AqwamTensorLibrary:getNumberOfDimensions(tensor)
+	
+	if (numberOfDimensions == 0) then return tensor end
+
+	if (#dimensionArray ~= 2) then error("Dimension array must contain 2 dimensions.") end
+	
+	local dimension1 = dimensionArray[1]
+
+	local dimension2 = dimensionArray[2]
+	
+	if (dimension1 > numberOfDimensions) then error("The first dimension exceeds the tensor's number of dimensions") end
+	
+	if (dimension2 > numberOfDimensions) then error("The second dimension exceeds the tensor's number of dimensions") end
+	
+	if (dimension1 <= 0) then error("The first dimension must be greater than zero.") end
+	
+	if (dimension2 <= 0) then error("The second dimension must be greater than zero.") end
+	
+	if (dimension1 >= 6) then error("When using the hardcoded transpose, the first dimension must be less than six.") end
+
+	if (dimension2 >= 6) then error("When using the hardcoded transpose, the second dimension must be less than six.") end
+
+	if (dimension1 == dimension2) then error("The first dimension is equal to the second dimension.") end
+	
+	return hardcodedTranspose(tensor, dimensionArray)
+	
+end
+
+local function transpose(tensor, dimensionSizeArray, currentTargetDimensionIndexArray, targetTensor, dimension1, dimension2)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	if (numberOfDimensions >= 1) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do
+
+			local copiedCurrentTargetDimensionIndexArray = table.clone(currentTargetDimensionIndexArray)
+
+			table.insert(copiedCurrentTargetDimensionIndexArray, i)
+
+			transpose(tensor[i], remainingDimensionSizeArray, copiedCurrentTargetDimensionIndexArray, targetTensor, dimension1, dimension2)
+
+		end
+
+	else
+		
+		local currentDimensionIndex1 = currentTargetDimensionIndexArray[dimension1]
+		
+		local currentDimensionIndex2 = currentTargetDimensionIndexArray[dimension2]
+		
+		currentTargetDimensionIndexArray[dimension1] = currentDimensionIndex2
+
+		currentTargetDimensionIndexArray[dimension2] = currentDimensionIndex1
+
+		AqwamTensorLibrary:setValue(targetTensor, tensor, currentTargetDimensionIndexArray)
+
+	end	
+
+end
+
 function AqwamTensorLibrary:transpose(tensor, dimensionArray)
 
-	if (AqwamTensorLibrary:getNumberOfDimensions(tensor) == 0) then return tensor end
+	local numberOfDimensions = AqwamTensorLibrary:getNumberOfDimensions(tensor)
 
-	if (#dimensionArray ~= 2) then error("Dimension array must contain exactly 2 dimensions.") end
+	if (numberOfDimensions == 0) then return tensor end
 
-	if (dimensionArray[1] == dimensionArray[2]) then return tensor end
+	if (#dimensionArray ~= 2) then error("Dimension array must contain 2 dimensions.") end
 
-	return hardcodedTranspose(tensor, dimensionArray)
+	local dimension1 = dimensionArray[1]
+
+	local dimension2 = dimensionArray[2]
+	
+	if (dimension1 <= 0) then error("The first dimension must be greater than zero.") end
+
+	if (dimension2 <= 0) then error("The second dimension must be greater than zero.") end
+	
+	if (dimension1 > numberOfDimensions) then error("The first dimension exceeds the tensor's number of dimensions") end
+
+	if (dimension2 > numberOfDimensions) then error("The second dimension exceeds the tensor's number of dimensions") end
+
+	if (dimension1 == dimension2) then error("The first dimension is equal to the second dimension.") end
+	
+	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	
+	local transposedDimensionSizeArray = table.clone(dimensionSizeArray)
+	
+	local dimensionSize1 = dimensionSizeArray[dimension1]
+	
+	local dimensionSize2 = dimensionSizeArray[dimension2]
+	
+	transposedDimensionSizeArray[dimension1] = dimensionSize2
+	
+	transposedDimensionSizeArray[dimension2] = dimensionSize1
+	
+	local transposedTensor = AqwamTensorLibrary:createTensor(transposedDimensionSizeArray, true)
+	
+	transpose(tensor, dimensionSizeArray, {}, transposedTensor, dimension1, dimension2)
+	
+	return transposedTensor
 
 end
 
