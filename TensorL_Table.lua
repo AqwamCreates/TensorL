@@ -2147,7 +2147,7 @@ local function subTensorSumAlongFirstDimension(tensor, dimensionSizeArray)
 
 	recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArray, sumTensor, {})
 
-	return sumTensor
+	return {sumTensor} -- Needed to add curly brackets to keep the extra dimension.
 
 end
 
