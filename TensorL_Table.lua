@@ -3156,9 +3156,9 @@ local function setValue(tensor, dimensionSizeArray, value, dimensionIndexArray)
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		local remainingIndexArray = removeFirstValueFromArray(dimensionIndexArray)
+		local remainingDimensionIndexArray = removeFirstValueFromArray(dimensionIndexArray)
 
-		setValue(tensor[dimensionIndex], remainingDimensionSizeArray, value, remainingIndexArray)
+		setValue(tensor[dimensionIndex], remainingDimensionSizeArray, value, remainingDimensionIndexArray)
 
 	elseif (numberOfDimensions == 1) then
 
@@ -3180,13 +3180,11 @@ function AqwamTensorLibrary:setValue(tensor, value, dimensionIndexArray)
 
 end
 
-function AqwamTensorLibrary:getValue(tensor, dimensionIndexArray)
-
+local function getValue(tensor, dimensionSizeArray, dimensionIndexArray)
+	
 	local dimensionIndex = dimensionIndexArray[1]
 
 	local numberOfDimensionIndices = #dimensionIndexArray
-
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local numberOfDimensions = #dimensionSizeArray
 
@@ -3198,9 +3196,11 @@ function AqwamTensorLibrary:getValue(tensor, dimensionIndexArray)
 
 		checkIfDimensionSizeIndexIsOutOfBounds(dimensionIndex, 1, dimensionSizeArray[1])
 
-		local remainingIndexArray = removeFirstValueFromArray(dimensionIndexArray)
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+		
+		local remainingDimensionIndexArray = removeFirstValueFromArray(dimensionIndexArray)
 
-		return AqwamTensorLibrary:getValue(tensor[dimensionIndex], remainingIndexArray)
+		return getValue(tensor[dimensionIndex], remainingDimensionSizeArray, remainingDimensionIndexArray)
 
 	elseif (numberOfDimensions == 1) then
 
@@ -3211,6 +3211,14 @@ function AqwamTensorLibrary:getValue(tensor, dimensionIndexArray)
 		error("An error has occurred when attempting to get the tensor value.")
 
 	end
+	
+end
+
+function AqwamTensorLibrary:getValue(tensor, dimensionIndexArray)
+
+	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	
+	return getValue(tensor, dimensionSizeArray, dimensionIndexArray)
 
 end
 
