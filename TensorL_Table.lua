@@ -2147,21 +2147,19 @@ local function subTensorSumAlongFirstDimension(tensor, dimensionSizeArray)
 
 	recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArray, sumTensor, {})
 
-	return {sumTensor} -- Needed to add curly brackets to keep the extra dimension.
+	return sumTensor
 
 end
 
 local function sumAlongOneDimension(tensor, dimensionSizeArray, targetDimension, currentDimension)
 
-	local resultTensor
+	local resultTensor = {}
 
 	if (currentDimension == targetDimension) then
 
-		resultTensor = subTensorSumAlongFirstDimension(tensor, dimensionSizeArray)
-
+		resultTensor[1] = subTensorSumAlongFirstDimension(tensor, dimensionSizeArray) -- This is needed to ensure that the number of dimensions stays the same.
+		
 	else
-
-		resultTensor = {}
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
