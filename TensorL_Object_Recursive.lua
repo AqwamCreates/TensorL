@@ -332,23 +332,43 @@ function AqwamTensorLibrary:increaseNumberOfDimensions(dimensionSizeToAddArray)
 
 end
 
-local function broadcast(tensor1, tensor2)
+local function broadcast(tensor1, tensor2, deepCopyOriginalTensor)
 
 	local dimensionSizeArray1 = AqwamTensorLibrary:getDimensionSizeArray(tensor1)
 
 	local dimensionSizeArray2 = AqwamTensorLibrary:getDimensionSizeArray(tensor2)
-	
-	if checkIfItHasSameDimensionSizeArray(dimensionSizeArray1, dimensionSizeArray2) then return tensor1, tensor2 end
+
+	if checkIfItHasSameDimensionSizeArray(dimensionSizeArray1, dimensionSizeArray2) then 
+
+		if (deepCopyOriginalTensor) then
+
+			return deepCopyTable(tensor1), deepCopyTable(tensor2)
+
+		else
+
+			return tensor1, tensor2 
+
+		end
+
+	end
 
 	local numberOfDimensions1 = #dimensionSizeArray1 
 
 	local numberOfDimensions2 = #dimensionSizeArray2
 
-	local haveSameNumberOfDimensions = (numberOfDimensions1 == numberOfDimensions2) -- Currently, if the number of dimensions have the same size, the tensor containing dimension with smaller axis will not expand. See case when tensor sizes are (5, 3, 6) and (5, 1, 6). So we need to be explicit in our dimensionSizeArrayWithHighestNumberOfDimensions variable.
+	local tensorNumberWithLowestNumberOfDimensions
 
-	local isTensor1HaveLessNumberOfDimensions = (numberOfDimensions1 < numberOfDimensions2)
+	if (numberOfDimensions1 == numberOfDimensions2) then -- Currently, if the number of dimensions have the same size, the tensor containing dimension with smaller axis will not expand. See case when tensor sizes are (5, 3, 6) and (5, 1, 6). So we need to be explicit in our dimensionSizeArrayWithHighestNumberOfDimensions variable.
 
-	local tensorNumberWithLowestNumberOfDimensions = (haveSameNumberOfDimensions and getTheDimensionSizeArrayWithFewestNumberOfDimensionSizeOf1(dimensionSizeArray1, dimensionSizeArray2)) or (isTensor1HaveLessNumberOfDimensions and 1) or 2
+		tensorNumberWithLowestNumberOfDimensions = getTheDimensionSizeArrayWithFewestNumberOfDimensionSizeOf1(dimensionSizeArray1, dimensionSizeArray2)
+
+	else
+
+		tensorNumberWithLowestNumberOfDimensions = ((numberOfDimensions1 < numberOfDimensions2) and 1) or 2
+
+	end
+
+	local isTensor1HaveLessNumberOfDimensions = (tensorNumberWithLowestNumberOfDimensions == 1)
 
 	local tensorWithLowestNumberOfDimensions = (isTensor1HaveLessNumberOfDimensions and tensor1) or tensor2
 
@@ -366,13 +386,11 @@ local function broadcast(tensor1, tensor2)
 
 	for i = 1, numberOfDimensionDifferences, 1 do -- We need to remove the extra dimensions from tensor with highest number of dimensions. The values are removed starting from the first so that we can compare the endings.
 
-		table.remove(truncatedDimensionSizeArrayWithHighestNumberOfDimensions, 1)
-
 	end
 
 	for i, dimensionSize in ipairs(dimensionSizeArrayWithLowestNumberOfDimensions) do -- Check if the endings are equal so that we can broadcast one of the tensor. If the dimension size are not equal and neither have dimension size of 1, then we can't broadcast the tensor with the lowest number of dimensions.
 
-		if (dimensionSize ~=  truncatedDimensionSizeArrayWithHighestNumberOfDimensions[i]) and (dimensionSize ~= 1) then onBroadcastError(dimensionSizeArray1, dimensionSizeArray2) end
+		if (dimensionSize ~= truncatedDimensionSizeArrayWithHighestNumberOfDimensions[i]) and (dimensionSize ~= 1) then onBroadcastError(dimensionSizeArray1, dimensionSizeArray2) end
 
 	end
 
@@ -380,26 +398,44 @@ local function broadcast(tensor1, tensor2)
 
 	for i = 1, numberOfDimensionDifferences, 1 do table.insert(dimensionSizeToAddArray, dimensionSizeArrayWithHighestNumberOfDimensions[i]) end -- Get the dimension sizes of the left part of dimension size array.
 
-	local expandedTensor = increaseNumberOfDimensions(tensorWithLowestNumberOfDimensions, dimensionSizeToAddArray)
-	
-	local expandedTensorDimensionSizeArray = {}
-	
-	getDimensionSizeArray(expandedTensor, expandedTensorDimensionSizeArray)
-	
-	print(expandedTensorDimensionSizeArray)
+	local expandedTensor = AqwamTensorLibrary:increaseNumberOfDimensions(tensorWithLowestNumberOfDimensions, dimensionSizeToAddArray)
 
-	expandedTensor = expand(expandedTensor, expandedTensorDimensionSizeArray, dimensionSizeArrayWithHighestNumberOfDimensions)
+	expandedTensor = AqwamTensorLibrary:expand(expandedTensor, dimensionSizeArrayWithHighestNumberOfDimensions)
 
 	if (tensorNumberWithLowestNumberOfDimensions == 1) then
 
-		return expandedTensor, tensor2
+		if (deepCopyOriginalTensor) then
+
+			return expandedTensor, deepCopyTable(tensor2)
+
+		else
+
+			return expandedTensor, tensor2 
+
+		end
 
 	else
 
-		return tensor1, expandedTensor
+		if (deepCopyOriginalTensor) then
+
+			return deepCopyTable(tensor1), expandedTensor
+
+		else
+
+			return tensor1, expandedTensor
+
+		end
 
 	end
 
+end
+
+function AqwamTensorLibrary:broadcast(tensor1, tensor2)
+	
+	local tensor1Value, tensor2Value = broadcast(tensor1.tensor, tensor2.tensor, true)
+	
+	return self.new(tensor1Value),  self.new(tensor2Value)
+	
 end
 
 local function applyFunctionUsingOneTensor(functionToApply, tensor, dimensionSizeArray) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
@@ -512,19 +548,21 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 	local numberOfTensors = #tensorArray
 
-	local tensor = tensorArray[1]
+	local tensorValue = tensorArray[1].tensor
 
 	if (numberOfTensors == 1) then 
 
-		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+		local dimensionSizeArray = {}
 
-		if (type(tensor) == "table") then
+		getDimensionSizeArray(tensorValue, dimensionSizeArray)
 
-			return applyFunctionUsingOneTensor(functionToApply, tensor, dimensionSizeArray)
+		if (type(tensorValue) == "table") then
+
+			return applyFunctionUsingOneTensor(functionToApply, tensorValue, dimensionSizeArray)
 
 		else
 
-			return functionToApply(tensor, dimensionSizeArray)
+			return functionToApply(tensorValue, dimensionSizeArray)
 
 		end
 
@@ -532,41 +570,47 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 	for i = 2, numberOfTensors, 1 do
 
-		local otherTensor = tensorArray[i]
+		local otherTensorValue = tensorArray[i].tensor
 
-		local isFirstValueATensor = (type(tensor) == "table")
+		local isFirstValueATensor = (type(tensorValue) == "table")
 
-		local isSecondValueATensor = (type(otherTensor) == "table")
+		local isSecondValueATensor = (type(otherTensorValue) == "table")
 
 		if (isFirstValueATensor) and (isSecondValueATensor) then
 
-			tensor, otherTensor = broadcast(tensor, otherTensor)
+			tensorValue, otherTensorValue = broadcast(tensorValue, otherTensorValue, false)
 
-			local dimensionSizeArray = tensor:getDimensionSizeArray()
-
-			tensor = applyFunctionUsingTwoTensors(functionToApply, tensor, otherTensor, dimensionSizeArray)
+			local dimensionSizeArray = {}
+			
+			getDimensionSizeArray(tensorValue, dimensionSizeArray)
+			
+			tensorValue = applyFunctionUsingTwoTensors(functionToApply, tensorValue, otherTensorValue, dimensionSizeArray)
 
 		elseif (not isFirstValueATensor) and (isSecondValueATensor) then
 
-			local dimensionSizeArray = otherTensor:getDimensionSizeArray()
+			local dimensionSizeArray = {}
 
-			tensor = applyFunctionWhenTheFirstValueIsAScalar(functionToApply, tensor, otherTensor, dimensionSizeArray)
+			getDimensionSizeArray(otherTensorValue, dimensionSizeArray)
+
+			tensorValue = applyFunctionWhenTheFirstValueIsAScalar(functionToApply, tensorValue, otherTensorValue, dimensionSizeArray)
 
 		elseif (isFirstValueATensor) and (not isSecondValueATensor) then
 
-			local dimensionSizeArray = tensor:getDimensionSizeArray()
+			local dimensionSizeArray = {}
 
-			tensor = applyFunctionWhenTheSecondValueIsAScalar(functionToApply, tensor, otherTensor, dimensionSizeArray)
+			getDimensionSizeArray(tensorValue, dimensionSizeArray)
+
+			tensorValue = applyFunctionWhenTheSecondValueIsAScalar(functionToApply, tensorValue, otherTensorValue, dimensionSizeArray)
 
 		else
 
-			tensor = functionToApply(tensor, otherTensor)
+			tensorValue = functionToApply(tensorValue, otherTensorValue)
 
 		end
 
 	end
 
-	return tensor
+	return tensorValue
 
 end
 
