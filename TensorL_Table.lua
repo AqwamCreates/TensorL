@@ -570,22 +570,75 @@ function AqwamTensorLibrary:truncate(tensor, numberOfDimensionsToTruncate)
 
 	end
 
-	local truncatedTensor = deepCopyTable(tensor)
+	local resultTensor = deepCopyTable(tensor)
 
 	for dimension = 1, numberOfDimensionsToTruncate, 1 do
 
-		if (type(truncatedTensor) ~= "table") then break end
+		if (type(resultTensor) ~= "table") then break end
 
-		if (#truncatedTensor ~= 1) then break end
+		if (#resultTensor ~= 1) then break end
 
-		truncatedTensor = truncatedTensor[1]
+		resultTensor = resultTensor[1]
 
 	end
 
-	return truncatedTensor
+	return resultTensor
 
 end
 
+local function squeeze(tensor, dimensionSizeArray, targetDimension, currentDimension)
+	
+	local numberOfDimensions = #dimensionSizeArray
+	
+	local isAtTargetDimension = (currentDimension == targetDimension)
+	
+	local isATensor = (numberOfDimensions >= 1)
+	
+	local remainingDimensionSizeArray
+	
+	local resultTensor
+	
+	if (isAtTargetDimension) and (isATensor) then
+		
+		resultTensor = {}
+		
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+		
+		remainingDimensionSizeArray = removeFirstValueFromArray(remainingDimensionSizeArray)
+		
+		for i = 1, dimensionSizeArray[2], 1 do resultTensor[i] = squeeze(tensor[1][i], remainingDimensionSizeArray, targetDimension, currentDimension + 2) end
+		
+	elseif (not isAtTargetDimension) and (isATensor) then
+		
+		resultTensor = {}
+		
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+		
+		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = squeeze(tensor[i], remainingDimensionSizeArray, targetDimension, currentDimension + 1) end
+		
+	elseif (not isATensor) then
+		
+		resultTensor = tensor
+		
+	else
+		
+		error("Unable to squeeze.")
+		
+	end
+	
+	return resultTensor
+	
+end
+
+function AqwamTensorLibrary:squeeze(tensor, dimension)
+	
+	if (type(dimension) ~= "number") then error("The dimension must be a number.") end
+	
+	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	
+	return squeeze(tensor, dimensionSizeArray, dimension, 1)
+	
+end
 
 local function containAFalseBooleanInTensor(booleanTensor, dimensionSizeArray)
 
@@ -2322,6 +2375,8 @@ end
 function AqwamTensorLibrary:sum(tensor, dimension)
 
 	dimension = dimension or 0
+	
+	if (type(dimension) ~= "number") then error("The dimension must be a number.") end
 
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
