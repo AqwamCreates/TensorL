@@ -598,37 +598,19 @@ local function setValue(tensor, dimensionSizeArray, value, dimensionIndexArray)
 
 end
 
-local function getValue(tensor, dimensionSizeArray, dimensionIndexArray)
-
-	local dimensionIndex = dimensionIndexArray[1]
-
-	local numberOfDimensionIndices = #dimensionIndexArray
-
-	local numberOfDimensions = #dimensionSizeArray
-
-	if (numberOfDimensionIndices > numberOfDimensions) then
-
-		error("The number of indices exceeds the tensor's number of dimensions.")
-
-	elseif (numberOfDimensions >= 2) then
-
-		checkIfDimensionSizeIndexIsOutOfBounds(dimensionIndex, 1, dimensionSizeArray[1])
-
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		local remainingDimensionIndexArray = removeFirstValueFromArray(dimensionIndexArray)
-
-		return getValue(tensor[dimensionIndex], remainingDimensionSizeArray, remainingDimensionIndexArray)
-
-	elseif (numberOfDimensions == 1) then
-
-		return tensor[dimensionIndex]
-
-	else
-
-		error("An error has occurred when attempting to get the tensor value.")
-
-	end
+function AqwamTensorLibrary:getValue(tensor, dimensionIndexArray)
+	
+	local tensor = self.tensor
+	
+	local dimensionSizeArray = self.dimensionSizeArray
+	
+	local totalDimensionSize = getTotalSizeFromDimensionSizeArray(dimensionSizeArray)
+	
+	local targetDimensionSize = getTotalSizeFromDimensionSizeArray(dimensionIndexArray)
+	
+	local totalSizeWithoutLastDimensionSize = totalDimensionSize / dimensionSizeArray[#dimensionSizeArray]
+	
+	if (targetDimensionSize > totalSizeWithoutLastDimensionSize) then return tensor[targetDimensionSize] end
 
 end
 
@@ -642,13 +624,26 @@ local function sumFromAllDimensions(tensor)
 
 end
 
-local function sumAlongOneDimension(tensor, dimensionSizeArray, dimension)
+local function sumAlongOneDimension(tensor, dimensionSizeArray, targetDimension)
 
 	local resultTensor = {}
 	
 	local resultDimensionSizeArray = table.clone(dimensionSizeArray)
 
-	resultDimensionSizeArray[dimension] = 1
+	resultDimensionSizeArray[targetDimension] = 1
+	
+	for currentDimension, size in ipairs(dimensionSizeArray) do
+		
+		if (currentDimension == targetDimension) then
+			
+		else
+			
+			
+			
+		end
+		
+		
+	end
 	
 	return resultTensor, resultDimensionSizeArray
 
@@ -659,16 +654,18 @@ function AqwamTensorLibrary:sum(dimension)
 	if (type(dimension) ~= "number") then error("The dimension must be a number.") end
 
 	dimension = dimension or 0
+	
+	local tensor = self.tensor
 
 	local dimensionSizeArray = self.dimensionSizeArray
 
 	local numberOfDimensions = #dimensionSizeArray
 
-	if (dimension == 0) then return sumFromAllDimensions(self) end
+	if (dimension == 0) then return sumFromAllDimensions(tensor) end
 
 	checkIfDimensionIsOutOfBounds(dimension, 1, numberOfDimensions)
 
-	local resultTensor, resultDimensionSizeArray = sumAlongOneDimension(self, dimensionSizeArray, dimension)
+	local resultTensor, resultDimensionSizeArray = sumAlongOneDimension(tensor, dimensionSizeArray, dimension)
 
 	return self.construct(resultTensor, resultDimensionSizeArray)
 
@@ -1227,82 +1224,12 @@ local function getOutOfBoundsIndexArray(array, arrayToBeCheckedForOutOfBounds)
 
 end
 
-local function extract(tensor, dimensionSizeArray, originDimensionIndexArray, targetDimensionIndexArray)
-
-	local numberOfDimensions = #dimensionSizeArray
-
-	local extractedTensor = {}
-
-	local originDimensionIndex = originDimensionIndexArray[1]
-
-	local targetDimensionIndex = targetDimensionIndexArray[1]
-
-	if (numberOfDimensions >= 2) and (originDimensionIndex <= targetDimensionIndex) then
-
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		local remainingOriginDimensionIndexArray = removeFirstValueFromArray(originDimensionIndexArray)
-
-		local remainingTargetDimensionIndexArray = removeFirstValueFromArray(targetDimensionIndexArray)
-
-		for i = originDimensionIndex, targetDimensionIndex, 1 do 
-
-			local extractedSubTensor = extract(tensor[i], remainingDimensionSizeArray, remainingOriginDimensionIndexArray, remainingTargetDimensionIndexArray) 
-
-			table.insert(extractedTensor, extractedSubTensor)
-
-		end
-
-	elseif (numberOfDimensions >= 2) and (originDimensionIndex > targetDimensionIndex) then
-
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		local remainingOriginDimensionIndexArray = removeFirstValueFromArray(originDimensionIndexArray)
-
-		local remainingTargetDimensionIndexArray = removeFirstValueFromArray(targetDimensionIndexArray)
-
-		for i = targetDimensionIndex, #tensor, 1 do 
-
-			local extractedSubTensor = extract(tensor[i], remainingDimensionSizeArray, remainingOriginDimensionIndexArray, remainingTargetDimensionIndexArray) 
-
-			table.insert(extractedTensor, extractedSubTensor)
-
-		end
-
-		for i = 1, originDimensionIndex, 1 do 
-
-			local extractedSubTensor = extract(tensor[i], remainingDimensionSizeArray, remainingOriginDimensionIndexArray, remainingTargetDimensionIndexArray) 
-
-			table.insert(extractedTensor, extractedSubTensor)
-
-		end
-
-	elseif (numberOfDimensions == 1) and (originDimensionIndex <= targetDimensionIndex) then
-
-		for i = originDimensionIndex, targetDimensionIndex, 1 do table.insert(extractedTensor, tensor[i]) end
-
-	elseif (numberOfDimensions == 1) and (originDimensionIndex > targetDimensionIndex) then
-
-		for i = targetDimensionIndex, #tensor, 1 do table.insert(extractedTensor, tensor[i]) end
-
-		for i = 1, originDimensionIndex, 1 do table.insert(extractedTensor, tensor[i]) end
-
-	else
-
-		error("An unknown error has occured while extracting the tensor.")
-
-	end
-
-	return extractedTensor
-
-end
-
 function AqwamTensorLibrary:extract(originDimensionIndexArray, targetDimensionIndexArray)
 
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(self)
-
+	local dimensionSizeArray = self.dimensionSizeArray
+	
 	local numberOfDimensions = #dimensionSizeArray
-
+	
 	if (numberOfDimensions ~= #originDimensionIndexArray) then error("Invalid origin dimension index array.") end
 
 	if (numberOfDimensions ~= #targetDimensionIndexArray) then error("Invalid target dimension index array.") end
@@ -1350,10 +1277,22 @@ function AqwamTensorLibrary:extract(originDimensionIndexArray, targetDimensionIn
 		error(errorString)
 
 	end
+	
+	local tensor = self.tensor
+	
+	local newDimensionSizeArray = table.clone(targetDimensionIndexArray)
+	
+	for i, size in ipairs(newDimensionSizeArray) do newDimensionSizeArray[i] = size - originDimensionIndexArray[i] end
+	
+	local extractedTensor = {}
+	
+	local originTotalDimensionSize = getTotalSizeFromDimensionSizeArray(originDimensionIndexArray)
+	
+	local targetTotalDimensionSize = getTotalSizeFromDimensionSizeArray(targetDimensionIndexArray)
 
-	local extractedTensor = extract(self, dimensionSizeArray, originDimensionIndexArray, targetDimensionIndexArray)
+	for i = originTotalDimensionSize, targetTotalDimensionSize do table.insert(extractedTensor, tensor[i]) end
 
-	return self.new(extractedTensor)
+	return self.construct(extractedTensor, newDimensionSizeArray)
 
 end
 
