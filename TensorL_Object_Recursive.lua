@@ -550,21 +550,21 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 	local numberOfTensors = #tensorArray
 
-	local tensorValue = tensorArray[1].tensor
+	local tensor = tensorArray[1]
 
 	if (numberOfTensors == 1) then 
 
 		local dimensionSizeArray = {}
 
-		getDimensionSizeArray(tensorValue, dimensionSizeArray)
+		getDimensionSizeArray(tensor, dimensionSizeArray)
 
-		if (type(tensorValue) == "table") then
+		if (type(tensor) == "table") then
 
-			return applyFunctionUsingOneTensor(functionToApply, tensorValue, dimensionSizeArray)
+			return applyFunctionUsingOneTensor(functionToApply, tensor, dimensionSizeArray)
 
 		else
 
-			return functionToApply(tensorValue, dimensionSizeArray)
+			return functionToApply(tensor, dimensionSizeArray)
 
 		end
 
@@ -572,47 +572,47 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 	for i = 2, numberOfTensors, 1 do
 
-		local otherTensorValue = tensorArray[i].tensor
+		local otherTensor = tensorArray[i]
 
-		local isFirstValueATensor = (type(tensorValue) == "table")
+		local isFirstValueATensor = (type(tensor) == "table")
 
-		local isSecondValueATensor = (type(otherTensorValue) == "table")
+		local isSecondValueATensor = (type(otherTensor) == "table")
 
 		if (isFirstValueATensor) and (isSecondValueATensor) then
 
-			tensorValue, otherTensorValue = broadcast(tensorValue, otherTensorValue, false)
+			tensor, otherTensor = broadcast(tensor, otherTensor, false)
 
 			local dimensionSizeArray = {}
 			
-			getDimensionSizeArray(tensorValue, dimensionSizeArray)
+			getDimensionSizeArray(tensor, dimensionSizeArray)
 			
-			tensorValue = applyFunctionUsingTwoTensors(functionToApply, tensorValue, otherTensorValue, dimensionSizeArray)
+			tensor = applyFunctionUsingTwoTensors(functionToApply, tensor, otherTensor, dimensionSizeArray)
 
 		elseif (not isFirstValueATensor) and (isSecondValueATensor) then
 
 			local dimensionSizeArray = {}
 
-			getDimensionSizeArray(otherTensorValue, dimensionSizeArray)
+			getDimensionSizeArray(otherTensor, dimensionSizeArray)
 
-			tensorValue = applyFunctionWhenTheFirstValueIsAScalar(functionToApply, tensorValue, otherTensorValue, dimensionSizeArray)
+			tensor = applyFunctionWhenTheFirstValueIsAScalar(functionToApply, tensor, otherTensor, dimensionSizeArray)
 
 		elseif (isFirstValueATensor) and (not isSecondValueATensor) then
 
 			local dimensionSizeArray = {}
 
-			getDimensionSizeArray(tensorValue, dimensionSizeArray)
+			getDimensionSizeArray(tensor, dimensionSizeArray)
 
-			tensorValue = applyFunctionWhenTheSecondValueIsAScalar(functionToApply, tensorValue, otherTensorValue, dimensionSizeArray)
+			tensor = applyFunctionWhenTheSecondValueIsAScalar(functionToApply, tensor, otherTensor, dimensionSizeArray)
 
 		else
 
-			tensorValue = functionToApply(tensorValue, otherTensorValue)
+			tensor = functionToApply(tensor, otherTensor)
 
 		end
 
 	end
 
-	return tensorValue
+	return tensor
 
 end
 
@@ -2437,7 +2437,6 @@ local function getTotalSizeFromDimensionSizeArray(dimensionSizeArray)
 	return totalSize
 
 end
-
 
 local function flattenIntoASingleDimension(tensor, dimensionSizeArray, targetTensor)
 
