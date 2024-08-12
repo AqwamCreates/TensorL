@@ -140,7 +140,7 @@ local function getTheDimensionSizeArrayWithFewestNumberOfDimensionSizeOf1(dimens
 
 	end
 
-	if (dimensionSizeOf1Count1 < dimensionSizeOf1Count2) then
+	if (dimensionSizeOf1Count1 > dimensionSizeOf1Count2) then
 
 		return 1
 
@@ -239,8 +239,10 @@ local function broadcast(tensor1, tensor2, deepCopyOriginalTensor)
 	end
 
 	for i, dimensionSize in ipairs(dimensionSizeArrayWithLowestNumberOfDimensions) do -- Check if the endings are equal so that we can broadcast one of the tensor. If the dimension size are not equal and neither have dimension size of 1, then we can't broadcast the tensor with the lowest number of dimensions.
-
-		if (dimensionSize ~=  truncatedDimensionSizeArrayWithHighestNumberOfDimensions[i]) and (dimensionSize ~= 1) then onBroadcastError(dimensionSizeArray1, dimensionSizeArray2) end
+		
+		print(dimensionSize, truncatedDimensionSizeArrayWithHighestNumberOfDimensions[i])
+		
+		if (dimensionSize ~= truncatedDimensionSizeArrayWithHighestNumberOfDimensions[i]) and (dimensionSize ~= 1) then onBroadcastError(dimensionSizeArray1, dimensionSizeArray2) end
 
 	end
 
