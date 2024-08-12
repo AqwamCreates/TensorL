@@ -634,6 +634,10 @@ local function squeeze(tensor, dimensionSizeArray, targetDimension, currentDimen
 		
 		resultTensor = tensor
 		
+	else
+		
+		error("Unable to squeeze.")
+		
 	end
 	
 	return resultTensor
