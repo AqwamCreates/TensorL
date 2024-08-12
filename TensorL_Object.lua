@@ -2688,6 +2688,8 @@ function AqwamTensorLibrary:squeeze(dimension)
 
 	local dimensionSizeArray = self:getDimensionSizeArray()
 	
+	if (dimensionSizeArray[dimension] ~= 1) then error("The dimension size at dimension " .. dimension .. " is not equal to 1.") end
+	
 	local resultTensor = squeeze(self, dimensionSizeArray, dimension, 1)
 
 	return self.new(resultTensor)
