@@ -636,6 +636,8 @@ function AqwamTensorLibrary:squeeze(tensor, dimension)
 	
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 	
+	if (dimensionSizeArray[dimension] ~= 1) then error("The dimension size at dimension " .. dimension .. " is not equal to 1.") end
+	
 	return squeeze(tensor, dimensionSizeArray, dimension, 1)
 	
 end
