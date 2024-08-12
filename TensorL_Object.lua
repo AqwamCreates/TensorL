@@ -76,6 +76,26 @@ local function removeLastValueFromArray(array)
 
 end
 
+local function createTensor(dimensionSizeArray, initialValue) -- Don't put dimension size array truncation here. It is needed for several operations like dot product. 
+
+	local tensor = {}
+
+	if (#dimensionSizeArray >= 2) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = createTensor(remainingDimensionSizeArray, initialValue) end
+
+	else
+
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = initialValue end
+
+	end
+
+	return tensor
+
+end
+
 local function deepCopyTable(original, copies)
 
 	copies = copies or {}
@@ -113,6 +133,272 @@ local function deepCopyTable(original, copies)
 	end
 
 	return copy
+
+end
+
+local function getNumberOfDimensions(tensor)
+
+	if (typeof(tensor) ~= "table") then return 0 end
+
+	return getNumberOfDimensions(tensor[1]) + 1
+
+end
+
+local function getDimensionSizeArray(tensor, targetDimensionSizeArray)
+
+	if (type(tensor) ~= "table") then return end
+
+	table.insert(targetDimensionSizeArray, #tensor)
+
+	getDimensionSizeArray(tensor[1], targetDimensionSizeArray)
+
+end
+
+function AqwamTensorLibrary:getDimensionSizeArray()
+
+	local dimensionSizeArray = {}
+
+	getDimensionSizeArray(self, dimensionSizeArray)
+
+	return dimensionSizeArray
+
+end
+
+local function expand(tensor, dimensionSizeArray, targetDimensionSizeArray)
+
+	-- Does not do the same thing with inefficient expand function. This one expand at the lowest dimension first and then the parent dimension will make copy of this.
+
+	local resultTensor
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	if (numberOfDimensions >= 2) then
+
+		resultTensor = {}
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		local remainingTargetDimensionSizeArray = removeFirstValueFromArray(targetDimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = expand(tensor[i], remainingDimensionSizeArray, remainingTargetDimensionSizeArray) end
+
+	else
+
+		resultTensor = deepCopyTable(tensor)  -- If the "(numberOfDimensions > 1)" from the first "if" statement does not run, it will return the original tensor. So we need to deep copy it.
+
+	end
+
+	local updatedDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(resultTensor) -- Need to call this again because we may have modified the tensor below it, thus changing the dimension size array.
+
+	local dimensionSize = updatedDimensionSizeArray[1]
+
+	local targetDimensionSize = targetDimensionSizeArray[1]
+
+	local hasSameDimensionSize = (dimensionSize == targetDimensionSize)
+
+	local canDimensionBeExpanded = (dimensionSize == 1)
+
+	if (numberOfDimensions >= 1) and (not hasSameDimensionSize) and (canDimensionBeExpanded) then 
+
+		local subTensor = resultTensor[1]
+
+		for i = 1, targetDimensionSize, 1 do resultTensor[i] = deepCopyTable(subTensor) end
+
+	elseif (not hasSameDimensionSize) and (not canDimensionBeExpanded) then
+
+		error("Unable to expand.")
+
+	end
+
+	return resultTensor
+
+end
+
+local function getTheDimensionSizeArrayWithFewestNumberOfDimensionSizeOf1(dimensionSizeArray1, dimensionSizeArray2)
+
+	local dimensionSizeOf1Count1 = 0
+
+	local dimensionSizeOf1Count2 = 0
+
+	for i = 1, #dimensionSizeArray1, 1 do
+
+		if (dimensionSizeArray1[i] == 1) then dimensionSizeOf1Count1 = dimensionSizeOf1Count1 + 1 end
+
+		if (dimensionSizeArray2[i] == 1) then dimensionSizeOf1Count2 = dimensionSizeOf1Count2 + 1 end
+
+	end
+
+	if (dimensionSizeOf1Count1 == 0) then
+
+		return 2
+
+	elseif (dimensionSizeOf1Count2 == 0) then
+
+		return 1
+
+	end
+
+	if (dimensionSizeOf1Count1 < dimensionSizeOf1Count2) then
+
+		return 1
+
+	else
+
+		return 2
+
+	end
+
+end
+
+local function getTensorDimensionSizeArrayString(dimensionSizeArray)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	local tensorDimensionSizeArrayString = "("
+
+	for s, size in ipairs(dimensionSizeArray) do
+
+		tensorDimensionSizeArrayString = tensorDimensionSizeArrayString .. size
+
+		if (s ~= numberOfDimensions) then
+
+			tensorDimensionSizeArrayString = tensorDimensionSizeArrayString .. ", "
+
+		end
+
+	end
+
+	tensorDimensionSizeArrayString = tensorDimensionSizeArrayString .. ")"
+
+	return tensorDimensionSizeArrayString
+
+end
+
+local function onBroadcastError(dimensionSizeArray1, dimensionSizeArray2)
+
+	local tensor1DimensionSizeArrayString = getTensorDimensionSizeArrayString(dimensionSizeArray1)
+
+	local tensor2DimensionSizeArrayString = getTensorDimensionSizeArrayString(dimensionSizeArray2)
+
+	local errorMessage = "Unable to broadcast. " .. "Tensor 1 size: " .. tensor1DimensionSizeArrayString .. " Tensor 2 size: " .. tensor2DimensionSizeArrayString
+
+	error(errorMessage)
+
+end
+
+function AqwamTensorLibrary:expand(targetDimensionSizeArray)
+
+	local dimensionSizeArray = self:getDimensionSizeArray()
+
+	if checkIfItHasSameDimensionSizeArray(dimensionSizeArray, targetDimensionSizeArray) then return deepCopyTable(self) end -- Do not remove this code even if the code below is related or function similar to this code. You will spend so much time fixing it if you forget that you have removed it.
+
+	local resultTensor = expand(self, dimensionSizeArray, targetDimensionSizeArray)
+
+	return self.new(resultTensor)
+
+end
+
+local function increaseNumberOfDimensions(tensor, dimensionSizeToAddArray)
+
+	local resultTensor = {}
+
+	local numberOfDimensionsToAdd = #dimensionSizeToAddArray
+
+	if (numberOfDimensionsToAdd > 1) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeToAddArray)
+
+		for i = 1, dimensionSizeToAddArray[1], 1 do resultTensor[i] = increaseNumberOfDimensions(tensor, remainingDimensionSizeArray) end
+
+	elseif (numberOfDimensionsToAdd == 1) then
+
+		for i = 1, dimensionSizeToAddArray[1], 1 do resultTensor[i] = deepCopyTable(tensor) end
+
+	else
+
+		resultTensor = tensor
+
+	end
+
+	return resultTensor
+
+end
+
+function AqwamTensorLibrary:increaseNumberOfDimensions(dimensionSizeToAddArray)
+
+	local resultTensor = increaseNumberOfDimensions(self, dimensionSizeToAddArray)
+
+	return self.new(resultTensor)
+
+end
+
+local function broadcast(tensor1, tensor2)
+
+	local dimensionSizeArray1 = AqwamTensorLibrary:getDimensionSizeArray(tensor1)
+
+	local dimensionSizeArray2 = AqwamTensorLibrary:getDimensionSizeArray(tensor2)
+	
+	if checkIfItHasSameDimensionSizeArray(dimensionSizeArray1, dimensionSizeArray2) then return tensor1, tensor2 end
+
+	local numberOfDimensions1 = #dimensionSizeArray1 
+
+	local numberOfDimensions2 = #dimensionSizeArray2
+
+	local haveSameNumberOfDimensions = (numberOfDimensions1 == numberOfDimensions2) -- Currently, if the number of dimensions have the same size, the tensor containing dimension with smaller axis will not expand. See case when tensor sizes are (5, 3, 6) and (5, 1, 6). So we need to be explicit in our dimensionSizeArrayWithHighestNumberOfDimensions variable.
+
+	local isTensor1HaveLessNumberOfDimensions = (numberOfDimensions1 < numberOfDimensions2)
+
+	local tensorNumberWithLowestNumberOfDimensions = (haveSameNumberOfDimensions and getTheDimensionSizeArrayWithFewestNumberOfDimensionSizeOf1(dimensionSizeArray1, dimensionSizeArray2)) or (isTensor1HaveLessNumberOfDimensions and 1) or 2
+
+	local tensorWithLowestNumberOfDimensions = (isTensor1HaveLessNumberOfDimensions and tensor1) or tensor2
+
+	local dimensionSizeArrayWithLowestNumberOfDimensions = (isTensor1HaveLessNumberOfDimensions and dimensionSizeArray1) or dimensionSizeArray2
+
+	local dimensionSizeArrayWithHighestNumberOfDimensions = ((not isTensor1HaveLessNumberOfDimensions) and dimensionSizeArray1) or dimensionSizeArray2
+
+	local lowestNumberOfDimensions = #dimensionSizeArrayWithLowestNumberOfDimensions
+
+	local highestNumberOfDimensions = #dimensionSizeArrayWithHighestNumberOfDimensions
+
+	local numberOfDimensionDifferences = highestNumberOfDimensions - lowestNumberOfDimensions
+
+	local truncatedDimensionSizeArrayWithHighestNumberOfDimensions = table.clone(dimensionSizeArrayWithHighestNumberOfDimensions)
+
+	for i = 1, numberOfDimensionDifferences, 1 do -- We need to remove the extra dimensions from tensor with highest number of dimensions. The values are removed starting from the first so that we can compare the endings.
+
+		table.remove(truncatedDimensionSizeArrayWithHighestNumberOfDimensions, 1)
+
+	end
+
+	for i, dimensionSize in ipairs(dimensionSizeArrayWithLowestNumberOfDimensions) do -- Check if the endings are equal so that we can broadcast one of the tensor. If the dimension size are not equal and neither have dimension size of 1, then we can't broadcast the tensor with the lowest number of dimensions.
+
+		if (dimensionSize ~=  truncatedDimensionSizeArrayWithHighestNumberOfDimensions[i]) and (dimensionSize ~= 1) then onBroadcastError(dimensionSizeArray1, dimensionSizeArray2) end
+
+	end
+
+	local dimensionSizeToAddArray = {}
+
+	for i = 1, numberOfDimensionDifferences, 1 do table.insert(dimensionSizeToAddArray, dimensionSizeArrayWithHighestNumberOfDimensions[i]) end -- Get the dimension sizes of the left part of dimension size array.
+
+	local expandedTensor = increaseNumberOfDimensions(tensorWithLowestNumberOfDimensions, dimensionSizeToAddArray)
+	
+	local expandedTensorDimensionSizeArray = {}
+	
+	getDimensionSizeArray(expandedTensor, expandedTensorDimensionSizeArray)
+	
+	print(expandedTensorDimensionSizeArray)
+
+	expandedTensor = expand(expandedTensor, expandedTensorDimensionSizeArray, dimensionSizeArrayWithHighestNumberOfDimensions)
+
+	if (tensorNumberWithLowestNumberOfDimensions == 1) then
+
+		return expandedTensor, tensor2
+
+	else
+
+		return tensor1, expandedTensor
+
+	end
 
 end
 
@@ -254,21 +540,21 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 		if (isFirstValueATensor) and (isSecondValueATensor) then
 
-			tensor, otherTensor = AqwamTensorLibrary:broadcast(tensor, otherTensor)
+			tensor, otherTensor = broadcast(tensor, otherTensor)
 
-			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+			local dimensionSizeArray = tensor:getDimensionSizeArray()
 
 			tensor = applyFunctionUsingTwoTensors(functionToApply, tensor, otherTensor, dimensionSizeArray)
 
 		elseif (not isFirstValueATensor) and (isSecondValueATensor) then
 
-			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(otherTensor)
+			local dimensionSizeArray = otherTensor:getDimensionSizeArray()
 
 			tensor = applyFunctionWhenTheFirstValueIsAScalar(functionToApply, tensor, otherTensor, dimensionSizeArray)
 
 		elseif (isFirstValueATensor) and (not isSecondValueATensor) then
 
-			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+			local dimensionSizeArray = tensor:getDimensionSizeArray()
 
 			tensor = applyFunctionWhenTheSecondValueIsAScalar(functionToApply, tensor, otherTensor, dimensionSizeArray)
 
@@ -284,547 +570,310 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 end
 
-local function get2DTensorTextSpacing(tensor, dimensionSizeArray, textSpacingArray) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
+local function setValue(tensor, dimensionSizeArray, value, dimensionIndexArray)
 
-	if (#dimensionSizeArray > 1) then
+	local dimensionIndex = dimensionIndexArray[1]
+
+	local numberOfDimensionIndices = #dimensionIndexArray
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	if (numberOfDimensionIndices > numberOfDimensions) then
+
+		error("The number of indices exceeds the tensor's number of dimensions.")
+
+	elseif (numberOfDimensions >= 2) then
+
+		checkIfDimensionSizeIndexIsOutOfBounds(dimensionIndex, 1, dimensionSizeArray[1])
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		for i = 1, dimensionSizeArray[1], 1 do textSpacingArray = get2DTensorTextSpacing(tensor[i], remainingDimensionSizeArray, textSpacingArray) end
+		local remainingIndexArray = removeFirstValueFromArray(dimensionIndexArray)
+
+		setValue(tensor[dimensionIndex], remainingDimensionSizeArray, value, remainingIndexArray)
+
+	elseif (numberOfDimensions == 1) then
+
+		tensor[dimensionIndex] = value
 
 	else
 
-		for i = 1, dimensionSizeArray[1], 1 do textSpacingArray[i] = math.max(textSpacingArray[i], string.len(tostring(tensor[i]))) end
+		error("An error has occurred when attempting to set the tensor value.")
 
 	end
 
-	return textSpacingArray
-
 end
 
-function AqwamTensorLibrary:get2DTensorTextSpacing(tensor)
+local function getValue(tensor, dimensionSizeArray, dimensionIndexArray)
 
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local dimensionIndex = dimensionIndexArray[1]
+
+	local numberOfDimensionIndices = #dimensionIndexArray
 
 	local numberOfDimensions = #dimensionSizeArray
 
-	local sizeAtFinalDimension = dimensionSizeArray[numberOfDimensions]
+	if (numberOfDimensionIndices > numberOfDimensions) then
 
-	local textSpacingArray = table.create(sizeAtFinalDimension, 0)
+		error("The number of indices exceeds the tensor's number of dimensions.")
 
-	return get2DTensorTextSpacing(tensor, dimensionSizeArray, textSpacingArray)
+	elseif (numberOfDimensions >= 2) then
 
-end
+		checkIfDimensionSizeIndexIsOutOfBounds(dimensionIndex, 1, dimensionSizeArray[1])
 
-local function generateTensorString(tensor, dimensionSizeArray, textSpacingArray, dimensionDepth)
-
-	local numberOfDimensions = #dimensionSizeArray
-
-	local tensorLength = #tensor
-
-	local text = " "
-
-	if (numberOfDimensions > 1) then
-
-		local spacing = ""
-
-		text = text .. "{"
-
-		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
-
-		local remainingDimensionSizeArray = removeLastValueFromArray(dimensionSizeArray)
-
-		for i = 1, #tensor do
-
-			if (i > 1) then text = text .. spacing end
-
-			text = text .. generateTensorString(tensor[i], remainingDimensionSizeArray, textSpacingArray, dimensionDepth + 1)
-
-			if (i == tensorLength) then continue end
-
-			text = text .. "\n"
-
-		end
-
-		text = text .. " }"
-
-	else
-
-		text = text .. "{ "
-
-		for i = 1, tensorLength do
-
-			local cellValue = tensor[i]
-
-			local cellText = tostring(cellValue)
-
-			local cellWidth = string.len(cellText)
-
-			local padding = textSpacingArray[i] - cellWidth
-
-			text = text .. string.rep(" ", padding) .. cellText
-
-			if (i == tensorLength) then continue end
-
-			text = text .. " "
-
-		end
-
-		text = text .. " }"
-
-	end
-
-	return text
-
-end
-
-function AqwamTensorLibrary:generateTensorString(tensor)
-
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-
-	local textSpacingArray = AqwamTensorLibrary:get2DTensorTextSpacing(tensor)
-
-	return generateTensorString(tensor, dimensionSizeArray, textSpacingArray, 1)
-
-end
-
-local function generateTensorStringWithComma(tensor, dimensionSizeArray, textSpacingArray, dimensionDepth)
-
-	local numberOfDimensions = #dimensionSizeArray
-
-	local tensorLength = #tensor
-
-	local text = " "
-
-	if (numberOfDimensions > 1) then
-
-		local spacing = ""
-
-		text = text .. "{"
-
-		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
-
-		local remainingDimensionSizeArray = removeLastValueFromArray(dimensionSizeArray)
-
-		for i = 1, #tensor do
-
-			if (i > 1) then text = text .. spacing end
-
-			text = text .. generateTensorStringWithComma(tensor[i], remainingDimensionSizeArray, textSpacingArray, dimensionDepth + 1)
-
-			if (i == tensorLength) then continue end
-
-			text = text .. "\n"
-
-		end
-
-		text = text .. " }"
-
-	else
-
-		text = text .. "{ "
-
-		for i = 1, tensorLength do 
-
-			local cellValue = tensor[i]
-
-			local cellText = tostring(cellValue)
-
-			local cellWidth = string.len(cellText)
-
-			local padding = textSpacingArray[i] - cellWidth
-
-			text = text .. string.rep(" ", padding) .. cellText
-
-			if (i == tensorLength) then continue end
-
-			text = text .. ", "
-
-		end
-
-		text = text .. " }"
-
-	end
-
-	return text
-
-end
-
-function AqwamTensorLibrary:generateTensorStringWithComma(tensor)
-
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-
-	local textSpacingArray = AqwamTensorLibrary:get2DTensorTextSpacing(tensor)
-
-	return generateTensorString(tensor, dimensionSizeArray, textSpacingArray, 1)
-
-end
-
-local function generatePortableTensorString(tensor, dimensionSizeArray, textSpacingArray, dimensionDepth)
-
-	local numberOfDimensions = #dimensionSizeArray
-
-	local tensorLength = #tensor
-
-	local text = " "
-
-	if (numberOfDimensions > 1) then
-
-		local spacing = ""
-
-		text = text .. "{"
-
-		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
-
-		local remainingDimensionSizeArray = removeLastValueFromArray(dimensionSizeArray)
-
-		for i = 1, #tensor do
-
-			if (i > 1) then text = text .. spacing end
-
-			text = text .. generatePortableTensorString(tensor[i], remainingDimensionSizeArray, textSpacingArray, dimensionDepth + 1)
-
-			if (i == tensorLength) then continue end
-
-			text = text .. "\n"
-
-		end
-
-		text = text .. " }"
-
-		if (dimensionDepth > 1) then text = text .. "," end
-
-	else
-
-		text = text .. "{ "
-
-		for i = 1, tensorLength do 
-
-			local cellValue = tensor[i]
-
-			local cellText = tostring(cellValue)
-
-			local cellWidth = string.len(cellText)
-
-			local padding = textSpacingArray[i] - cellWidth
-
-			text = text .. string.rep(" ", padding) .. cellText
-
-			if (i == tensorLength) then continue end
-
-			text = text .. ", "
-
-		end
-
-		text = text .. " },"
-
-	end
-
-	return text
-
-end
-
-function AqwamTensorLibrary:generatePortableTensorString(tensor)
-
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-
-	local textSpacingArray = AqwamTensorLibrary:get2DTensorTextSpacing(tensor)
-
-	return generatePortableTensorString(tensor, dimensionSizeArray, textSpacingArray, 1)
-
-end
-
-function AqwamTensorLibrary:printTensor(tensor)
-
-	print("\n\n" .. AqwamTensorLibrary:generateTensorString(tensor) .. "\n\n")
-
-end
-
-function AqwamTensorLibrary:printTensorWithComma(tensor)
-
-	print("\n\n" .. AqwamTensorLibrary:generateTensorStringWithComma(tensor) .. "\n\n")
-
-end
-
-function AqwamTensorLibrary:printPortableTensor(tensor)
-
-	print("\n\n" .. AqwamTensorLibrary:generatePortableTensorString(tensor) .. "\n\n")
-
-end
-
-function AqwamTensorLibrary:truncate(tensor, numberOfDimensionsToTruncate)
-
-	numberOfDimensionsToTruncate = numberOfDimensionsToTruncate or math.huge
-
-	if (numberOfDimensionsToTruncate ~= math.huge) and (numberOfDimensionsToTruncate ~= nil) then
-
-		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-
-		for dimension = 1, numberOfDimensionsToTruncate, 1 do
-
-			local size = dimensionSizeArray[dimension]
-
-			if (size ~= 1) then error("Unable to truncate. Dimension " .. dimension .. " has the size of " .. size .. ".") end
-
-		end
-
-	end
-
-	local truncatedTensor = deepCopyTable(tensor)
-
-	for dimension = 1, numberOfDimensionsToTruncate, 1 do
-
-		if (type(truncatedTensor) ~= "table") then break end
-
-		if (#truncatedTensor ~= 1) then break end
-
-		truncatedTensor = truncatedTensor[1]
-
-	end
-
-	return truncatedTensor
-
-end
-
-local function getDimensionThatHasSizeOfOneArray(dimensionSizeArray)
-	
-	local dimensionArray = {}
-	
-	for i, value in ipairs(dimensionSizeArray) do
-		
-		if (value == 1) then table.insert(dimensionArray, value) end
-		
-	end
-	
-	return dimensionArray
-	
-end
-
-local function squeeze(tensor, dimensionSizeArray, targetDimension, currentDimension)
-	
-	local numberOfDimensions = #dimensionSizeArray
-	
-	local isAtTargetDimension = (currentDimension == targetDimension)
-	
-	local isATensor = (numberOfDimensions >= 1)
-	
-	local remainingDimensionSizeArray
-	
-	local resultTensor
-	
-	if (isAtTargetDimension) and (isATensor) then
-		
-		resultTensor = {}
-		
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-		
-		remainingDimensionSizeArray = removeFirstValueFromArray(remainingDimensionSizeArray)
-		
-		for i = 1, dimensionSizeArray[2], 1 do resultTensor[i] = squeeze(tensor[1][i], remainingDimensionSizeArray, targetDimension, currentDimension + 2) end
-		
-	elseif (not isAtTargetDimension) and (isATensor) then
-		
-		resultTensor = {}
-		
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-		
-		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = squeeze(tensor[i], remainingDimensionSizeArray, targetDimension, currentDimension + 1) end
-		
-	elseif (not isATensor) then
-		
-		resultTensor = tensor
-		
+
+		local remainingDimensionIndexArray = removeFirstValueFromArray(dimensionIndexArray)
+
+		return getValue(tensor[dimensionIndex], remainingDimensionSizeArray, remainingDimensionIndexArray)
+
+	elseif (numberOfDimensions == 1) then
+
+		return tensor[dimensionIndex]
+
 	else
-		
-		error("Unable to squeeze.")
-		
+
+		error("An error has occurred when attempting to get the tensor value.")
+
 	end
-	
+
+end
+
+local function sumFromAllDimensions(tensor, dimensionSizeArray)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	local result = 0
+
+	if (numberOfDimensions > 1) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do result = result + sumFromAllDimensions(tensor[i], remainingDimensionSizeArray) end
+
+	else
+
+		for i = 1, dimensionSizeArray[1], 1 do result = result + tensor[i] end
+
+	end
+
+	return result
+
+end
+
+local function recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArray, targetTensor, targetDimensionIndexArray)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	if (numberOfDimensions >= 1) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do
+
+			local copiedTargetDimensionIndexArray = table.clone(targetDimensionIndexArray)
+
+			table.insert(copiedTargetDimensionIndexArray, i)
+
+			recursiveSubTensorSumAlongFirstDimension(tensor[i], remainingDimensionSizeArray, targetTensor, copiedTargetDimensionIndexArray)
+
+		end
+
+	else
+
+		targetDimensionIndexArray[1] = 1 -- The target dimension only have a size of 1 for summing.
+		
+		local targetTensorDimensionSizeArray = {}
+		
+		getDimensionSizeArray(targetTensor, targetTensorDimensionSizeArray)
+
+		local targetTensorValue = getValue(targetTensor, targetTensorDimensionSizeArray, targetDimensionIndexArray)
+
+		local value = targetTensorValue + tensor
+
+		setValue(targetTensor, targetTensorDimensionSizeArray, value, targetDimensionIndexArray)
+
+	end	
+
+end
+
+local function subTensorSumAlongFirstDimension(tensor, dimensionSizeArray)
+
+	local sumDimensionalSizeArray = table.clone(dimensionSizeArray)
+
+	sumDimensionalSizeArray[1] = 1
+
+	local sumTensor = createTensor(sumDimensionalSizeArray, 0)
+
+	recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArray, sumTensor, {})
+
+	return sumTensor
+
+end
+
+local function sumAlongOneDimension(tensor, dimensionSizeArray, targetDimension, currentDimension)
+
+	local resultTensor = {}
+
+	if (currentDimension == targetDimension) then
+
+		resultTensor[1] = subTensorSumAlongFirstDimension(tensor, dimensionSizeArray) -- This is needed to ensure that the number of dimensions stays the same.
+
+	else
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = sumAlongOneDimension(tensor[i], remainingDimensionSizeArray, targetDimension, currentDimension + 1) end
+
+	end
+
 	return resultTensor
-	
+
 end
 
-function AqwamTensorLibrary:squeeze(tensor, dimension)
+function AqwamTensorLibrary:sum(dimension)
 	
 	if (type(dimension) ~= "number") then error("The dimension must be a number.") end
-	
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-	
-	return squeeze(tensor, dimensionSizeArray, dimension, 1)
-	
+
+	dimension = dimension or 0
+
+	local dimensionSizeArray = self:getDimensionSizeArray()
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	if (dimension == 0) then return sumFromAllDimensions(self, dimensionSizeArray) end
+
+	checkIfDimensionIsOutOfBounds(dimension, 1, numberOfDimensions)
+
+	local sumTensor = sumAlongOneDimension(self, dimensionSizeArray, dimension, 1)
+
+	return self.new(sumTensor)
+
 end
 
-local function containAFalseBooleanInTensor(booleanTensor, dimensionSizeArray)
+local function tensorProduct(tensor1, tensor2)
 
-	local numberOfValues = dimensionSizeArray[1]
+	local dimensionArray1 = getDimensionSizeArray(tensor1)
 
-	local containsAFalseBoolean = true
+	local dimensionArray2 = getDimensionSizeArray(tensor2)
 
-	if (#dimensionSizeArray > 1) then
+	for i, _ in ipairs(dimensionArray1) do if (dimensionArray1[i] ~= dimensionArray2[i]) then error("Invalid dimensions.") end end
 
-		for i = 1, numberOfValues do containsAFalseBoolean = containAFalseBooleanInTensor(booleanTensor[i]) end
+	local numberOfValues = dimensionArray1[1]
+
+	local resultTensor = {}
+
+	for i = 1, numberOfValues, 1 do
+
+		if (#dimensionArray1 > 1) then
+
+			local subproduct = tensorProduct(tensor1[i], tensor2[i])
+
+			table.insert(resultTensor, subproduct)
+
+		else
+
+			table.insert(resultTensor, tensor1[i] * tensor2[i])
+
+		end
+
+	end
+
+	return resultTensor
+end
+
+local function innerProduct(tensor1, tensor2)
+
+	local dimensionArray1 = {}
+
+	local dimensionArray2 = {}
+	
+	getDimensionSizeArray(tensor1, dimensionArray1)
+	
+	getDimensionSizeArray(tensor2, dimensionArray2)
+
+	for i, _ in ipairs(dimensionArray1) do if (dimensionArray1[i] ~= dimensionArray2[i]) then error("Invalid dimensions.") end end
+
+	local numberOfValues = dimensionArray1[1]
+
+	local resultTensor = 0
+
+	for i = 1, numberOfValues, 1 do  
+
+		if (#dimensionArray1 > 1) then
+
+			resultTensor += innerProduct(tensor1[i], tensor2[i])
+
+		else
+
+			resultTensor += (tensor1[i] * tensor2[i])
+
+		end
+
+	end
+
+	return resultTensor
+
+end
+
+local function outerProduct(tensor1, tensor2)
+
+	local dimensionArray1 = {}
+
+	local dimensionArray2 = {}
+
+	getDimensionSizeArray(tensor1, dimensionArray1)
+
+	getDimensionSizeArray(tensor2, dimensionArray2)
+
+	for i, _ in ipairs(dimensionArray1) do if dimensionArray1[i] ~= dimensionArray2[i] then error("Invalid dimensions.") end end
+
+	local numberOfValues = dimensionArray1[1]
+
+	local resultTensor = {}
+
+	for i = 1, numberOfValues do
+
+		if (#dimensionArray1 > 1) then
+
+			resultTensor[i] = outerProduct(tensor1[i], tensor2[i])
+
+		else
+
+			resultTensor[i] = {}
+
+			for j = 1, numberOfValues do resultTensor[i][j] = tensor1[i] * tensor2[j] end
+
+		end
+
+	end
+
+	return resultTensor
+
+end
+
+local function eq(booleanTensor)
+
+	local dimensionArray = {}
+
+	getDimensionSizeArray(booleanTensor, dimensionArray)
+
+	local numberOfValues = dimensionArray[1]
+
+	local resultTensor = true
+
+	if (#dimensionArray > 1) then
+
+		for i = 1, numberOfValues do resultTensor = eq(booleanTensor[i]) end
 
 	else
 
 		for i = 1, numberOfValues do 
 
-			containsAFalseBoolean = (containsAFalseBoolean == booleanTensor[i])
+			resultTensor = (resultTensor == booleanTensor[i])
 
-			if (not containsAFalseBoolean) then return false end
-
-		end
-
-	end
-
-	return containsAFalseBoolean
-
-end
-
-local function getTensorDimensionSizeArrayString(dimensionSizeArray)
-
-	local numberOfDimensions = #dimensionSizeArray
-
-	local tensorDimensionSizeArrayString = "("
-
-	for s, size in ipairs(dimensionSizeArray) do
-
-		tensorDimensionSizeArrayString = tensorDimensionSizeArrayString .. size
-
-		if (s ~= numberOfDimensions) then
-
-			tensorDimensionSizeArrayString = tensorDimensionSizeArrayString .. ", "
+			if (resultTensor == false) then return false end
 
 		end
-
-	end
-
-	tensorDimensionSizeArrayString = tensorDimensionSizeArrayString .. ")"
-
-	return tensorDimensionSizeArrayString
-
-end
-
-local function onBroadcastError(dimensionSizeArray1, dimensionSizeArray2)
-
-	local tensor1DimensionSizeArrayString = getTensorDimensionSizeArrayString(dimensionSizeArray1)
-
-	local tensor2DimensionSizeArrayString = getTensorDimensionSizeArrayString(dimensionSizeArray2)
-
-	local errorMessage = "Unable to broadcast. " .. "Tensor 1 size: " .. tensor1DimensionSizeArrayString .. " Tensor 2 size: " .. tensor2DimensionSizeArrayString
-
-	error(errorMessage)
-
-end
-
-local function inefficientExpand(tensor, dimensionSizeArray, targetDimensionSizeArray)
-
-	-- Does not do the same thing with efficient expand function. This one looks at lower dimensions from the parent dimension and makes copy of those. Then the function will have to go through all newly copied lower dimensions and do the same thing again, which is inefficient.
-
-	if checkIfItHasSameDimensionSizeArray(dimensionSizeArray, targetDimensionSizeArray) then return deepCopyTable(tensor) end -- Do not remove this code even if the code below is related or function similar to this code. You will spend so much time fixing it if you forget that you have removed it.
-
-	local numberOfDimensions = #dimensionSizeArray
-
-	local dimensionSize = dimensionSizeArray[1]
-
-	local targetDimensionSize = targetDimensionSizeArray[1]
-
-	local nextDimensionSize = dimensionSizeArray[2]
-
-	local nextTargetDimensionSize = targetDimensionSizeArray[2]
-
-	local hasSameNextDimensionSize = (nextDimensionSize == nextTargetDimensionSize)
-
-	local canNextDimensionBeExpanded = (nextDimensionSize == 1)
-
-	local resultTensor = {}
-
-	if (not canNextDimensionBeExpanded) and (not hasSameNextDimensionSize) then
-
-		error("Unable to expand.")
-
-	elseif (numberOfDimensions > 1) and (not hasSameNextDimensionSize) then
-
-		for i = 1, targetDimensionSize, 1 do
-
-			resultTensor[i] = {} 
-
-			for j = 1, nextTargetDimensionSize, 1 do resultTensor[i][j] = deepCopyTable(tensor[i][1]) end
-
-		end
-
-	elseif (numberOfDimensions > 2) and (hasSameNextDimensionSize) then -- Do not remove this code even if the code above is related or function similar to this code. You will spend so much time fixing it if you forget that you have removed it.
-
-		resultTensor = deepCopyTable(tensor)
-
-	elseif (numberOfDimensions == 1) and (dimensionSize == 1) then
-
-		for i = 1, targetDimensionSize, 1 do table.insert(resultTensor, tensor[1]) end
-
-	end
-
-	if (numberOfDimensions > 1) then
-
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		local remainingTargetDimensionSizeArray = removeFirstValueFromArray(targetDimensionSizeArray)
-
-		for i = 1, targetDimensionSizeArray[1], 1 do resultTensor[i] = inefficientExpand(resultTensor[i], remainingDimensionSizeArray, remainingTargetDimensionSizeArray) end
-
-	end
-
-end
-
-function AqwamTensorLibrary:inefficientExpand(tensor, targetDimensionSizeArray)  
-
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-
-	return inefficientExpand(tensor, dimensionSizeArray, targetDimensionSizeArray)
-
-end
-
-local function expand(tensor, dimensionSizeArray, targetDimensionSizeArray)
-
-	-- Does not do the same thing with inefficient expand function. This one expand at the lowest dimension first and then the parent dimension will make copy of this.
-
-	local resultTensor
-
-	local numberOfDimensions = #dimensionSizeArray
-
-	if (numberOfDimensions >= 2) then
-
-		resultTensor = {}
-
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		local remainingTargetDimensionSizeArray = removeFirstValueFromArray(targetDimensionSizeArray)
-
-		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = expand(tensor[i], remainingDimensionSizeArray, remainingTargetDimensionSizeArray) end
-
-	else
-
-		resultTensor = deepCopyTable(tensor)  -- If the "(numberOfDimensions > 1)" from the first "if" statement does not run, it will return the original tensor. So we need to deep copy it.
-
-	end
-
-	local updatedDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(resultTensor) -- Need to call this again because we may have modified the tensor below it, thus changing the dimension size array.
-
-	local dimensionSize = updatedDimensionSizeArray[1]
-
-	local targetDimensionSize = targetDimensionSizeArray[1]
-
-	local hasSameDimensionSize = (dimensionSize == targetDimensionSize)
-
-	local canDimensionBeExpanded = (dimensionSize == 1)
-
-	if (numberOfDimensions >= 1) and (not hasSameDimensionSize) and (canDimensionBeExpanded) then 
-
-		local subTensor = resultTensor[1]
-
-		for i = 1, targetDimensionSize, 1 do resultTensor[i] = deepCopyTable(subTensor) end
-
-	elseif (not hasSameDimensionSize) and (not canDimensionBeExpanded) then
-
-		error("Unable to expand.")
 
 	end
 
@@ -832,267 +881,25 @@ local function expand(tensor, dimensionSizeArray, targetDimensionSizeArray)
 
 end
 
-function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
+function AqwamTensorLibrary.new(tensor)
 
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local self = setmetatable({}, AqwamTensorLibrary)
 
-	if checkIfItHasSameDimensionSizeArray(dimensionSizeArray, targetDimensionSizeArray) then return deepCopyTable(tensor) end -- Do not remove this code even if the code below is related or function similar to this code. You will spend so much time fixing it if you forget that you have removed it.
+	self.tensor = tensor
 
-	return expand(tensor, dimensionSizeArray, targetDimensionSizeArray)
-
-end
-
-function AqwamTensorLibrary:increaseNumberOfDimensions(tensor, dimensionSizeToAddArray)
-
-	local resultTensor = {}
-
-	local numberOfDimensionsToAdd = #dimensionSizeToAddArray
-
-	if (numberOfDimensionsToAdd > 1) then
-
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeToAddArray)
-
-		for i = 1, dimensionSizeToAddArray[1], 1 do resultTensor[i] = AqwamTensorLibrary:increaseNumberOfDimensions(tensor, remainingDimensionSizeArray) end
-
-	elseif (numberOfDimensionsToAdd == 1) then
-
-		for i = 1, dimensionSizeToAddArray[1], 1 do resultTensor[i] = deepCopyTable(tensor) end
-
-	else
-
-		resultTensor = tensor
-
-	end
-
-	return resultTensor
+	return self
 
 end
 
-local function getTheDimensionSizeArrayWithFewestNumberOfDimensionSizeOf1(dimensionSizeArray1, dimensionSizeArray2)
-
-	local dimensionSizeOf1Count1 = 0
-
-	local dimensionSizeOf1Count2 = 0
-
-	for i = 1, #dimensionSizeArray1, 1 do
-
-		if (dimensionSizeArray1[i] == 1) then dimensionSizeOf1Count1 = dimensionSizeOf1Count1 + 1 end
-
-		if (dimensionSizeArray2[i] == 1) then dimensionSizeOf1Count2 = dimensionSizeOf1Count2 + 1 end
-
-	end
-
-	if (dimensionSizeOf1Count1 == 0) then
-
-		return 2
-
-	elseif (dimensionSizeOf1Count2 == 0) then
-
-		return 1
-
-	end
-
-	if (dimensionSizeOf1Count1 < dimensionSizeOf1Count2) then
-
-		return 1
-
-	else
-
-		return 2
-
-	end
-
-end
-
-function AqwamTensorLibrary:broadcast(tensor1, tensor2)
-
-	local dimensionSizeArray1 = AqwamTensorLibrary:getDimensionSizeArray(tensor1)
-
-	local dimensionSizeArray2 = AqwamTensorLibrary:getDimensionSizeArray(tensor2)
-	
-	if checkIfItHasSameDimensionSizeArray(dimensionSizeArray1, dimensionSizeArray2) then return tensor1, tensor2 end
-
-	local numberOfDimensions1 = #dimensionSizeArray1 
-
-	local numberOfDimensions2 = #dimensionSizeArray2
-
-	local haveSameNumberOfDimensions = (numberOfDimensions1 == numberOfDimensions2) -- Currently, if the number of dimensions have the same size, the tensor containing dimension with smaller axis will not expand. See case when tensor sizes are (5, 3, 6) and (5, 1, 6). So we need to be explicit in our dimensionSizeArrayWithHighestNumberOfDimensions variable.
-
-	local isTensor1HaveLessNumberOfDimensions = (numberOfDimensions1 < numberOfDimensions2)
-
-	local tensorNumberWithLowestNumberOfDimensions = (haveSameNumberOfDimensions and getTheDimensionSizeArrayWithFewestNumberOfDimensionSizeOf1(dimensionSizeArray1, dimensionSizeArray2)) or (isTensor1HaveLessNumberOfDimensions and 1) or 2
-
-	local tensorWithLowestNumberOfDimensions = (isTensor1HaveLessNumberOfDimensions and tensor1) or tensor2
-
-	local dimensionSizeArrayWithLowestNumberOfDimensions = (isTensor1HaveLessNumberOfDimensions and dimensionSizeArray1) or dimensionSizeArray2
-
-	local dimensionSizeArrayWithHighestNumberOfDimensions = ((not isTensor1HaveLessNumberOfDimensions) and dimensionSizeArray1) or dimensionSizeArray2
-
-	local lowestNumberOfDimensions = #dimensionSizeArrayWithLowestNumberOfDimensions
-
-	local highestNumberOfDimensions = #dimensionSizeArrayWithHighestNumberOfDimensions
-
-	local numberOfDimensionDifferences = highestNumberOfDimensions - lowestNumberOfDimensions
-
-	local truncatedDimensionSizeArrayWithHighestNumberOfDimensions = table.clone(dimensionSizeArrayWithHighestNumberOfDimensions)
-
-	for i = 1, numberOfDimensionDifferences, 1 do -- We need to remove the extra dimensions from tensor with highest number of dimensions. The values are removed starting from the first so that we can compare the endings.
-
-		table.remove(truncatedDimensionSizeArrayWithHighestNumberOfDimensions, 1)
-
-	end
-
-	for i, dimensionSize in ipairs(dimensionSizeArrayWithLowestNumberOfDimensions) do -- Check if the endings are equal so that we can broadcast one of the tensor. If the dimension size are not equal and neither have dimension size of 1, then we can't broadcast the tensor with the lowest number of dimensions.
-
-		if (dimensionSize ~=  truncatedDimensionSizeArrayWithHighestNumberOfDimensions[i]) and (dimensionSize ~= 1) then onBroadcastError(dimensionSizeArray1, dimensionSizeArray2) end
-
-	end
-
-	local dimensionSizeToAddArray = {}
-
-	for i = 1, numberOfDimensionDifferences, 1 do table.insert(dimensionSizeToAddArray, dimensionSizeArrayWithHighestNumberOfDimensions[i]) end -- Get the dimension sizes of the left part of dimension size array.
-
-	local expandedTensor = AqwamTensorLibrary:increaseNumberOfDimensions(tensorWithLowestNumberOfDimensions, dimensionSizeToAddArray)
-
-	expandedTensor = AqwamTensorLibrary:expand(expandedTensor, dimensionSizeArrayWithHighestNumberOfDimensions)
-
-	if (tensorNumberWithLowestNumberOfDimensions == 1) then
-
-		return expandedTensor, tensor2
-
-	else
-
-		return tensor1, expandedTensor
-
-	end
-
-end
-
-local function createTensor(dimensionSizeArray, initialValue) -- Don't put dimension size array truncation here. It is needed for several operations like dot product. 
-
-	local tensor = {}
-
-	if (#dimensionSizeArray >= 2) then
-
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = createTensor(remainingDimensionSizeArray, initialValue) end
-
-	else
-
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = initialValue end
-
-	end
-
-	return tensor
-
-end
-
-function AqwamTensorLibrary:createTensor(dimensionSizeArray, initialValue)
+function AqwamTensorLibrary.createTensor(dimensionSizeArray, initialValue)
 
 	initialValue = initialValue or 0
 
-	return createTensor(dimensionSizeArray, initialValue)
+	local self = setmetatable({}, AqwamTensorLibrary)
 
-end
+	self.tensor = createTensor(dimensionSizeArray, initialValue)
 
-local function createRandomNormalTensor(dimensionSizeArray, mean, standardDeviation)
-
-	local tensor = {}
-
-	if (#dimensionSizeArray >= 2) then
-
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = createRandomNormalTensor(remainingDimensionSizeArray, mean, standardDeviation) end
-
-	else
-
-		for i = 1, dimensionSizeArray[1], 1 do 
-
-			local randomNumber1 = math.random()
-
-			local randomNumber2 = math.random()
-
-			local zScore = math.sqrt(-2 * math.log(randomNumber1)) * math.cos(2 * math.pi * randomNumber2) -- Box–Muller transform formula.
-
-			tensor[i] = (zScore * standardDeviation) + mean
-
-		end
-
-	end
-
-	return tensor
-
-end
-
-function AqwamTensorLibrary:createRandomNormalTensor(dimensionSizeArray, mean, standardDeviation)
-
-	mean = mean or 0
-
-	standardDeviation = standardDeviation or 1
-
-	return createRandomNormalTensor(dimensionSizeArray, mean, standardDeviation)
-
-end
-
-local function createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue)
-
-	local numberOfDimensions = #dimensionSizeArray
-
-	local tensor = {}
-
-	if (numberOfDimensions >= 2) then
-
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = createRandomUniformTensor(remainingDimensionSizeArray, minimumValue, maximumValue) end
-
-	elseif (numberOfDimensions == 1) and (minimumValue) and (maximumValue) then
-
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = math.random(minimumValue, maximumValue) end
-
-	elseif (numberOfDimensions == 1) and (minimumValue) and (not maximumValue) then
-
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = math.random(minimumValue) end
-
-	elseif (numberOfDimensions == 1) and (not minimumValue) and (not maximumValue) then
-
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = math.random() end
-
-	elseif (numberOfDimensions == 1) and (not minimumValue) and (maximumValue) then
-
-		error("Invalid minimum value.")
-
-	else
-
-		error("An unknown error has occured when creating the random uniform tensor.")
-
-	end
-
-	return tensor
-
-end
-
-function AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue)
-
-	return createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue)
-
-end
-
-local function convertTensorToScalar(tensor)
-
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-
-	if (#dimensionSizeArray >= 1) then
-
-		return convertTensorToScalar(tensor[1])
-
-	else
-
-		return tensor
-
-	end
+	return self
 
 end
 
@@ -1169,7 +976,7 @@ local function createIdentityTensor(dimensionSizeArray, dimensionIndexArray)
 
 end
 
-function AqwamTensorLibrary:createIdentityTensor(dimensionSizeArray)
+function AqwamTensorLibrary.createIdentityTensor(dimensionSizeArray)
 
 	local truncatedDimensionSizeArray, numberOfDimensionsOfSize1 = truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
 
@@ -1177,157 +984,117 @@ function AqwamTensorLibrary:createIdentityTensor(dimensionSizeArray)
 
 	for i = 1, numberOfDimensionsOfSize1, 1 do resultTensor = {resultTensor} end
 
-	return resultTensor
+	local self = setmetatable({}, AqwamTensorLibrary)
+
+	self.tensor = resultTensor
+
+	return self
 
 end
 
-local function getDimensionSizeArray(tensor, targetDimensionSizeArray)
+local function createRandomNormalTensor(dimensionSizeArray, mean, standardDeviation)
 
-	if (type(tensor) ~= "table") then return end
+	local tensor = {}
 
-	table.insert(targetDimensionSizeArray, #tensor)
+	if (#dimensionSizeArray >= 2) then
 
-	getDimensionSizeArray(tensor[1], targetDimensionSizeArray)
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-end
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = createRandomNormalTensor(remainingDimensionSizeArray, mean, standardDeviation) end
 
-function AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	else
 
-	local dimensionSizeArray = {}
-
-	getDimensionSizeArray(tensor, dimensionSizeArray)
-
-	return dimensionSizeArray
-
-end
-
-function AqwamTensorLibrary:getProperTensorFormatIfRequired(tensor)
-
-	local resultTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-
-	if (resultTensorDimensionSizeArray == nil) then return tensor end -- If our tensor is actually a scalar, just return the number.
-
-	for _, size in ipairs(resultTensorDimensionSizeArray) do -- Return the original tensor if any dimension sizes are not equal to 1.
-
-		if (size ~= 1) then return AqwamTensorLibrary:truncate(tensor) end
-
-	end
-
-	return convertTensorToScalar(tensor)
-
-end
-
-function AqwamTensorLibrary:getNumberOfDimensions(tensor)
-
-	if (typeof(tensor) ~= "table") then return 0 end
-
-	return AqwamTensorLibrary:getNumberOfDimensions(tensor[1]) + 1
-
-end
-
-local function getTotalSizeFromDimensionSizeArray(dimensionSizeArray)
-
-	local totalSize = 1
-
-	for _, value in ipairs(dimensionSizeArray) do totalSize = value * totalSize end
-
-	return totalSize
-
-end
-
-function AqwamTensorLibrary:getTotalSize(tensor)
-
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-
-	return getTotalSizeFromDimensionSizeArray(dimensionSizeArray)
-
-end
-
---[[
-
-local function transpose(originalTensor, tensor, targetTensor, dimensionIndexArray, currentDimension)
-
-	currentDimension = currentDimension or 0
-
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-
-	if (currentDimension ~= dimensionIndexArray[1]) then
-		
 		for i = 1, dimensionSizeArray[1], 1 do 
-			
-			table.insert(targetTensor, transpose(originalTensor, tensor[i], targetTensor, dimensionIndexArray, currentDimension + 1))
-			
+
+			local randomNumber1 = math.random()
+
+			local randomNumber2 = math.random()
+
+			local zScore = math.sqrt(-2 * math.log(randomNumber1)) * math.cos(2 * math.pi * randomNumber2) -- Box–Muller transform formula.
+
+			tensor[i] = (zScore * standardDeviation) + mean
+
 		end
 
+	end
+
+	return tensor
+
+end
+
+function AqwamTensorLibrary.createRandomNormalTensor(dimensionSizeArray, mean, standardDeviation)
+
+	mean = mean or 0
+
+	standardDeviation = standardDeviation or 1
+
+	local self = setmetatable({}, AqwamTensorLibrary)
+
+	self.tensor = createRandomNormalTensor(dimensionSizeArray, mean, standardDeviation)
+
+	return self
+
+end
+
+local function createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	local tensor = {}
+
+	if (numberOfDimensions >= 2) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = createRandomUniformTensor(remainingDimensionSizeArray, minimumValue, maximumValue) end
+
+	elseif (numberOfDimensions == 1) and (minimumValue) and (maximumValue) then
+
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = math.random(minimumValue, maximumValue) end
+
+	elseif (numberOfDimensions == 1) and (minimumValue) and (not maximumValue) then
+
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = math.random(minimumValue) end
+
+	elseif (numberOfDimensions == 1) and (not minimumValue) and (not maximumValue) then
+
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = math.random() end
+
+	elseif (numberOfDimensions == 1) and (not minimumValue) and (maximumValue) then
+
+		error("Invalid minimum value.")
+
 	else
-		
-		for i = 1, dimensionSizeArray[1], 1 do targetTensor[i] = goToSubTensor(originalTensor, dimensionIndexArray[2]) end
 
-		--for i = 1, dimensionSizeArray[1], 1 do   end
+		error("An unknown error has occured when creating the random uniform tensor.")
 
 	end
 
-	return targetTensor
+	return tensor
 
 end
 
---]]
+function AqwamTensorLibrary.createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue)
 
---[[
+	local self = setmetatable({}, AqwamTensorLibrary)
 
-local function transpose(originalTensor, dimensionIndexArray, currentDimension)
-	
-	currentDimension = currentDimension or 1
-	
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(originalTensor)
-	
-	print(currentDimension == dimensionIndexArray[1])
-	
-	print(currentDimension)
-	
-	if (currentDimension == dimensionIndexArray[1]) then
-		
-		for i = 1, #dimensionSizeArray, 1 do originalTensor[i] = AqwamTensorLibrary:extract(originalTensor[i],  dimensionIndexArray) end
-		
-	else 
-		
-		for i = 1, #dimensionSizeArray, 1 do originalTensor[i] = transpose(originalTensor[i],  dimensionIndexArray, currentDimension + 1) end
-		
-	end
-	
-	return originalTensor
-	
+	self.tensor = createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue)
+
+	return self
+
 end
 
---]]
+function AqwamTensorLibrary:getNumberOfDimensions()
 
---[[
+	return getNumberOfDimensions(self)
 
-local function transpose(tensor, targetTensor, originDimensionIndex, targetDimensionIndex, currentDimension)
-	
-	currentDimension = currentDimension or 0
-	
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-	
-	if (originDimensionIndex ~= currentDimension) then
-		
-		print(dimensionSizeArray[1])
-		
-		print(targetTensor)
-		
-		for i = 1, dimensionSizeArray[1], 1 do targetTensor[i] = goToSubTensor(tensor[i], targetDimensionIndex) end
-		
-	else
-		
-		for i = 1, dimensionSizeArray[1], 1 do targetTensor[i] = transpose(tensor[i], targetTensor[i], originDimensionIndex, targetDimensionIndex, currentDimension + 1) end
-		
-	end
-	
-	return targetTensor
-	
 end
 
---]]
+function AqwamTensorLibrary:print()
+
+	print(self)
+
+end
 
 local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think it is worth the effort to generalize to the rest of dimensions... That being said, to process videos, you need at most 5 dimensions. Don't get confused about the channels! Only number of channels are changed and not the number of dimensions of the tensor!
 
@@ -1602,34 +1369,34 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 end
 
-function AqwamTensorLibrary:hardcodedTranspose(tensor, dimensionArray)
-	
-	local numberOfDimensions = AqwamTensorLibrary:getNumberOfDimensions(tensor)
-	
-	if (numberOfDimensions == 0) then return tensor end
+function AqwamTensorLibrary:hardcodedTranspose(dimensionArray)
 
 	if (#dimensionArray ~= 2) then error("Dimension array must contain 2 dimensions.") end
-	
+
 	local dimension1 = dimensionArray[1]
 
 	local dimension2 = dimensionArray[2]
 	
-	if (dimension1 > numberOfDimensions) then error("The first dimension exceeds the tensor's number of dimensions") end
-	
-	if (dimension2 > numberOfDimensions) then error("The second dimension exceeds the tensor's number of dimensions") end
-	
+	local numberOfDimensions = self:getNumberOfDimensions()
+
 	if (dimension1 <= 0) then error("The first dimension must be greater than zero.") end
-	
+
 	if (dimension2 <= 0) then error("The second dimension must be greater than zero.") end
-	
+
+	if (dimension1 > numberOfDimensions) then error("The first dimension exceeds the tensor's number of dimensions") end
+
+	if (dimension2 > numberOfDimensions) then error("The second dimension exceeds the tensor's number of dimensions") end
+
 	if (dimension1 >= 6) then error("When using the hardcoded transpose, the first dimension must be less than six.") end
 
 	if (dimension2 >= 6) then error("When using the hardcoded transpose, the second dimension must be less than six.") end
 
 	if (dimension1 == dimension2) then error("The first dimension is equal to the second dimension.") end
 	
-	return hardcodedTranspose(tensor, dimensionArray)
-	
+	local transposedTensor = hardcodedTranspose(self, dimensionArray)
+
+	return self.new(transposedTensor)
+
 end
 
 local function transpose(tensor, dimensionSizeArray, currentTargetDimensionIndexArray, targetTensor, dimension1, dimension2)
@@ -1651,26 +1418,26 @@ local function transpose(tensor, dimensionSizeArray, currentTargetDimensionIndex
 		end
 
 	else
-		
+
 		local currentDimensionIndex1 = currentTargetDimensionIndexArray[dimension1]
-		
+
 		local currentDimensionIndex2 = currentTargetDimensionIndexArray[dimension2]
-		
+
 		currentTargetDimensionIndexArray[dimension1] = currentDimensionIndex2
 
 		currentTargetDimensionIndexArray[dimension2] = currentDimensionIndex1
+		
+		local targetTensorDimensionSizeArray = {}
 
-		AqwamTensorLibrary:setValue(targetTensor, tensor, currentTargetDimensionIndexArray)
+		getDimensionSizeArray(targetTensor, targetTensorDimensionSizeArray)
 
-	end	
+		setValue(targetTensor, targetTensorDimensionSizeArray, tensor, currentTargetDimensionIndexArray)
+
+	end
 
 end
 
-function AqwamTensorLibrary:transpose(tensor, dimensionArray)
-
-	local numberOfDimensions = AqwamTensorLibrary:getNumberOfDimensions(tensor)
-
-	if (numberOfDimensions == 0) then return tensor end
+function AqwamTensorLibrary:transpose(dimensionArray)
 
 	if (#dimensionArray ~= 2) then error("Dimension array must contain 2 dimensions.") end
 
@@ -1678,171 +1445,378 @@ function AqwamTensorLibrary:transpose(tensor, dimensionArray)
 
 	local dimension2 = dimensionArray[2]
 	
+	local numberOfDimensions = self:getNumberOfDimensions()
+	
 	if (dimension1 <= 0) then error("The first dimension must be greater than zero.") end
 
 	if (dimension2 <= 0) then error("The second dimension must be greater than zero.") end
-	
+
 	if (dimension1 > numberOfDimensions) then error("The first dimension exceeds the tensor's number of dimensions") end
 
 	if (dimension2 > numberOfDimensions) then error("The second dimension exceeds the tensor's number of dimensions") end
 
 	if (dimension1 == dimension2) then error("The first dimension is equal to the second dimension.") end
-	
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-	
+
+	local dimensionSizeArray = self:getDimensionSizeArray()
+
 	local transposedDimensionSizeArray = table.clone(dimensionSizeArray)
-	
+
 	local dimensionSize1 = dimensionSizeArray[dimension1]
-	
+
 	local dimensionSize2 = dimensionSizeArray[dimension2]
-	
+
 	transposedDimensionSizeArray[dimension1] = dimensionSize2
-	
+
 	transposedDimensionSizeArray[dimension2] = dimensionSize1
-	
-	local transposedTensor = AqwamTensorLibrary:createTensor(transposedDimensionSizeArray, true)
-	
-	transpose(tensor, dimensionSizeArray, {}, transposedTensor, dimension1, dimension2)
-	
-	return transposedTensor
+
+	local transposedTensor = createTensor(transposedDimensionSizeArray, true)
+
+	transpose(self, dimensionSizeArray, {}, transposedTensor, dimension1, dimension2)
+
+	return self.new(transposedTensor)
 
 end
 
---[[
 
-local function dotProduct(tensor1, tensor2) -- Second best one
+function AqwamTensorLibrary:__eq(other)
 
-	local tensor1DimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor1)
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a == b) end, self, other)
 
-	local tensor2DimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor2)
+	local isEqual = eq(resultTensor)
 
-	local numberOfDimensions1 = #tensor1DimensionSizeArray
+	return isEqual
 
-	local numberOfDimensions2 = #tensor2DimensionSizeArray
+end
 
-	local tensor = {}
+function AqwamTensorLibrary:isEqualTo(other)
 
-	if (numberOfDimensions1 >= 3) and (numberOfDimensions2 >= 3) then
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a == b) end, self, other)
 
-		for i = 1, tensor1DimensionSizeArray[1] do tensor[i] = dotProduct(tensor1[i], tensor2[i]) end
-		
-	elseif (numberOfDimensions1 == 2) and (numberOfDimensions2 == 2) then
-		
-		local tensor1Row = #tensor1
-		
-		local tensor1Column = #tensor1[1]
-		
-		local tensor2Column = #tensor2[1]
-		
-		for row = 1, tensor1Row, 1 do
+	return self.new(resultTensor)
 
-			tensor[row] = {}
+end
 
-			for column = 1, tensor2Column, 1 do
+function AqwamTensorLibrary:isGreaterThan(other)
 
-				local sum = 0
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a > b) end, self, other)
 
-				for i = 1, tensor1Column do sum = sum + (tensor1[row][i] * tensor2[i][column]) end
+	return self.new(resultTensor)
 
-				tensor[row][column] = sum
+end
 
-			end
+function AqwamTensorLibrary:isGreaterOrEqualTo(other)
 
-		end
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a >= b) end, self, other)
 
-	elseif (numberOfDimensions1 == 1) and (numberOfDimensions2 >= 2) then
+	return self.new(resultTensor)
 
-		for i = 1, tensor2DimensionSizeArray[1] do tensor[i] = dotProduct(tensor1, tensor2[i]) end
-		
-	elseif (numberOfDimensions1 >= 2) and (numberOfDimensions2 == 1) then
+end
 
-		for i = 1, tensor2DimensionSizeArray[1] do tensor[i] = dotProduct(tensor1[i], tensor2) end
+function AqwamTensorLibrary:isLessThan(other)
 
-	elseif (numberOfDimensions1 == 1) and (numberOfDimensions2 == 1) then
-		
-		local sum = 0
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a < b) end, self, other)
 
-		for i = 1, #tensor1 do sum = sum + tensor1[i] * tensor2[i] end
+	return self.new(resultTensor)
 
-		tensor = sum 
-		
+end
+
+function AqwamTensorLibrary:isLessOrEqualTo(other)
+
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a <= b) end, self, other)
+
+	return self.new(resultTensor)
+
+end
+
+function AqwamTensorLibrary:tensorProduct(other)
+
+	local resultTensor = tensorProduct(self, other)
+
+	return self.new(resultTensor)
+
+end
+
+function AqwamTensorLibrary:innerProduct(other)
+
+	return innerProduct(self, other)
+
+end
+
+function AqwamTensorLibrary:outerProduct(other)
+
+	local resultTensor = outerProduct(self, other)
+
+	return self.new(resultTensor)
+
+end
+
+function AqwamTensorLibrary:copy()
+
+	return deepCopyTable(self)
+
+end
+
+function AqwamTensorLibrary:rawCopy()
+
+	return deepCopyTable(self.tensor)
+
+end
+
+function AqwamTensorLibrary:__add(other)
+
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, self, other)
+
+	return self.new(resultTensor)
+
+end
+
+function AqwamTensorLibrary:add(other)
+
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, self, other)
+
+	return self.new(resultTensor)
+
+end
+
+function AqwamTensorLibrary:__sub(other)
+
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a - b) end, self, other)
+
+	return self.new(resultTensor)
+
+end
+
+function AqwamTensorLibrary:subtract(other)
+
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a - b) end, self, other)
+
+	return self.new(resultTensor)
+
+end
+
+function AqwamTensorLibrary:__mul(...)
+
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, self, ...)
+
+	return self.new(resultTensor)
+
+end
+
+function AqwamTensorLibrary:multiply(...)
+
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, self, ...)
+
+	return self.new(resultTensor)
+
+end
+
+function AqwamTensorLibrary:__div(other)
+
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a / b) end, self, other)
+
+	return self.new(resultTensor)
+
+end
+
+function AqwamTensorLibrary:divide(...)
+
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a / b) end, self, ...)
+
+	return self.new(resultTensor)
+
+end
+
+function AqwamTensorLibrary:__unm()
+
+	local resultTensor = applyFunctionOnMultipleTensors(function(a) return (-a) end, self)
+
+	return self.new(resultTensor)
+
+end
+
+function AqwamTensorLibrary:unaryMinus()
+
+	local resultTensor = applyFunctionOnMultipleTensors(function(a) return (-a) end, self)
+
+	return self.new(resultTensor)
+
+end
+
+function AqwamTensorLibrary:__tostring()
+
+	return self:generateTensorString()
+
+end
+
+function AqwamTensorLibrary:__len()
+
+	return #self.tensor
+
+end
+
+function AqwamTensorLibrary:__index(index)
+
+	if (typeof(index) == "number") then
+
+		return rawget(self.tensor, index)
+
 	else
-		
-		print()
-		
-		error({numberOfDimensions1, numberOfDimensions2})
+
+		return rawget(AqwamTensorLibrary, index)
 
 	end
 
-	return tensor
+end
+
+function AqwamTensorLibrary:__newindex(index, value)
+
+	rawset(self, index, value)
 
 end
 
---]]
+local function getOutOfBoundsIndexArray(array, arrayToBeCheckedForOutOfBounds)
 
---[[
+	local outOfBoundsIndexArray = {}
 
-local function dotProduct(tensor1, tensor2)
+	for i, value in ipairs(arrayToBeCheckedForOutOfBounds) do
 
-	local tensor1DimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor1)
+		if (value < 1) or (value > array[i]) then table.insert(outOfBoundsIndexArray, i) end
 
-	local tensor2DimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor2)
+	end
 
-	local numberOfDimensions1 = #tensor1DimensionSizeArray
+	return outOfBoundsIndexArray
 
-	local numberOfDimensions2 = #tensor2DimensionSizeArray
-	
-	print(numberOfDimensions1, numberOfDimensions2)
+end
 
-	local tensor = {}
-	
-	if (numberOfDimensions1 == 1) and (numberOfDimensions2 == 1) then
-		
-		local sum = 0
+local function extract(tensor, dimensionSizeArray, originDimensionIndexArray, targetDimensionIndexArray)
 
-		for i = 1, #tensor1 do sum = sum + tensor1[i] * tensor2[i] end
+	local numberOfDimensions = #dimensionSizeArray
 
-		tensor = sum 
-		
-	elseif (numberOfDimensions1 == 2) and (numberOfDimensions2 == 2) then
+	local extractedTensor = {}
 
-		local tensor1Row = #tensor1
+	local originDimensionIndex = originDimensionIndexArray[1]
 
-		local tensor1Column = #tensor1[1]
+	local targetDimensionIndex = targetDimensionIndexArray[1]
 
-		local tensor2Column = #tensor2[1]
+	if (numberOfDimensions >= 2) and (originDimensionIndex <= targetDimensionIndex) then
 
-		for row = 1, tensor1Row, 1 do
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-			tensor[row] = {}
+		local remainingOriginDimensionIndexArray = removeFirstValueFromArray(originDimensionIndexArray)
 
-			for column = 1, tensor2Column, 1 do
+		local remainingTargetDimensionIndexArray = removeFirstValueFromArray(targetDimensionIndexArray)
 
-				local sum = 0
+		for i = originDimensionIndex, targetDimensionIndex, 1 do 
 
-				for i = 1, tensor1Column do sum = sum + (tensor1[row][i] * tensor2[i][column]) end
+			local extractedSubTensor = extract(tensor[i], remainingDimensionSizeArray, remainingOriginDimensionIndexArray, remainingTargetDimensionIndexArray) 
 
-				tensor[row][column] = sum
-
-			end
+			table.insert(extractedTensor, extractedSubTensor)
 
 		end
-		
-	elseif (numberOfDimensions1 > 1) and (numberOfDimensions2 == 1) then
-		
-		for i = 1, tensor2DimensionSizeArray[1] do tensor[i] = dotProduct(tensor1[i], tensor2) end
-		
-	elseif (numberOfDimensions1 > 1) and (numberOfDimensions2 > 1) then
-		
-		for i = 1, tensor2DimensionSizeArray[1] do tensor[i] = dotProduct(tensor1[i], tensor2) end
-		
+
+	elseif (numberOfDimensions >= 2) and (originDimensionIndex > targetDimensionIndex) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		local remainingOriginDimensionIndexArray = removeFirstValueFromArray(originDimensionIndexArray)
+
+		local remainingTargetDimensionIndexArray = removeFirstValueFromArray(targetDimensionIndexArray)
+
+		for i = targetDimensionIndex, #tensor, 1 do 
+
+			local extractedSubTensor = extract(tensor[i], remainingDimensionSizeArray, remainingOriginDimensionIndexArray, remainingTargetDimensionIndexArray) 
+
+			table.insert(extractedTensor, extractedSubTensor)
+
+		end
+
+		for i = 1, originDimensionIndex, 1 do 
+
+			local extractedSubTensor = extract(tensor[i], remainingDimensionSizeArray, remainingOriginDimensionIndexArray, remainingTargetDimensionIndexArray) 
+
+			table.insert(extractedTensor, extractedSubTensor)
+
+		end
+
+	elseif (numberOfDimensions == 1) and (originDimensionIndex <= targetDimensionIndex) then
+
+		for i = originDimensionIndex, targetDimensionIndex, 1 do table.insert(extractedTensor, tensor[i]) end
+
+	elseif (numberOfDimensions == 1) and (originDimensionIndex > targetDimensionIndex) then
+
+		for i = targetDimensionIndex, #tensor, 1 do table.insert(extractedTensor, tensor[i]) end
+
+		for i = 1, originDimensionIndex, 1 do table.insert(extractedTensor, tensor[i]) end
+
+	else
+
+		error("An unknown error has occured while extracting the tensor.")
+
 	end
 
-	return tensor
+	return extractedTensor
 
 end
 
---]]
+function AqwamTensorLibrary:extract(originDimensionIndexArray, targetDimensionIndexArray)
+
+	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(self)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	if (numberOfDimensions ~= #originDimensionIndexArray) then error("Invalid origin dimension index array.") end
+
+	if (numberOfDimensions ~= #targetDimensionIndexArray) then error("Invalid target dimension index array.") end
+
+	local outOfBoundsOriginIndexArray = getOutOfBoundsIndexArray(dimensionSizeArray, originDimensionIndexArray)
+
+	local outOfBoundsTargetIndexArray = getOutOfBoundsIndexArray(dimensionSizeArray, targetDimensionIndexArray)
+
+	local outOfBoundsOriginIndexArraySize = #outOfBoundsOriginIndexArray
+
+	local outOfBoundsTargetIndexArraySize = #outOfBoundsTargetIndexArray
+
+	if (outOfBoundsOriginIndexArraySize > 0) then
+
+		local errorString = "Attempting to set an origin dimension index that is out of bounds for dimension at "
+
+		for i, index in ipairs(outOfBoundsOriginIndexArray) do
+
+			errorString = errorString .. index
+
+			if (i < outOfBoundsOriginIndexArraySize) then errorString = errorString .. ", " end
+
+		end
+
+		errorString = errorString .. "."
+
+		error(errorString)
+
+	end
+
+	if (outOfBoundsTargetIndexArraySize > 0) then
+
+		local errorString = "Attempting to set an target dimension index that is out of bounds for dimension at "
+
+		for i, index in ipairs(outOfBoundsTargetIndexArray) do
+
+			errorString = errorString .. index
+
+			if (i < outOfBoundsTargetIndexArraySize) then errorString = errorString .. ", " end
+
+		end
+
+		errorString = errorString .. "."
+
+		error(errorString)
+
+	end
+
+	local extractedTensor = extract(self, dimensionSizeArray, originDimensionIndexArray, targetDimensionIndexArray)
+
+	return self.new(extractedTensor)
+
+end
 
 local function dotProduct(tensor1, tensor2, tensor1DimensionSizeArray, tensor2DimensionSizeArray) -- Best one. Do not delete!
 
@@ -2132,523 +2106,292 @@ local function hardcodedDotProduct(tensor1, tensor2)
 
 end
 
-function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a fucking headache to do this. https://medium.com/@hunter-j-phillips/a-simple-introduction-to-tensors-c4a8321efffc
+function AqwamTensorLibrary:dotProduct(other) -- Refer to this article. It was a fucking headache to do this. https://medium.com/@hunter-j-phillips/a-simple-introduction-to-tensors-c4a8321efffc
 
-	local tensorArray = {...}
+	local resultTensor = expandedDotProduct(self, other)
 
-	local tensor = tensorArray[1]
-
-	for i = 2, #tensorArray, 1 do
-
-		local otherTensor = tensorArray[i]
-
-		tensor = expandedDotProduct(tensor, otherTensor)
-
-	end
-
-	return tensor
+	return self.new(resultTensor)
 
 end
 
-local function sumFromAllDimensions(tensor, dimensionSizeArray)
+local function get2DTensorTextSpacing(tensor, dimensionSizeArray, textSpacingArray) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
+
+	if (#dimensionSizeArray > 1) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do textSpacingArray = get2DTensorTextSpacing(tensor[i], remainingDimensionSizeArray, textSpacingArray) end
+
+	else
+
+		for i = 1, dimensionSizeArray[1], 1 do textSpacingArray[i] = math.max(textSpacingArray[i], string.len(tostring(tensor[i]))) end
+
+	end
+
+	return textSpacingArray
+
+end
+
+function AqwamTensorLibrary:get2DTensorTextSpacing()
+
+	local dimensionSizeArray = self:getDimensionSizeArray()
 
 	local numberOfDimensions = #dimensionSizeArray
 
-	local result = 0
+	local sizeAtFinalDimension = dimensionSizeArray[numberOfDimensions]
+
+	local textSpacingArray = table.create(sizeAtFinalDimension, 0)
+
+	return get2DTensorTextSpacing(self, dimensionSizeArray, textSpacingArray)
+
+end
+
+local function generateTensorString(tensor, dimensionSizeArray, textSpacingArray, dimensionDepth)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	local tensorLength = #tensor
+
+	local text = " "
 
 	if (numberOfDimensions > 1) then
 
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+		local spacing = ""
 
-		for i = 1, dimensionSizeArray[1], 1 do result = result + sumFromAllDimensions(tensor[i], remainingDimensionSizeArray) end
+		text = text .. "{"
+
+		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
+
+		local remainingDimensionSizeArray = removeLastValueFromArray(dimensionSizeArray)
+
+		for i = 1, #tensor do
+
+			if (i > 1) then text = text .. spacing end
+
+			text = text .. generateTensorString(tensor[i], remainingDimensionSizeArray, textSpacingArray, dimensionDepth + 1)
+
+			if (i == tensorLength) then continue end
+
+			text = text .. "\n"
+
+		end
+
+		text = text .. " }"
 
 	else
 
-		for i = 1, dimensionSizeArray[1], 1 do result = result + tensor[i] end
+		text = text .. "{ "
+
+		for i = 1, tensorLength do
+
+			local cellValue = tensor[i]
+
+			local cellText = tostring(cellValue)
+
+			local cellWidth = string.len(cellText)
+
+			local padding = textSpacingArray[i] - cellWidth
+
+			text = text .. string.rep(" ", padding) .. cellText
+
+			if (i == tensorLength) then continue end
+
+			text = text .. " "
+
+		end
+
+		text = text .. " }"
 
 	end
 
-	return result
+	return text
 
 end
 
-local function recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArray, targetTensor, targetDimensionIndexArray)
+function AqwamTensorLibrary:generateTensorString()
+
+	local dimensionSizeArray = self:getDimensionSizeArray()
+
+	local textSpacingArray = self:get2DTensorTextSpacing()
+
+	return generateTensorString(self, dimensionSizeArray, textSpacingArray, 1)
+
+end
+
+local function generateTensorStringWithComma(tensor, dimensionSizeArray, textSpacingArray, dimensionDepth)
 
 	local numberOfDimensions = #dimensionSizeArray
 
-	if (numberOfDimensions >= 1) then
+	local tensorLength = #tensor
 
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+	local text = " "
 
-		for i = 1, dimensionSizeArray[1], 1 do
+	if (numberOfDimensions > 1) then
 
-			local copiedTargetDimensionIndexArray = table.clone(targetDimensionIndexArray)
+		local spacing = ""
 
-			table.insert(copiedTargetDimensionIndexArray, i)
+		text = text .. "{"
 
-			recursiveSubTensorSumAlongFirstDimension(tensor[i], remainingDimensionSizeArray, targetTensor, copiedTargetDimensionIndexArray)
+		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
+
+		local remainingDimensionSizeArray = removeLastValueFromArray(dimensionSizeArray)
+
+		for i = 1, #tensor do
+
+			if (i > 1) then text = text .. spacing end
+
+			text = text .. generateTensorStringWithComma(tensor[i], remainingDimensionSizeArray, textSpacingArray, dimensionDepth + 1)
+
+			if (i == tensorLength) then continue end
+
+			text = text .. "\n"
 
 		end
+
+		text = text .. " }"
 
 	else
 
-		targetDimensionIndexArray[1] = 1 -- The target dimension only have a size of 1 for summing.
+		text = text .. "{ "
 
-		local targetTensorValue = AqwamTensorLibrary:getValue(targetTensor, targetDimensionIndexArray)
+		for i = 1, tensorLength do 
 
-		local value = targetTensorValue + tensor
+			local cellValue = tensor[i]
 
-		AqwamTensorLibrary:setValue(targetTensor, value, targetDimensionIndexArray)
+			local cellText = tostring(cellValue)
 
-	end	
+			local cellWidth = string.len(cellText)
 
-end
+			local padding = textSpacingArray[i] - cellWidth
 
-local function subTensorSumAlongFirstDimension(tensor, dimensionSizeArray)
+			text = text .. string.rep(" ", padding) .. cellText
 
-	local sumDimensionalSizeArray = table.clone(dimensionSizeArray)
+			if (i == tensorLength) then continue end
 
-	sumDimensionalSizeArray[1] = 1
+			text = text .. ", "
 
-	local sumTensor = createTensor(sumDimensionalSizeArray, 0)
+		end
 
-	recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArray, sumTensor, {})
-
-	return sumTensor
-
-end
-
-local function sumAlongOneDimension(tensor, dimensionSizeArray, targetDimension, currentDimension)
-
-	local resultTensor = {}
-
-	if (currentDimension == targetDimension) then
-
-		resultTensor[1] = subTensorSumAlongFirstDimension(tensor, dimensionSizeArray) -- This is needed to ensure that the number of dimensions stays the same.
-		
-	else
-
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = sumAlongOneDimension(tensor[i], remainingDimensionSizeArray, targetDimension, currentDimension + 1) end
+		text = text .. " }"
 
 	end
 
-	return resultTensor
+	return text
 
 end
 
-local function hardcodedDimensionSum(tensor, dimension) -- I don't think it is worth the effort to generalize to the rest of dimensions... That being said, to process videos, you need at most 5 dimensions. Don't get confused about the channels! Only number of channels are changed and not the number of dimensions of the tensor!
+function AqwamTensorLibrary:generateTensorStringWithComma()
 
-	local dimensionArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local dimensionSizeArray = self:getDimensionSizeArray()
 
-	local numberOfDimensions = #dimensionArray
+	local textSpacingArray = self:get2DTensorTextSpacing()
 
-	local offset = 5 - numberOfDimensions
-
-	local dimension = dimension + offset
-
-	local dimensionSizeToAddArray = table.create(offset, 1)
-
-	local expandedTensor = AqwamTensorLibrary:expand(tensor, dimensionSizeToAddArray)
-
-	local expandedDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(expandedTensor)
-
-	local expandedSumDimensionArray = table.clone(expandedDimensionSizeArray)
-
-	expandedSumDimensionArray[dimension] = 1
-
-	local resultTensor = createTensor(expandedSumDimensionArray, 0)
-
-	if (dimension == 1) then
-
-		for a = 1, expandedDimensionSizeArray[1], 1 do
-
-			for b = 1, expandedDimensionSizeArray[2], 1 do
-
-				for c = 1, expandedDimensionSizeArray[3], 1 do
-
-					for d = 1, expandedDimensionSizeArray[4], 1 do
-
-						for e = 1, expandedDimensionSizeArray[5], 1 do
-
-							resultTensor[1][b][c][d][e] = resultTensor[1][b][c][d][e] + expandedTensor[a][b][c][d][e]
-
-						end
-
-					end
-
-				end
-
-			end
-
-		end
-
-	elseif (dimension == 2) then
-
-		for a = 1, expandedDimensionSizeArray[1], 1 do
-
-			for b = 1, expandedDimensionSizeArray[2], 1 do
-
-				for c = 1, expandedDimensionSizeArray[3], 1 do
-
-					for d = 1, expandedDimensionSizeArray[4], 1 do
-
-						for e = 1, expandedDimensionSizeArray[5], 1 do
-
-							resultTensor[a][1][c][d][e] = resultTensor[a][1][c][d][e] + expandedTensor[a][b][c][d][e]
-
-						end
-
-					end
-
-				end
-
-			end
-
-		end
-
-	elseif (dimension == 3) then
-
-		for a = 1, expandedDimensionSizeArray[1], 1 do
-
-			for b = 1, expandedDimensionSizeArray[2], 1 do
-
-				for c = 1, expandedDimensionSizeArray[3], 1 do
-
-					for d = 1, expandedDimensionSizeArray[4], 1 do
-
-						for e = 1, expandedDimensionSizeArray[5], 1 do
-
-							resultTensor[a][b][1][d][e] = resultTensor[a][b][1][d][e] + expandedTensor[a][b][c][d][e]
-
-						end
-
-					end
-
-				end
-
-			end
-
-		end
-
-	elseif (dimension == 4) then
-
-		for a = 1, expandedDimensionSizeArray[1], 1 do
-
-			for b = 1, expandedDimensionSizeArray[2], 1 do
-
-				for c = 1, expandedDimensionSizeArray[3], 1 do
-
-					for d = 1, expandedDimensionSizeArray[4], 1 do
-
-						for e = 1, expandedDimensionSizeArray[5], 1 do
-
-							resultTensor[a][b][c][1][e] = resultTensor[a][b][c][1][e] + expandedTensor[a][b][c][d][e]
-
-						end
-
-					end
-
-				end
-
-			end
-
-		end
-
-	elseif (dimension == 5) then
-
-		for a = 1, expandedDimensionSizeArray[1], 1 do
-
-			for b = 1, expandedDimensionSizeArray[2], 1 do
-
-				for c = 1, expandedDimensionSizeArray[3], 1 do
-
-					for d = 1, expandedDimensionSizeArray[4], 1 do
-
-						for e = 1, expandedDimensionSizeArray[5], 1 do
-
-							resultTensor[a][b][c][d][1] = resultTensor[a][b][c][d][1] + expandedTensor[a][b][c][d][e]
-
-						end
-
-					end
-
-				end
-
-			end
-
-		end
-
-	end
-
-	return AqwamTensorLibrary:truncate(resultTensor, offset)
+	return generateTensorStringWithComma(self, dimensionSizeArray, textSpacingArray, 1)
 
 end
 
-function AqwamTensorLibrary:sum(tensor, dimension)
-
-	dimension = dimension or 0
-	
-	if (type(dimension) ~= "number") then error("The dimension must be a number.") end
-
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+local function generatePortableTensorString(tensor, dimensionSizeArray, textSpacingArray, dimensionDepth)
 
 	local numberOfDimensions = #dimensionSizeArray
 
-	if (dimension == 0) then return sumFromAllDimensions(tensor, dimensionSizeArray) end
+	local tensorLength = #tensor
 
-	checkIfDimensionIsOutOfBounds(dimension, 1, numberOfDimensions)
+	local text = " "
 
-	local sumTensor = sumAlongOneDimension(tensor, dimensionSizeArray, dimension, 1)
+	if (numberOfDimensions > 1) then
 
-	return sumTensor
+		local spacing = ""
 
-end
+		text = text .. "{"
 
-function AqwamTensorLibrary:mean(tensor, dimension)
+		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
 
-	local size = (dimension and AqwamTensorLibrary:getDimensionSizeArray(tensor)[dimension]) or AqwamTensorLibrary:getTotalSize(tensor)
+		local remainingDimensionSizeArray = removeLastValueFromArray(dimensionSizeArray)
 
-	local sumTensor = AqwamTensorLibrary:sum(tensor, dimension)
+		for i = 1, #tensor do
 
-	local meanTensor = AqwamTensorLibrary:divide(sumTensor, size)
+			if (i > 1) then text = text .. spacing end
 
-	return meanTensor
+			text = text .. generatePortableTensorString(tensor[i], remainingDimensionSizeArray, textSpacingArray, dimensionDepth + 1)
 
-end
+			if (i == tensorLength) then continue end
 
-function AqwamTensorLibrary:standardDeviation(tensor, dimension)
-
-	local size = (dimension and AqwamTensorLibrary:getDimensionSizeArray(tensor)[dimension]) or AqwamTensorLibrary:getTotalSize(tensor)
-
-	local meanTensor = AqwamTensorLibrary:mean(tensor, dimension)
-
-	local subtractedTensor = AqwamTensorLibrary:subtract(tensor, meanTensor)
-
-	local squaredSubractedTensor = AqwamTensorLibrary:power(subtractedTensor, 2)
-
-	local summedSquaredSubtractedTensor = AqwamTensorLibrary:sum(squaredSubractedTensor, dimension)
-
-	local squaredStandardDeviationTensor = AqwamTensorLibrary:divide(summedSquaredSubtractedTensor, size)
-
-	local standardDeviationTensor = AqwamTensorLibrary:power(squaredSubractedTensor, 0.5)
-
-	return standardDeviationTensor
-
-end
-
-function AqwamTensorLibrary:zScoreNormalization(tensor, dimension)
-
-	local meanTensor = AqwamTensorLibrary:mean(tensor, dimension)
-
-	local standardDeviationTensor = AqwamTensorLibrary:standardDeviation(tensor, dimension)
-
-	local subtractedTensor = AqwamTensorLibrary:subtract(tensor, meanTensor)
-
-	local normalizedTensor = AqwamTensorLibrary:divide(subtractedTensor, standardDeviationTensor)
-
-	return normalizedTensor, meanTensor, standardDeviationTensor
-
-end
-
-local function findMaximumValue(tensor, dimensionSizeArray)
-
-	local highestValue = -math.huge
-
-	if (#dimensionSizeArray >= 2) then
-
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		for i = 1, dimensionSizeArray[1], 1 do 
-
-			local value = AqwamTensorLibrary:findMaximumValue(tensor[i]) 
-
-			highestValue = math.max(highestValue, value)
+			text = text .. "\n"
 
 		end
+
+		text = text .. " }"
+
+		if (dimensionDepth > 1) then text = text .. "," end
 
 	else
 
-		highestValue = math.max(table.unpack(tensor))
+		text = text .. "{ "
+
+		for i = 1, tensorLength do 
+
+			local cellValue = tensor[i]
+
+			local cellText = tostring(cellValue)
+
+			local cellWidth = string.len(cellText)
+
+			local padding = textSpacingArray[i] - cellWidth
+
+			text = text .. string.rep(" ", padding) .. cellText
+
+			if (i == tensorLength) then continue end
+
+			text = text .. ", "
+
+		end
+
+		text = text .. " },"
 
 	end
 
-end
-
-function AqwamTensorLibrary:findMaximumValue(tensor)
-
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-
-	return findMaximumValue(tensor, dimensionSizeArray)
+	return text
 
 end
 
-local function findMinimumValue(tensor, dimensionSizeArray)
+function AqwamTensorLibrary:generatePortableTensorString()
 
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local dimensionSizeArray = self:getDimensionSizeArray()
 
-	local lowestValue = math.huge
+	local textSpacingArray = self:get2DTensorTextSpacing()
 
-	if (#dimensionSizeArray >= 2) then
-
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		for i = 1, dimensionSizeArray[1], 1 do 
-
-			local value = AqwamTensorLibrary:findMinimumValue(tensor[i]) 
-
-			lowestValue = math.min(lowestValue, value)
-
-		end
-
-	else
-
-		lowestValue = math.min(table.unpack(tensor))
-
-	end
-
-	return lowestValue
+	return generatePortableTensorString(self, dimensionSizeArray, textSpacingArray, 1)
 
 end
 
-function AqwamTensorLibrary:findMinimumValue(tensor)
+function AqwamTensorLibrary:printTensor()
 
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-
-	return findMinimumValue(tensor, dimensionSizeArray)
+	print("\n\n" .. self:generateTensorString() .. "\n\n")
 
 end
 
-local function findMaximumValueDimensionIndexArray(tensor, dimensionSizeArray, dimensionIndexArray)
+function AqwamTensorLibrary:printTensorWithComma()
 
-	local numberOfDimensions = #dimensionSizeArray
-
-	local highestValue = -math.huge
-
-	local highestValueDimensionIndexArray
-
-	if (numberOfDimensions >= 2) then
-
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		for i = 1, dimensionSizeArray[1] do 
-
-			local copiedDimensionIndexArray = table.clone(dimensionIndexArray)
-
-			table.insert(copiedDimensionIndexArray, i)
-
-			local subTensorHighestValueDimensionArray, value = findMaximumValueDimensionIndexArray(tensor[i], remainingDimensionSizeArray, dimensionIndexArray)
-
-			if (value > highestValue) then
-
-				highestValueDimensionIndexArray = table.clone(subTensorHighestValueDimensionArray)
-
-				table.insert(highestValueDimensionIndexArray, i)
-
-				highestValue = value
-
-			end
-
-		end
-
-	else
-
-		for i = 1, dimensionSizeArray[1], 1 do
-
-			local value = tensor[i]
-
-			if (value > highestValue) then
-
-				highestValueDimensionIndexArray = table.clone(dimensionIndexArray)
-
-				table.insert(highestValueDimensionIndexArray, i)
-
-				highestValue = value
-
-			end
-
-		end
-
-	end
-
-	return highestValueDimensionIndexArray, highestValue
+	print("\n\n" .. self:generateTensorStringWithComma() .. "\n\n")
 
 end
 
-function AqwamTensorLibrary:findMaximumValueDimensionIndexArray(tensor)
+function AqwamTensorLibrary:printPortableTensor()
 
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-
-	return findMaximumValueDimensionIndexArray(tensor, dimensionSizeArray, {})
+	print("\n\n" .. self:generatePortableTensorString() .. "\n\n")
 
 end
 
-local function findMinimumValueDimensionIndexArray(tensor, dimensionSizeArray, dimensionIndexArray)
+local function getTotalSizeFromDimensionSizeArray(dimensionSizeArray)
 
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local totalSize = 1
 
-	local numberOfDimensions = #dimensionSizeArray
+	for _, value in ipairs(dimensionSizeArray) do totalSize = value * totalSize end
 
-	local lowestValue = math.huge
-
-	local lowestValueDimensionIndexArray
-
-	if (numberOfDimensions >= 2) then
-
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		for i = 1, dimensionSizeArray[1] do 
-
-			local copiedDimensionIndexArray = table.clone(dimensionIndexArray)
-
-			table.insert(copiedDimensionIndexArray, i)
-
-			local subTensorLowestValueDimensionArray, value = findMinimumValueDimensionIndexArray(tensor[i], remainingDimensionSizeArray, dimensionIndexArray)
-
-			if (value < lowestValue) then
-
-				lowestValueDimensionIndexArray = table.clone(subTensorLowestValueDimensionArray)
-
-				table.insert(lowestValueDimensionIndexArray, i)
-
-				lowestValue = value
-
-			end
-
-		end
-
-	else
-
-		for i = 1, dimensionSizeArray[1], 1 do
-
-			local value = tensor[i]
-
-			if (value < lowestValue) then
-
-				lowestValueDimensionIndexArray = table.clone(dimensionIndexArray)
-
-				table.insert(lowestValueDimensionIndexArray, i)
-
-				lowestValue = value
-
-			end
-
-		end
-
-	end
-
-	return lowestValueDimensionIndexArray, lowestValue
+	return totalSize
 
 end
 
-function AqwamTensorLibrary:findMinimumValueDimensionIndexArray(tensor)
-
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-
-	return findMinimumValueDimensionIndexArray(tensor, dimensionSizeArray, {})
-
-end
 
 local function flattenIntoASingleDimension(tensor, dimensionSizeArray, targetTensor)
 
@@ -2698,13 +2441,13 @@ local function flattenAlongSpecifiedDimensions(tensor, dimensionSizeArray, start
 
 	end
 
-	return AqwamTensorLibrary:reshape(tensor, newDimensionSizeArray)
+	return tensor:reshape(newDimensionSizeArray)
 
 end
 
-function AqwamTensorLibrary:flatten(tensor, startDimension, endDimension)
+function AqwamTensorLibrary:flatten(startDimension, endDimension)
 
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local dimensionSizeArray = self:getDimensionSizeArray()
 
 	local flattenedTensor
 
@@ -2712,7 +2455,7 @@ function AqwamTensorLibrary:flatten(tensor, startDimension, endDimension)
 
 		flattenedTensor = {}
 
-		flattenIntoASingleDimension(tensor, dimensionSizeArray, flattenedTensor)
+		flattenIntoASingleDimension(self, dimensionSizeArray, flattenedTensor)
 
 	else
 
@@ -2720,11 +2463,11 @@ function AqwamTensorLibrary:flatten(tensor, startDimension, endDimension)
 
 		endDimension = endDimension or math.huge
 
-		flattenedTensor = flattenAlongSpecifiedDimensions(tensor, dimensionSizeArray, startDimension, endDimension)
+		flattenedTensor = flattenAlongSpecifiedDimensions(self, dimensionSizeArray, startDimension, endDimension)
 
 	end
 
-	return flattenedTensor
+	return self.new(flattenedTensor)
 
 end
 
@@ -2795,7 +2538,7 @@ local function reshape(tensor, dimensionSizeArray, targetTensor, targetDimension
 
 		for i = 1, dimensionSizeArray[1], 1 do 
 
-			AqwamTensorLibrary:setValue(targetTensor, tensor[i], currentTargetDimensionIndexArray)
+			targetTensor:setValue(tensor[i], currentTargetDimensionIndexArray)
 
 			currentTargetDimensionIndexArray = incrementFinalDimensionIndex(targetDimensionSizeArray, currentTargetDimensionIndexArray)
 
@@ -2807,9 +2550,9 @@ local function reshape(tensor, dimensionSizeArray, targetTensor, targetDimension
 
 end
 
-function AqwamTensorLibrary:inefficientReshape(tensor, dimensionSizeArray) -- This one requires higher space complexity due to storing the target dimension index array for each of the values. It is also less efficient because it needs to use recursion to get and set values from and to the target tensor.
+function AqwamTensorLibrary:inefficientReshape(dimensionSizeArray) -- This one requires higher space complexity due to storing the target dimension index array for each of the values. It is also less efficient because it needs to use recursion to get and set values from and to the target tensor.
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local tensorDimensionSizeArray = self:getDimensionSizeArray()
 
 	local totalNumberOfValue = getTotalSizeFromDimensionSizeArray(tensorDimensionSizeArray)
 
@@ -2823,7 +2566,7 @@ function AqwamTensorLibrary:inefficientReshape(tensor, dimensionSizeArray) -- Th
 
 	if (numberOfDimensions == 1) then
 
-		resultTensor = reshapeFromFlattenedTensor(tensor, dimensionSizeArray, 1)
+		resultTensor = reshapeFromFlattenedTensor(self, dimensionSizeArray, 1)
 
 	else
 
@@ -2831,17 +2574,17 @@ function AqwamTensorLibrary:inefficientReshape(tensor, dimensionSizeArray) -- Th
 
 		local currentTargetDimensionIndexArray = table.create(#dimensionSizeArray, 1)
 
-		reshape(tensor, tensorDimensionSizeArray, resultTensor, dimensionSizeArray, currentTargetDimensionIndexArray)
+		reshape(self, tensorDimensionSizeArray, resultTensor, dimensionSizeArray, currentTargetDimensionIndexArray)
 
 	end
 
-	return resultTensor
+	return self.new(resultTensor)
 
 end
 
-function AqwamTensorLibrary:reshape(tensor, dimensionSizeArray) -- This one requires lower space complexity as it only need to flatten the tensor. Then only need a single target dimension index array that will be used by all values from the original tebsor.
+function AqwamTensorLibrary:reshape(dimensionSizeArray) -- This one requires lower space complexity as it only need to flatten the tensor. Then only need a single target dimension index array that will be used by all values from the original tebsor.
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local tensorDimensionSizeArray = self:getDimensionSizeArray()
 
 	local totalNumberOfValue = getTotalSizeFromDimensionSizeArray(tensorDimensionSizeArray)
 
@@ -2851,317 +2594,87 @@ function AqwamTensorLibrary:reshape(tensor, dimensionSizeArray) -- This one requ
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
-	if (numberOfDimensions >= 2) then tensor = AqwamTensorLibrary:flatten(tensor) end
+	local resultTensor
 
-	local resultTensor = reshapeFromFlattenedTensor(tensor, dimensionSizeArray, 1)
+	if (numberOfDimensions >= 2) then resultTensor = self:flatten() end
 
-	return resultTensor
+	resultTensor = reshapeFromFlattenedTensor(resultTensor, dimensionSizeArray, 1)
+
+	return self.new(resultTensor)
 
 end
 
-local function getOutOfBoundsIndexArray(array, arrayToBeCheckedForOutOfBounds)
+function AqwamTensorLibrary:truncate(numberOfDimensionsToTruncate)
 
-	local outOfBoundsIndexArray = {}
+	numberOfDimensionsToTruncate = numberOfDimensionsToTruncate or math.huge
 
-	for i, value in ipairs(arrayToBeCheckedForOutOfBounds) do
+	if (numberOfDimensionsToTruncate ~= math.huge) and (numberOfDimensionsToTruncate ~= nil) then
 
-		if (value < 1) or (value > array[i]) then table.insert(outOfBoundsIndexArray, i) end
+		local dimensionSizeArray = self:getDimensionSizeArray()
+
+		for dimension = 1, numberOfDimensionsToTruncate, 1 do
+
+			local size = dimensionSizeArray[dimension]
+
+			if (size ~= 1) then error("Unable to truncate. Dimension " .. dimension .. " has the size of " .. size .. ".") end
+
+		end
 
 	end
 
-	return outOfBoundsIndexArray
+	local resultTensor = deepCopyTable(self.tensor)
+
+	for dimension = 1, numberOfDimensionsToTruncate, 1 do
+
+		if (type(resultTensor) ~= "table") then break end
+
+		if (#resultTensor ~= 1) then break end
+
+		resultTensor = resultTensor[1]
+
+	end
+
+	return self.new(resultTensor)
 
 end
 
-local function extract(tensor, dimensionSizeArray, originDimensionIndexArray, targetDimensionIndexArray)
+local function squeeze(tensor, dimensionSizeArray, targetDimension, currentDimension)
 
 	local numberOfDimensions = #dimensionSizeArray
 
-	local extractedTensor = {}
+	local isAtTargetDimension = (currentDimension == targetDimension)
 
-	local originDimensionIndex = originDimensionIndexArray[1]
+	local isATensor = (numberOfDimensions >= 1)
 
-	local targetDimensionIndex = targetDimensionIndexArray[1]
+	local remainingDimensionSizeArray
 
-	if (numberOfDimensions >= 2) and (originDimensionIndex <= targetDimensionIndex) then
+	local resultTensor
 
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+	if (isAtTargetDimension) and (isATensor) then
 
-		local remainingOriginDimensionIndexArray = removeFirstValueFromArray(originDimensionIndexArray)
-
-		local remainingTargetDimensionIndexArray = removeFirstValueFromArray(targetDimensionIndexArray)
-
-		for i = originDimensionIndex, targetDimensionIndex, 1 do 
-
-			local extractedSubTensor = extract(tensor[i], remainingDimensionSizeArray, remainingOriginDimensionIndexArray, remainingTargetDimensionIndexArray) 
-
-			table.insert(extractedTensor, extractedSubTensor)
-
-		end
-
-	elseif (numberOfDimensions >= 2) and (originDimensionIndex > targetDimensionIndex) then
+		resultTensor = {}
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		local remainingOriginDimensionIndexArray = removeFirstValueFromArray(originDimensionIndexArray)
+		remainingDimensionSizeArray = removeFirstValueFromArray(remainingDimensionSizeArray)
 
-		local remainingTargetDimensionIndexArray = removeFirstValueFromArray(targetDimensionIndexArray)
+		for i = 1, dimensionSizeArray[2], 1 do resultTensor[i] = squeeze(tensor[1][i], remainingDimensionSizeArray, targetDimension, currentDimension + 2) end
 
-		for i = targetDimensionIndex, #tensor, 1 do 
+	elseif (not isAtTargetDimension) and (isATensor) then
 
-			local extractedSubTensor = extract(tensor[i], remainingDimensionSizeArray, remainingOriginDimensionIndexArray, remainingTargetDimensionIndexArray) 
-
-			table.insert(extractedTensor, extractedSubTensor)
-
-		end
-
-		for i = 1, originDimensionIndex, 1 do 
-
-			local extractedSubTensor = extract(tensor[i], remainingDimensionSizeArray, remainingOriginDimensionIndexArray, remainingTargetDimensionIndexArray) 
-
-			table.insert(extractedTensor, extractedSubTensor)
-
-		end
-
-	elseif (numberOfDimensions == 1) and (originDimensionIndex <= targetDimensionIndex) then
-
-		for i = originDimensionIndex, targetDimensionIndex, 1 do table.insert(extractedTensor, tensor[i]) end
-
-	elseif (numberOfDimensions == 1) and (originDimensionIndex > targetDimensionIndex) then
-
-		for i = targetDimensionIndex, #tensor, 1 do table.insert(extractedTensor, tensor[i]) end
-
-		for i = 1, originDimensionIndex, 1 do table.insert(extractedTensor, tensor[i]) end
-
-	else
-
-		error("An unknown error has occured while extracting the tensor.")
-
-	end
-
-	return extractedTensor
-
-end
-
-function AqwamTensorLibrary:extract(tensor, originDimensionIndexArray, targetDimensionIndexArray)
-
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-
-	local numberOfDimensions = #dimensionSizeArray
-
-	if (numberOfDimensions ~= #originDimensionIndexArray) then error("Invalid origin dimension index array.") end
-
-	if (numberOfDimensions ~= #targetDimensionIndexArray) then error("Invalid target dimension index array.") end
-
-	local outOfBoundsOriginIndexArray = getOutOfBoundsIndexArray(dimensionSizeArray, originDimensionIndexArray)
-
-	local outOfBoundsTargetIndexArray = getOutOfBoundsIndexArray(dimensionSizeArray, targetDimensionIndexArray)
-
-	local outOfBoundsOriginIndexArraySize = #outOfBoundsOriginIndexArray
-
-	local outOfBoundsTargetIndexArraySize = #outOfBoundsTargetIndexArray
-
-	if (outOfBoundsOriginIndexArraySize > 0) then
-
-		local errorString = "Attempting to set an origin dimension index that is out of bounds for dimension at "
-
-		for i, index in ipairs(outOfBoundsOriginIndexArray) do
-
-			errorString = errorString .. index
-
-			if (i < outOfBoundsOriginIndexArraySize) then errorString = errorString .. ", " end
-
-		end
-
-		errorString = errorString .. "."
-
-		error(errorString)
-
-	end
-
-	if (outOfBoundsTargetIndexArraySize > 0) then
-
-		local errorString = "Attempting to set an target dimension index that is out of bounds for dimension at "
-
-		for i, index in ipairs(outOfBoundsTargetIndexArray) do
-
-			errorString = errorString .. index
-
-			if (i < outOfBoundsTargetIndexArraySize) then errorString = errorString .. ", " end
-
-		end
-
-		errorString = errorString .. "."
-
-		error(errorString)
-
-	end
-
-	local extractedTensor = extract(tensor, dimensionSizeArray, originDimensionIndexArray, targetDimensionIndexArray)
-
-	return extractedTensor
-
-end
-
-local function concatenate(targetTensor, otherTensor, targetDimensionSizeArray, targetDimension, currentDimension)
-
-	if (currentDimension ~= targetDimension) then
-
-		local remainingTargetDimensionSizeArray = removeFirstValueFromArray(targetDimensionSizeArray)
-
-		for i = 1, targetDimensionSizeArray[1], 1 do targetTensor[i] = concatenate(targetTensor[i], otherTensor[i], remainingTargetDimensionSizeArray, targetDimension, currentDimension + 1) end
-
-	else
-
-		for _, value in ipairs(otherTensor) do table.insert(targetTensor, value) end
-
-	end
-
-	return targetTensor
-
-end
-
-function AqwamTensorLibrary:concatenate(tensor1, tensor2, dimension)
-
-	if (type(dimension) ~= "number") then error("Invalid dimension.") end
-
-	local dimensionSizeArray1 = AqwamTensorLibrary:getDimensionSizeArray(tensor1)
-
-	local dimensionSizeArray2 = AqwamTensorLibrary:getDimensionSizeArray(tensor2)
-
-	local numberOfDimensions1 = #dimensionSizeArray1
-
-	local numberOfDimensions2 = #dimensionSizeArray2
-
-	if (numberOfDimensions1 ~= numberOfDimensions2) then error("The tensors do not have equal number of dimensions.") end
-
-	if (numberOfDimensions1 <= 0) or (dimension > numberOfDimensions1) then error("The selected dimension is out of bounds.") end
-
-	for dimensionIndex = 1, numberOfDimensions1, 1 do
-
-		if (dimensionIndex == dimension) then continue end
-
-		if (dimensionSizeArray1[dimensionIndex] ~= dimensionSizeArray2[dimensionIndex]) then error("The tensors do not contain equal dimension values at dimension " .. dimensionIndex .. ".") end
-
-	end
-
-	local targetTensor = deepCopyTable(tensor1)
-
-	return concatenate(targetTensor, tensor2, dimensionSizeArray1, dimension, 1)
-
-end
-
-function AqwamTensorLibrary:add(...)
-
-	return applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, ...)
-
-end
-
-function AqwamTensorLibrary:subtract(...)
-
-	return applyFunctionOnMultipleTensors(function(a, b) return (a - b) end, ...)
-
-end
-
-function AqwamTensorLibrary:multiply(...)
-
-	return applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, ...)
-
-end
-
-function AqwamTensorLibrary:divide(...)
-
-	return applyFunctionOnMultipleTensors(function(a, b) return (a / b) end, ...)
-
-end
-
-function AqwamTensorLibrary:logarithm(...)
-
-	return applyFunctionOnMultipleTensors(math.log, ...)
-
-end
-
-function AqwamTensorLibrary:exponent(...)
-
-	return applyFunctionOnMultipleTensors(math.exp, ...)
-
-end
-
-function AqwamTensorLibrary:power(...)
-
-	return applyFunctionOnMultipleTensors(math.pow, ...)
-
-end
-
-function AqwamTensorLibrary:isSameTensor(tensor1, tensor2)
-
-	local booleanTensor = AqwamTensorLibrary:isEqualTo(tensor1, tensor2)
-
-	return containAFalseBooleanInTensor(booleanTensor)
-
-end
-
-function AqwamTensorLibrary:isEqualTo(tensor1, tensor2)
-
-	return applyFunctionUsingTwoTensors(function(a, b) return (a == b) end, tensor1, tensor2)
-
-end
-
-function AqwamTensorLibrary:isGreaterThan(tensor1, tensor2)
-
-	return applyFunctionUsingTwoTensors(function(a, b) return (a > b) end, tensor1, tensor2)
-
-end
-
-function AqwamTensorLibrary:isGreaterOrEqualTo(tensor1, tensor2)
-
-	return applyFunctionUsingTwoTensors(function(a, b) return (a >= b) end, tensor1, tensor2)
-
-end
-
-function AqwamTensorLibrary:isLessThan(tensor1, tensor2)
-
-	return applyFunctionUsingTwoTensors(function(a, b) return (a < b) end, tensor1, tensor2)
-
-end
-
-function AqwamTensorLibrary:isLessOrEqualTo(tensor1, tensor2)
-
-	return applyFunctionUsingTwoTensors(function(a, b) return (a <= b) end, tensor1, tensor2)
-
-end
-
-local function applyFunction(functionToApply, dimensionSizeArray, ...)
-
-	local tensorArray = {...}
-
-	local resultTensor = {}
-
-	if (#dimensionSizeArray >= 2) then
+		resultTensor = {}
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		for i = 1, dimensionSizeArray[1], 1 do 
+		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = squeeze(tensor[i], remainingDimensionSizeArray, targetDimension, currentDimension + 1) end
 
-			local subTensorArray = {}
+	elseif (not isATensor) then
 
-			for _, tensor in ipairs(tensorArray) do table.insert(subTensorArray, tensor[i]) end
-
-			resultTensor[i] = applyFunction(functionToApply, remainingDimensionSizeArray, table.unpack(subTensorArray)) 
-
-		end
+		resultTensor = tensor
 
 	else
 
-		for i = 1, dimensionSizeArray[1], 1 do 
-
-			local subTensorArray = {}
-
-			for _, tensor in ipairs(tensorArray) do table.insert(subTensorArray, tensor[i]) end
-
-			resultTensor[i] = functionToApply(table.unpack(subTensorArray)) 
-
-		end
+		error("Unable to squeeze.")
 
 	end
 
@@ -3169,131 +2682,15 @@ local function applyFunction(functionToApply, dimensionSizeArray, ...)
 
 end
 
-function AqwamTensorLibrary:applyFunction(functionToApply, ...)
+function AqwamTensorLibrary:squeeze(dimension)
 
-	local tensorArray = {...}
+	if (type(dimension) ~= "number") then error("The dimension must be a number.") end
 
-	local allDimensionSizeArrays = {}
-
-	for _, tensor in ipairs(tensorArray) do
-
-		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-
-		table.insert(allDimensionSizeArrays, dimensionSizeArray)
-
-	end
-
-	local firstDimensionSizeArray = allDimensionSizeArrays[1]
-
-	for i = 2, #tensorArray, 1 do
-
-		local dimensionSizeArray = allDimensionSizeArrays[i]
-
-		if (#firstDimensionSizeArray ~= #dimensionSizeArray) then error("Tensor ".. (i - 1) .. " and " .. i .. " does not have the same number of dimensions.") end
-
-		for s, size in ipairs(firstDimensionSizeArray) do
-
-			if (size ~= dimensionSizeArray[s]) then error("Tensor " .. (i - 1) .. " and " .. i .. " does not contain equal dimension values at dimension " .. s .. ".") end
-
-		end
-
-	end
-
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensorArray[1])
-
-	local resultTensor = applyFunction(functionToApply, dimensionSizeArray, ...)
-
-	return resultTensor
-
-end
-
-local function setValue(tensor, dimensionSizeArray, value, dimensionIndexArray)
-
-	local dimensionIndex = dimensionIndexArray[1]
-
-	local numberOfDimensionIndices = #dimensionIndexArray
-
-	local numberOfDimensions = #dimensionSizeArray
-
-	if (numberOfDimensionIndices > numberOfDimensions) then
-
-		error("The number of indices exceeds the tensor's number of dimensions.")
-
-	elseif (numberOfDimensions >= 2) then
-
-		checkIfDimensionSizeIndexIsOutOfBounds(dimensionIndex, 1, dimensionSizeArray[1])
-
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		local remainingDimensionIndexArray = removeFirstValueFromArray(dimensionIndexArray)
-
-		setValue(tensor[dimensionIndex], remainingDimensionSizeArray, value, remainingDimensionIndexArray)
-
-	elseif (numberOfDimensions == 1) then
-
-		tensor[dimensionIndex] = value
-
-	else
-
-		error("An error has occurred when attempting to set the tensor value.")
-
-	end
-
-end
-
-function AqwamTensorLibrary:setValue(tensor, value, dimensionIndexArray)
-
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-
-	setValue(tensor, dimensionSizeArray, value, dimensionIndexArray)
-
-end
-
-local function getValue(tensor, dimensionSizeArray, dimensionIndexArray)
+	local dimensionSizeArray = self:getDimensionSizeArray()
 	
-	local dimensionIndex = dimensionIndexArray[1]
+	local resultTensor = squeeze(self, dimensionSizeArray, dimension, 1)
 
-	local numberOfDimensionIndices = #dimensionIndexArray
-
-	local numberOfDimensions = #dimensionSizeArray
-
-	if (numberOfDimensionIndices > numberOfDimensions) then
-
-		error("The number of indices exceeds the tensor's number of dimensions.")
-
-	elseif (numberOfDimensions >= 2) then
-
-		checkIfDimensionSizeIndexIsOutOfBounds(dimensionIndex, 1, dimensionSizeArray[1])
-
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-		
-		local remainingDimensionIndexArray = removeFirstValueFromArray(dimensionIndexArray)
-
-		return getValue(tensor[dimensionIndex], remainingDimensionSizeArray, remainingDimensionIndexArray)
-
-	elseif (numberOfDimensions == 1) then
-
-		return tensor[dimensionIndex]
-
-	else
-
-		error("An error has occurred when attempting to get the tensor value.")
-
-	end
-	
-end
-
-function AqwamTensorLibrary:getValue(tensor, dimensionIndexArray)
-
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-	
-	return getValue(tensor, dimensionSizeArray, dimensionIndexArray)
-
-end
-
-function AqwamTensorLibrary:copy(tensor)
-
-	return deepCopyTable(tensor)
+	return self.new(resultTensor)
 
 end
 
