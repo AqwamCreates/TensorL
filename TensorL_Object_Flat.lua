@@ -284,7 +284,7 @@ function AqwamTensorLibrary:expand(targetDimensionSizeArray)
 
 	local resultTensor = expand(self, dimensionSizeArray, targetDimensionSizeArray)
 
-	return self.new(resultTensor)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -318,7 +318,7 @@ function AqwamTensorLibrary:increaseNumberOfDimensions(dimensionSizeToAddArray)
 
 	local resultTensor = increaseNumberOfDimensions(self, dimensionSizeToAddArray)
 
-	return self.new(resultTensor)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -426,7 +426,7 @@ function AqwamTensorLibrary:broadcast(tensor1, tensor2)
 	
 	local tensor1Value, tensor2Value = broadcast(tensor1.tensor, tensor2.tensor, true)
 	
-	return self.new(tensor1Value),  self.new(tensor2Value)
+	return AqwamTensorLibrary.new(tensor1Value),  AqwamTensorLibrary.new(tensor2Value)
 	
 end
 
@@ -1006,7 +1006,7 @@ function AqwamTensorLibrary:isEqualTo(other)
 
 	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a == b) end, self, other)
 
-	return self.new(resultTensor)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -1014,7 +1014,7 @@ function AqwamTensorLibrary:isGreaterThan(other)
 
 	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a > b) end, self, other)
 
-	return self.new(resultTensor)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -1022,7 +1022,7 @@ function AqwamTensorLibrary:isGreaterOrEqualTo(other)
 
 	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a >= b) end, self, other)
 
-	return self.new(resultTensor)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -1030,7 +1030,7 @@ function AqwamTensorLibrary:isLessThan(other)
 
 	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a < b) end, self, other)
 
-	return self.new(resultTensor)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -1038,7 +1038,7 @@ function AqwamTensorLibrary:isLessOrEqualTo(other)
 
 	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a <= b) end, self, other)
 
-	return self.new(resultTensor)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -1046,7 +1046,7 @@ function AqwamTensorLibrary:tensorProduct(other)
 
 	local resultTensor = tensorProduct(self, other)
 
-	return self.new(resultTensor)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -1060,7 +1060,7 @@ function AqwamTensorLibrary:outerProduct(other)
 
 	local resultTensor = outerProduct(self, other)
 
-	return self.new(resultTensor)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -1080,7 +1080,7 @@ function AqwamTensorLibrary:__add(other)
 
 	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, self, other)
 
-	return self.new(resultTensor)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -1088,7 +1088,7 @@ function AqwamTensorLibrary:add(other)
 
 	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, self, other)
 
-	return self.new(resultTensor)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -1096,7 +1096,7 @@ function AqwamTensorLibrary:__sub(other)
 
 	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a - b) end, self, other)
 
-	return self.new(resultTensor)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -1104,7 +1104,7 @@ function AqwamTensorLibrary:subtract(other)
 
 	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a - b) end, self, other)
 
-	return self.new(resultTensor)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -1112,7 +1112,7 @@ function AqwamTensorLibrary:__mul(...)
 
 	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, self, ...)
 
-	return self.new(resultTensor)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -1120,7 +1120,7 @@ function AqwamTensorLibrary:multiply(...)
 
 	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, self, ...)
 
-	return self.new(resultTensor)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -1128,7 +1128,7 @@ function AqwamTensorLibrary:__div(other)
 
 	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a / b) end, self, other)
 
-	return self.new(resultTensor)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -1136,7 +1136,7 @@ function AqwamTensorLibrary:divide(...)
 
 	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a / b) end, self, ...)
 
-	return self.new(resultTensor)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -1144,7 +1144,7 @@ function AqwamTensorLibrary:__unm()
 
 	local resultTensor = applyFunctionOnMultipleTensors(function(a) return (-a) end, self)
 
-	return self.new(resultTensor)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -1152,7 +1152,7 @@ function AqwamTensorLibrary:unaryMinus()
 
 	local resultTensor = applyFunctionOnMultipleTensors(function(a) return (-a) end, self)
 
-	return self.new(resultTensor)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -1566,7 +1566,7 @@ function AqwamTensorLibrary:dotProduct(other) -- Refer to this article. It was a
 
 	local resultTensor = expandedDotProduct(self, other)
 
-	return self.new(resultTensor)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -1912,7 +1912,7 @@ function AqwamTensorLibrary:flatten(startDimension, endDimension)
 
 	end
 
-	return self.new(flattenedTensor)
+	return AqwamTensorLibrary.new(flattenedTensor)
 
 end
 
@@ -2023,7 +2023,7 @@ function AqwamTensorLibrary:inefficientReshape(dimensionSizeArray) -- This one r
 
 	end
 
-	return self.new(resultTensor)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -2045,7 +2045,7 @@ function AqwamTensorLibrary:reshape(dimensionSizeArray) -- This one requires low
 
 	resultTensor = reshapeFromFlattenedTensor(resultTensor, dimensionSizeArray, 1)
 
-	return self.new(resultTensor)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -2079,7 +2079,7 @@ function AqwamTensorLibrary:truncate(numberOfDimensionsToTruncate)
 
 	end
 
-	return self.new(resultTensor)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
