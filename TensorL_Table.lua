@@ -1701,6 +1701,8 @@ function AqwamTensorLibrary:transpose(tensor, dimensionArray)
 	local numberOfDimensions = AqwamTensorLibrary:getNumberOfDimensions(tensor)
 
 	if (numberOfDimensions == 0) then return tensor end
+	
+	if (type(dimensionArray) ~= "table") then error(" The dimension array must be an array.") end
 
 	if (#dimensionArray ~= 2) then error("Dimension array must contain 2 dimensions.") end
 
