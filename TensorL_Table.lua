@@ -2734,13 +2734,13 @@ local function flattenAlongSpecifiedDimensions(tensor, dimensionSizeArray, start
 
 end
 
-function AqwamTensorLibrary:flatten(tensor, startDimension, endDimension)
+function AqwamTensorLibrary:flatten(tensor, dimensionArray)
 
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local flattenedTensor
 
-	if (not startDimension) and (not endDimension) then
+	if (not dimensionArray) then
 
 		flattenedTensor = {}
 
@@ -2748,9 +2748,9 @@ function AqwamTensorLibrary:flatten(tensor, startDimension, endDimension)
 
 	else
 
-		startDimension = startDimension or 1
+		local startDimension = dimensionArray[1] or 1
 
-		endDimension = endDimension or math.huge
+		local endDimension = dimensionArray[1] or math.huge
 
 		flattenedTensor = flattenAlongSpecifiedDimensions(tensor, dimensionSizeArray, startDimension, endDimension)
 
