@@ -1211,13 +1211,13 @@ function AqwamTensorLibrary:createIdentityTensor(dimensionSizeArray)
 
 end
 
-local function getDimensionSizeArray(tensor, targetDimensionSizeArray)
+local function getDimensionSizeArrayRecurvsive(tensor, targetDimensionSizeArray)
 
 	if (type(tensor) ~= "table") then return end
 
 	table.insert(targetDimensionSizeArray, #tensor)
 
-	getDimensionSizeArray(tensor[1], targetDimensionSizeArray)
+	getDimensionSizeArrayRecurvsive(tensor[1], targetDimensionSizeArray)
 
 end
 
@@ -1225,7 +1225,7 @@ function AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local dimensionSizeArray = {}
 
-	getDimensionSizeArray(tensor, dimensionSizeArray)
+	getDimensionSizeArrayRecurvsive(tensor, dimensionSizeArray)
 
 	return dimensionSizeArray
 
