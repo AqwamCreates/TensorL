@@ -302,7 +302,7 @@ function AqwamTensorLibrary:expand(targetDimensionSizeArray)
 
 	if checkIfItHasSameDimensionSizeArray(dimensionSizeArray, targetDimensionSizeArray) then return deepCopyTable(self) end -- Do not remove this code even if the code below is related or function similar to this code. You will spend so much time fixing it if you forget that you have removed it.
 	
-	local resultTensor = expand(self.tensor, dimensionSizeArray, targetDimensionSizeArray)
+	local resultTensor = expand(self.tensor, dimensionSizeArray, targetDimensionSizeArray) -- This function contains a deepCopyTable function(), which will deep copy the tensor object as opposed to tensor value if .tensor is not used instead.
 
 	return self.new(resultTensor)
 
@@ -336,7 +336,7 @@ end
 
 function AqwamTensorLibrary:increaseNumberOfDimensions(dimensionSizeToAddArray)
 
-	local resultTensor = increaseNumberOfDimensions(self.tensor, dimensionSizeToAddArray)
+	local resultTensor = increaseNumberOfDimensions(self.tensor, dimensionSizeToAddArray) -- This function contains a deepCopyTable function(), which will deep copy the tensor object as opposed to tensor value if .tensor is not used instead.
 	
 	return self.new(resultTensor)
 
