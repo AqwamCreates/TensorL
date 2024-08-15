@@ -430,27 +430,11 @@ function AqwamTensorLibrary:broadcast(tensor1, tensor2)
 	
 end
 
-local function applyFunctionUsingOneTensor(functionToApply, tensor, dimensionSizeArray) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
-
-	local numberOfDimensions = #dimensionSizeArray
-
+local function applyFunctionUsingOneTensor(functionToApply, tensor) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
+	
 	local resultTensor = {}
-
-	if (numberOfDimensions >= 2) then
-
-		local remainingDimensionSizeArray = removeLastValueFromArray(dimensionSizeArray)
-
-		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = applyFunctionUsingOneTensor(functionToApply, tensor[i], remainingDimensionSizeArray) end
-
-	elseif (numberOfDimensions == 1) then -- Much more efficient than applying recursion again to get the original value.
-
-		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = functionToApply(tensor[i]) end
-
-	else -- Sometimes the original tensor can be a number, so we must do the operation directly.
-
-		resultTensor = functionToApply(tensor)
-
-	end
+	
+	for i = 1, #tensor, 1 do resultTensor[i] = functionToApply(tensor[i]) end
 
 	return resultTensor
 
@@ -458,11 +442,9 @@ end
 
 local function applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
 	
-	local totalDimensionSize = #tensor1
+	local resultTensor = {}
 	
-	local resultTensor = table.clone(totalDimensionSize, true)
-	
-	for i = 1, totalDimensionSize, 1 do resultTensor[i] = functionToApply(tensor1[i], tensor2[i]) end
+	for i = 1, #tensor1, 1 do resultTensor[i] = functionToApply(tensor1[i], tensor2[i]) end
 
 	return resultTensor
 
@@ -470,11 +452,9 @@ end
 
 local function applyFunctionWhenTheFirstValueIsAScalar(functionToApply, scalar, tensor) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
 
-	local totalDimensionSize = #tensor
+	local resultTensor = {}
 
-	local resultTensor = table.clone(totalDimensionSize, true)
-
-	for i = 1, totalDimensionSize, 1 do resultTensor[i] = functionToApply(scalar, tensor[i]) end
+	for i = 1, #tensor, 1 do resultTensor[i] = functionToApply(scalar, tensor[i]) end
 
 	return resultTensor
 
@@ -482,11 +462,9 @@ end
 
 local function applyFunctionWhenTheSecondValueIsAScalar(functionToApply, tensor, scalar) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
 
-	local totalDimensionSize = #tensor
+	local resultTensor = {}
 
-	local resultTensor = table.clone(totalDimensionSize, true)
-
-	for i = 1, totalDimensionSize, 1 do resultTensor[i] = functionToApply(tensor[i], scalar) end
+	for i = 1, #tensor, 1 do resultTensor[i] = functionToApply(tensor[i], scalar) end
 
 	return resultTensor
 
@@ -2153,13 +2131,23 @@ function AqwamTensorLibrary:squeeze(dimension)
 
 	if (type(dimension) ~= "number") then error("The dimension must be a number.") end
 
-	local dimensionSizeArray = self:getDimensionSizeArray()
+	local dimensionSizeArray = table.clone(self.dimensionSizeArray)
 	
 	if (dimensionSizeArray[dimension] ~= 1) then error("The dimension size at dimension " .. dimension .. " is not equal to 1.") end
 	
-	local resultTensor = squeeze(self, dimensionSizeArray, dimension, 1)
+	table.remove(dimensionSizeArray, dimension)
+	
+	local tensor = deepCopyTable(self.tensor)
+	
+	return self.construct(tensor, dimensionSizeArray)
 
-	return self.new(resultTensor)
+end
+
+function AqwamTensorLibrary:destroy()
+
+	self.tensor = nil
+
+	setmetatable(self, nil)
 
 end
 
