@@ -144,13 +144,23 @@ local function getNumberOfDimensions(tensor)
 
 end
 
-local function getDimensionSizeArray(tensor, targetDimensionSizeArray)
+local function getDimensionSizeArrayRecursive(tensor, targetDimensionSizeArray)
 
 	if (type(tensor) ~= "table") then return end
 
 	table.insert(targetDimensionSizeArray, #tensor)
 
-	getDimensionSizeArray(tensor[1], targetDimensionSizeArray)
+	getDimensionSizeArrayRecursive(tensor[1], targetDimensionSizeArray)
+
+end
+
+local function getDimensionSizeArray(tensor)
+
+	local dimensionSizeArray = {}
+	
+	getDimensionSizeArrayRecursive(tensor, dimensionSizeArray)
+
+	return dimensionSizeArray
 
 end
 
@@ -158,7 +168,7 @@ function AqwamTensorLibrary:getDimensionSizeArray()
 
 	local dimensionSizeArray = {}
 
-	getDimensionSizeArray(self, dimensionSizeArray)
+	getDimensionSizeArrayRecursive(self, dimensionSizeArray)
 
 	return dimensionSizeArray
 
@@ -334,9 +344,9 @@ end
 
 local function broadcast(tensor1, tensor2, deepCopyOriginalTensor)
 
-	local dimensionSizeArray1 = AqwamTensorLibrary:getDimensionSizeArray(tensor1)
+	local dimensionSizeArray1 = getDimensionSizeArray(tensor1)
 
-	local dimensionSizeArray2 = AqwamTensorLibrary:getDimensionSizeArray(tensor2)
+	local dimensionSizeArray2 = getDimensionSizeArray(tensor2)
 
 	if checkIfItHasSameDimensionSizeArray(dimensionSizeArray1, dimensionSizeArray2) then 
 
@@ -554,9 +564,7 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 	if (numberOfTensors == 1) then 
 
-		local dimensionSizeArray = {}
-
-		getDimensionSizeArray(tensor, dimensionSizeArray)
+		local dimensionSizeArray = getDimensionSizeArray(tensor)
 
 		if (type(tensor) == "table") then
 
@@ -579,12 +587,14 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 		local isSecondValueATensor = (type(otherTensor) == "table")
 
 		if (isFirstValueATensor) and (isSecondValueATensor) then
+			
+			print(tensor)
+			
+			print(otherTensor)
 
 			tensor, otherTensor = broadcast(tensor, otherTensor, false)
 
-			local dimensionSizeArray = {}
-			
-			getDimensionSizeArray(tensor, dimensionSizeArray)
+			local dimensionSizeArray = getDimensionSizeArray(tensor)
 			
 			tensor = applyFunctionUsingTwoTensors(functionToApply, tensor, otherTensor, dimensionSizeArray)
 
@@ -706,7 +716,7 @@ local function sumFromAllDimensions(tensor, dimensionSizeArray)
 
 end
 
-local function recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArray, targetTensor, targetDimensionIndexArray)
+local function subTensorSumAlongFirstDimensionRecursion(tensor, dimensionSizeArray, targetTensor, targetDimensionIndexArray)
 
 	local numberOfDimensions = #dimensionSizeArray
 
@@ -720,7 +730,7 @@ local function recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArr
 
 			table.insert(copiedTargetDimensionIndexArray, i)
 
-			recursiveSubTensorSumAlongFirstDimension(tensor[i], remainingDimensionSizeArray, targetTensor, copiedTargetDimensionIndexArray)
+			subTensorSumAlongFirstDimensionRecursion(tensor[i], remainingDimensionSizeArray, targetTensor, copiedTargetDimensionIndexArray)
 
 		end
 
@@ -728,10 +738,8 @@ local function recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArr
 
 		targetDimensionIndexArray[1] = 1 -- The target dimension only have a size of 1 for summing.
 		
-		local targetTensorDimensionSizeArray = {}
+		local targetTensorDimensionSizeArray = getDimensionSizeArray(targetTensor)
 		
-		getDimensionSizeArray(targetTensor, targetTensorDimensionSizeArray)
-
 		local targetTensorValue = getValue(targetTensor, targetTensorDimensionSizeArray, targetDimensionIndexArray)
 
 		local value = targetTensorValue + tensor
@@ -750,7 +758,7 @@ local function subTensorSumAlongFirstDimension(tensor, dimensionSizeArray)
 
 	local sumTensor = createTensor(sumDimensionalSizeArray, 0)
 
-	recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArray, sumTensor, {})
+	subTensorSumAlongFirstDimensionRecursion(tensor, dimensionSizeArray, sumTensor, {})
 
 	return sumTensor
 
@@ -1473,9 +1481,7 @@ local function transpose(tensor, dimensionSizeArray, currentTargetDimensionIndex
 
 		currentTargetDimensionIndexArray[dimension2] = currentDimensionIndex1
 		
-		local targetTensorDimensionSizeArray = {}
-
-		getDimensionSizeArray(targetTensor, targetTensorDimensionSizeArray)
+		local targetTensorDimensionSizeArray = getDimensionSizeArray(targetTensor)
 
 		setValue(targetTensor, targetTensorDimensionSizeArray, tensor, currentTargetDimensionIndexArray)
 
