@@ -1211,13 +1211,13 @@ function AqwamTensorLibrary:createIdentityTensor(dimensionSizeArray)
 
 end
 
-local function getDimensionSizeArrayRecursion(tensor, targetDimensionSizeArray)
+local function getDimensionSizeArray(tensor, targetDimensionSizeArray)
 
 	if (type(tensor) ~= "table") then return end
 
 	table.insert(targetDimensionSizeArray, #tensor)
 
-	getDimensionSizeArrayRecursion(tensor[1], targetDimensionSizeArray)
+	getDimensionSizeArray(tensor[1], targetDimensionSizeArray)
 
 end
 
@@ -1225,7 +1225,7 @@ function AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local dimensionSizeArray = {}
 
-	getDimensionSizeArrayRecursion(tensor, dimensionSizeArray)
+	getDimensionSizeArray(tensor, dimensionSizeArray)
 
 	return dimensionSizeArray
 
@@ -2006,7 +2006,7 @@ local function tensor2DimensionalDotProduct(tensor1, tensor2)
 
 end
 
-local function expandedDotProductRecursion(tensor1, tensor2, dimensionSizeArray1, dimensionSizeArray2) -- Since both have equal number of dimensions now, we only need to use only one dimension size array.
+local function recursiveExpandedDotProduct(tensor1, tensor2, dimensionSizeArray1, dimensionSizeArray2) -- Since both have equal number of dimensions now, we only need to use only one dimension size array.
 
 	local numberOfDimensions1 = #dimensionSizeArray1
 
@@ -2022,7 +2022,7 @@ local function expandedDotProductRecursion(tensor1, tensor2, dimensionSizeArray1
 
 		local remainingDimensionSizeArray2 = removeFirstValueFromArray(dimensionSizeArray2)
 
-		for i = 1, dimensionSizeArray1[1], 1 do tensor[i] = expandedDotProductRecursion(tensor1[i], tensor2[i], remainingDimensionSizeArray1, remainingDimensionSizeArray2) end
+		for i = 1, dimensionSizeArray1[1], 1 do tensor[i] = recursiveExpandedDotProduct(tensor1[i], tensor2[i], remainingDimensionSizeArray1, remainingDimensionSizeArray2) end
 
 	elseif (numberOfDimensions1 == 2) and (numberOfDimensions2 == 2) and (dimensionSizeArray1[2] == dimensionSizeArray2[1]) then -- No need an elseif statement where number of dimension is 1. This operation requires 2D tensors.
 
@@ -2098,7 +2098,7 @@ local function expandedDotProduct(tensor1, tensor2)
 
 	local expandedTensor2DimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(expandedTensor2)
 
-	return expandedDotProductRecursion(expandedTensor1, expandedTensor2, expandedTensor1DimensionSizeArray, expandedTensor2DimensionSizeArray)
+	return recursiveExpandedDotProduct(expandedTensor1, expandedTensor2, expandedTensor1DimensionSizeArray, expandedTensor2DimensionSizeArray)
 
 end
 
@@ -2202,7 +2202,7 @@ local function sumFromAllDimensions(tensor, dimensionSizeArray)
 
 end
 
-local function subTensorSumAlongFirstDimensionRecursion(tensor, dimensionSizeArray, targetTensor, targetDimensionIndexArray)
+local function recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArray, targetTensor, targetDimensionIndexArray)
 
 	local numberOfDimensions = #dimensionSizeArray
 
@@ -2216,7 +2216,7 @@ local function subTensorSumAlongFirstDimensionRecursion(tensor, dimensionSizeArr
 
 			table.insert(copiedTargetDimensionIndexArray, i)
 
-			subTensorSumAlongFirstDimensionRecursion(tensor[i], remainingDimensionSizeArray, targetTensor, copiedTargetDimensionIndexArray)
+			recursiveSubTensorSumAlongFirstDimension(tensor[i], remainingDimensionSizeArray, targetTensor, copiedTargetDimensionIndexArray)
 
 		end
 
@@ -2242,7 +2242,7 @@ local function subTensorSumAlongFirstDimension(tensor, dimensionSizeArray)
 
 	local sumTensor = createTensor(sumDimensionalSizeArray, 0)
 
-	subTensorSumAlongFirstDimensionRecursion(tensor, dimensionSizeArray, sumTensor, {})
+	recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArray, sumTensor, {})
 
 	return sumTensor
 
