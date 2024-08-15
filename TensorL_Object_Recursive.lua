@@ -198,7 +198,7 @@ local function expand(tensor, dimensionSizeArray, targetDimensionSizeArray)
 
 	end
 
-	local updatedDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(resultTensor) -- Need to call this again because we may have modified the tensor below it, thus changing the dimension size array.
+	local updatedDimensionSizeArray = getDimensionSizeArray(resultTensor) -- Need to call this again because we may have modified the tensor below it, thus changing the dimension size array.
 
 	local dimensionSize = updatedDimensionSizeArray[1]
 
@@ -301,8 +301,8 @@ function AqwamTensorLibrary:expand(targetDimensionSizeArray)
 	local dimensionSizeArray = self:getDimensionSizeArray()
 
 	if checkIfItHasSameDimensionSizeArray(dimensionSizeArray, targetDimensionSizeArray) then return deepCopyTable(self) end -- Do not remove this code even if the code below is related or function similar to this code. You will spend so much time fixing it if you forget that you have removed it.
-
-	local resultTensor = expand(self, dimensionSizeArray, targetDimensionSizeArray)
+	
+	local resultTensor = expand(self.tensor, dimensionSizeArray, targetDimensionSizeArray)
 
 	return self.new(resultTensor)
 
@@ -336,8 +336,8 @@ end
 
 function AqwamTensorLibrary:increaseNumberOfDimensions(dimensionSizeToAddArray)
 
-	local resultTensor = increaseNumberOfDimensions(self, dimensionSizeToAddArray)
-
+	local resultTensor = increaseNumberOfDimensions(self.tensor, dimensionSizeToAddArray)
+	
 	return self.new(resultTensor)
 
 end
@@ -409,10 +409,10 @@ local function broadcast(tensor1, tensor2, deepCopyOriginalTensor)
 	local dimensionSizeToAddArray = {}
 
 	for i = 1, numberOfDimensionDifferences, 1 do table.insert(dimensionSizeToAddArray, dimensionSizeArrayWithHighestNumberOfDimensions[i]) end -- Get the dimension sizes of the left part of dimension size array.
+	
+	local expandedTensor = tensorWithLowestNumberOfDimensions:increaseNumberOfDimensions(dimensionSizeToAddArray)
 
-	local expandedTensor = AqwamTensorLibrary:increaseNumberOfDimensions(tensorWithLowestNumberOfDimensions, dimensionSizeToAddArray)
-
-	expandedTensor = AqwamTensorLibrary:expand(expandedTensor, dimensionSizeArrayWithHighestNumberOfDimensions)
+	expandedTensor = expandedTensor:expand(dimensionSizeArrayWithHighestNumberOfDimensions)
 
 	if (tensorNumberWithLowestNumberOfDimensions == 1) then
 
@@ -444,9 +444,7 @@ end
 
 function AqwamTensorLibrary:broadcast(tensor1, tensor2)
 	
-	local tensor1Value, tensor2Value = broadcast(tensor1.tensor, tensor2.tensor, true)
-	
-	return self.new(tensor1Value),  self.new(tensor2Value)
+	return broadcast(tensor1, tensor2, true)
 	
 end
 
@@ -588,10 +586,6 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 		if (isFirstValueATensor) and (isSecondValueATensor) then
 			
-			print(tensor)
-			
-			print(otherTensor)
-
 			tensor, otherTensor = broadcast(tensor, otherTensor, false)
 
 			local dimensionSizeArray = getDimensionSizeArray(tensor)
@@ -600,17 +594,13 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 		elseif (not isFirstValueATensor) and (isSecondValueATensor) then
 
-			local dimensionSizeArray = {}
-
-			getDimensionSizeArray(otherTensor, dimensionSizeArray)
+			local dimensionSizeArray = getDimensionSizeArray(otherTensor)
 
 			tensor = applyFunctionWhenTheFirstValueIsAScalar(functionToApply, tensor, otherTensor, dimensionSizeArray)
 
 		elseif (isFirstValueATensor) and (not isSecondValueATensor) then
 
-			local dimensionSizeArray = {}
-
-			getDimensionSizeArray(tensor, dimensionSizeArray)
+			local dimensionSizeArray = getDimensionSizeArray(tensor)
 
 			tensor = applyFunctionWhenTheSecondValueIsAScalar(functionToApply, tensor, otherTensor, dimensionSizeArray)
 
