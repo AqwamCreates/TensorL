@@ -2741,4 +2741,12 @@ function AqwamTensorLibrary:squeeze(dimension)
 
 end
 
+function AqwamTensorLibrary:destroy()
+
+	self.tensor = nil
+	
+	setmetatable(self, nil)
+	
+end
+
 return AqwamTensorLibrary
