@@ -44,15 +44,21 @@ local function checkIfItHasSameDimensionSizeArray(dimensionSizeArray, targetDime
 
 end
 
-local function checkIfDimensionIsOutOfBounds(dimension, minimumNumberOfDimensions, maximumNumberOfDimensions)
+local function checkIfValueIsOutOfBounds(value, minimumValue, maximumValue)
+	
+	return (value < minimumValue) or (value > maximumValue)
+	
+end
 
-	if (dimension < minimumNumberOfDimensions) or  (dimension > maximumNumberOfDimensions) then error("The dimension is out of bounds.") end
+local function throwErrorIfDimensionIsOutOfBounds(dimension, minimumNumberOfDimensions, maximumNumberOfDimensions)
+
+	if checkIfValueIsOutOfBounds(dimension, minimumNumberOfDimensions, maximumNumberOfDimensions) then error("The dimension is out of bounds.") end
 
 end
 
-local function checkIfDimensionSizeIndexIsOutOfBounds(dimensionSizeIndex, minimumDimensionSizeIndex, maximumDimensionSizeIndex)
+local function throwErrorIfDimensionSizeIndexIsOutOfBounds(dimensionSizeIndex, minimumDimensionSizeIndex, maximumDimensionSizeIndex)
 
-	if (dimensionSizeIndex < minimumDimensionSizeIndex) or (dimensionSizeIndex > maximumDimensionSizeIndex) then error("The dimension size index is out of bounds.") end
+	if checkIfValueIsOutOfBounds(dimensionSizeIndex, minimumDimensionSizeIndex, maximumDimensionSizeIndex) then error("The dimension size index is out of bounds.") end
 
 end
 
@@ -2430,7 +2436,7 @@ function AqwamTensorLibrary:sum(tensor, dimension)
 
 	if (dimension == 0) then return sumFromAllDimensions(tensor, dimensionSizeArray) end
 
-	checkIfDimensionIsOutOfBounds(dimension, 1, numberOfDimensions)
+	throwErrorIfDimensionIsOutOfBounds(dimension, 1, numberOfDimensions)
 
 	local sumTensor = sumAlongOneDimension(tensor, dimensionSizeArray, dimension, 1)
 
@@ -3253,7 +3259,7 @@ local function setValue(tensor, dimensionSizeArray, value, dimensionIndexArray)
 
 	elseif (numberOfDimensions >= 2) then
 
-		checkIfDimensionSizeIndexIsOutOfBounds(dimensionIndex, 1, dimensionSizeArray[1])
+		throwErrorIfDimensionSizeIndexIsOutOfBounds(dimensionIndex, 1, dimensionSizeArray[1])
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -3295,7 +3301,7 @@ local function getValue(tensor, dimensionSizeArray, dimensionIndexArray)
 
 	elseif (numberOfDimensions >= 2) then
 
-		checkIfDimensionSizeIndexIsOutOfBounds(dimensionIndex, 1, dimensionSizeArray[1])
+		throwErrorIfDimensionSizeIndexIsOutOfBounds(dimensionIndex, 1, dimensionSizeArray[1])
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 		
