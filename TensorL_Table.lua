@@ -566,7 +566,7 @@ function AqwamTensorLibrary:generateTensorString(tensor)
 
 end
 
-local function generateTensorStringWithComma(tensor, dimensionSizeArray, textSpacingArray, dimensionDepth)
+local function generateTensorWithCommaString(tensor, dimensionSizeArray, textSpacingArray, dimensionDepth)
 
 	local numberOfDimensions = #dimensionSizeArray
 
@@ -588,7 +588,7 @@ local function generateTensorStringWithComma(tensor, dimensionSizeArray, textSpa
 
 			if (i > 1) then text = text .. spacing end
 
-			text = text .. generateTensorStringWithComma(tensor[i], remainingDimensionSizeArray, textSpacingArray, dimensionDepth + 1)
+			text = text .. generateTensorWithCommaString(tensor[i], remainingDimensionSizeArray, textSpacingArray, dimensionDepth + 1)
 
 			if (i == tensorLength) then continue end
 
@@ -720,7 +720,7 @@ end
 
 function AqwamTensorLibrary:printTensorWithComma(tensor)
 
-	print("\n\n" .. AqwamTensorLibrary:generateTensorStringWithComma(tensor) .. "\n\n")
+	print("\n\n" .. AqwamTensorLibrary:generateTensorWithCommaString(tensor) .. "\n\n")
 
 end
 
