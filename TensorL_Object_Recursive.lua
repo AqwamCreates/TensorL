@@ -2414,7 +2414,7 @@ end
 
 function AqwamTensorLibrary:printTensorWithComma()
 
-	print("\n\n" .. self:generateTensorStringWithComma() .. "\n\n")
+	print("\n\n" .. self:generateTensorWithCommaString() .. "\n\n")
 
 end
 
