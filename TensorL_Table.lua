@@ -628,13 +628,13 @@ local function generateTensorWithCommaString(tensor, dimensionSizeArray, textSpa
 
 end
 
-function AqwamTensorLibrary:generateTensorStringWithComma(tensor)
+function AqwamTensorLibrary:generateTensorWithCommaString(tensor)
 
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local textSpacingArray = AqwamTensorLibrary:get2DTensorTextSpacing(tensor)
 
-	return generateTensorString(tensor, dimensionSizeArray, textSpacingArray, 1)
+	return generateTensorWithCommaString(tensor, dimensionSizeArray, textSpacingArray, 1)
 
 end
 
