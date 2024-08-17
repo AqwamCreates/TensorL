@@ -2712,7 +2712,7 @@ local function flattenAlongSpecifiedDimensions(tensor, dimensionSizeArray, start
 
 	local newDimensionSizeArray = {}
 
-	for currentDimension = numberOfDimensions, 1, -1 do
+	for currentDimension = 1, numberOfDimensions, 1 do
 
 		local currentDimensionSize = dimensionSizeArray[currentDimension]
 
