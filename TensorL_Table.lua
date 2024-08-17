@@ -2720,15 +2720,15 @@ local function flattenAlongSpecifiedDimensions(tensor, dimensionSizeArray, start
 
 			flattenedDimensionSize = flattenedDimensionSize * currentDimensionSize
 
-		elseif (currentDimension == startDimension) then
+		elseif (currentDimension == endDimension) then
 
 			flattenedDimensionSize = flattenedDimensionSize * currentDimensionSize
 
-			table.insert(newDimensionSizeArray, 1, flattenedDimensionSize)
+			table.insert(newDimensionSizeArray, flattenedDimensionSize)
 
 		else
 
-			table.insert(newDimensionSizeArray, 1, currentDimensionSize)
+			table.insert(newDimensionSizeArray, currentDimensionSize)
 
 		end
 
