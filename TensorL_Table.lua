@@ -2720,8 +2720,6 @@ local function flattenAlongSpecifiedDimensions(tensor, dimensionSizeArray, start
 		
 	end
 	
-	print(newDimensionSizeArray)
-	
 	return AqwamTensorLibrary:reshape(tensor, newDimensionSizeArray)
 
 end
