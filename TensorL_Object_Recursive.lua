@@ -2458,31 +2458,17 @@ end
 
 local function flattenAlongSpecifiedDimensions(tensor, dimensionSizeArray, startDimension, endDimension)
 
-	local numberOfDimensions = #dimensionSizeArray
-
 	local flattenedDimensionSize = 1
 
 	local newDimensionSizeArray = {}
 
-	for currentDimension = numberOfDimensions, 1, -1 do
+	for dimension, size in ipairs(dimensionSizeArray) do
 
-		local currentDimensionSize = dimensionSizeArray[currentDimension]
+		if (dimension >= startDimension) and (dimension <= endDimension) then flattenedDimensionSize = flattenedDimensionSize * size end
 
-		if (currentDimension > startDimension) and (currentDimension <= endDimension) then 
+		if (dimension == endDimension) then table.insert(newDimensionSizeArray, flattenedDimensionSize) end
 
-			flattenedDimensionSize = flattenedDimensionSize * currentDimensionSize
-
-		elseif (currentDimension == startDimension) then
-
-			flattenedDimensionSize = flattenedDimensionSize * currentDimensionSize
-
-			table.insert(newDimensionSizeArray, 1, flattenedDimensionSize)
-
-		else
-
-			table.insert(newDimensionSizeArray, 1, currentDimensionSize)
-
-		end
+		if (dimension < startDimension) or (dimension > endDimension) then table.insert(newDimensionSizeArray, size) end
 
 	end
 
@@ -2494,25 +2480,23 @@ function AqwamTensorLibrary:flatten(dimensionArray)
 
 	local dimensionSizeArray = self:getDimensionSizeArray()
 
-	local flattenedTensor
-
 	if (not dimensionArray) then
 
-		flattenedTensor = {}
+		local flattenedTensor = {}
 
 		flattenIntoASingleDimension(self, dimensionSizeArray, flattenedTensor)
+		
+		return AqwamTensorLibrary.new(flattenedTensor)
 
 	else
 
 		local startDimension = dimensionArray[1] or 1
 
-		local endDimension = dimensionArray[1] or math.huge
+		local endDimension = dimensionArray[2] or math.huge
 
-		flattenedTensor = flattenAlongSpecifiedDimensions(self, dimensionSizeArray, startDimension, endDimension)
+		return flattenAlongSpecifiedDimensions(self, dimensionSizeArray, startDimension, endDimension)
 
 	end
-
-	return AqwamTensorLibrary.new(flattenedTensor)
 
 end
 
