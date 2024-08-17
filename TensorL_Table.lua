@@ -2706,34 +2706,22 @@ end
 
 local function flattenAlongSpecifiedDimensions(tensor, dimensionSizeArray, startDimension, endDimension)
 
-	local numberOfDimensions = #dimensionSizeArray
-
 	local flattenedDimensionSize = 1
 
 	local newDimensionSizeArray = {}
+	
+	for dimension, size in ipairs(dimensionSizeArray) do
 
-	for currentDimension = 1, numberOfDimensions, 1 do
+		if (dimension >= startDimension) and (dimension <= endDimension) then flattenedDimensionSize = flattenedDimensionSize * size end
 
-		local currentDimensionSize = dimensionSizeArray[currentDimension]
+		if (dimension == endDimension) then table.insert(newDimensionSizeArray, flattenedDimensionSize) end
 
-		if (currentDimension >= startDimension) and (currentDimension < endDimension) then 
-
-			flattenedDimensionSize = flattenedDimensionSize * currentDimensionSize
-
-		elseif (currentDimension == endDimension) then
-
-			flattenedDimensionSize = flattenedDimensionSize * currentDimensionSize
-
-			table.insert(newDimensionSizeArray, flattenedDimensionSize)
-
-		else
-
-			table.insert(newDimensionSizeArray, currentDimensionSize)
-
-		end
-
+		if (dimension < startDimension) or (dimension > endDimension) then table.insert(newDimensionSizeArray, size) end
+		
 	end
-
+	
+	print(newDimensionSizeArray)
+	
 	return AqwamTensorLibrary:reshape(tensor, newDimensionSizeArray)
 
 end
@@ -2754,7 +2742,7 @@ function AqwamTensorLibrary:flatten(tensor, dimensionArray)
 
 		local startDimension = dimensionArray[1] or 1
 
-		local endDimension = dimensionArray[1] or math.huge
+		local endDimension = dimensionArray[2] or math.huge
 
 		flattenedTensor = flattenAlongSpecifiedDimensions(tensor, dimensionSizeArray, startDimension, endDimension)
 
