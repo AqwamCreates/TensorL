@@ -2723,8 +2723,6 @@ function AqwamTensorLibrary:flatten(tensor, dimensionArray)
 	if (endDimension == math.huge) then endDimension = numberOfDimensions end
 	
 	local newDimensionSizeArray = flattenAlongSpecifiedDimensions(dimensionSizeArray, startDimension, endDimension)
-	
-	print(newDimensionSizeArray)
 
 	return AqwamTensorLibrary:reshape(tensor, newDimensionSizeArray)
 
