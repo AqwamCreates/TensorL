@@ -2821,17 +2821,17 @@ function AqwamTensorLibrary:inefficientReshape(tensor, dimensionSizeArray) -- Th
 
 	local resultTensor
 
-	if (numberOfDimensions == 1) then
-
-		resultTensor = reshapeFromFlattenedTensor(tensor, dimensionSizeArray, 1)
-
-	else
+	if (numberOfDimensions ~= 1) then
 
 		resultTensor = AqwamTensorLibrary:createTensor(dimensionSizeArray, true)
 
 		local currentTargetDimensionIndexArray = table.create(#dimensionSizeArray, 1)
 
 		reshape(tensor, tensorDimensionSizeArray, resultTensor, dimensionSizeArray, currentTargetDimensionIndexArray)
+
+	else
+		
+		resultTensor = reshapeFromFlattenedTensor(tensor, dimensionSizeArray, 1)
 
 	end
 
