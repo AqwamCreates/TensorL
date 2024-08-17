@@ -2619,9 +2619,19 @@ function AqwamTensorLibrary:reshape(dimensionSizeArray) -- This one requires low
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
-	local flattenedTensor = {}
+	local flattenedTensor
 
-	flattenTensor(self, tensorDimensionSizeArray, flattenedTensor)
+	if (numberOfDimensions ~= 1) then
+
+		flattenedTensor = {}
+
+		flattenTensor(self, tensorDimensionSizeArray, flattenedTensor)
+
+	else
+
+		flattenedTensor = self
+
+	end
 
 	local resultTensor = reshapeFromFlattenedTensor(flattenedTensor, dimensionSizeArray, 1)
 
