@@ -996,19 +996,19 @@ function AqwamTensorLibrary:increaseNumberOfDimensions(tensor, dimensionSizeToAd
 
 end
 
-local function createTensor(dimensionSizeArray, initialValue) -- Don't put dimension size array truncation here. It is needed for several operations like dot product. 
-
+local function createTensor(dimensionSizeArray, numberOfDimensions, currentDimension, initialValue) -- Don't put dimension size array truncation here. It is needed for several operations like dot product. 
+	
+	local dimensionSize = dimensionSizeArray[currentDimension]
+	
 	local tensor = {}
 
-	if (#dimensionSizeArray >= 2) then
+	if (currentDimension < numberOfDimensions) then
 
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = createTensor(remainingDimensionSizeArray, initialValue) end
+		for i = 1, dimensionSize, 1 do tensor[i] = createTensor(dimensionSizeArray, numberOfDimensions, currentDimension + 1, initialValue) end
 
 	else
 
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = initialValue end
+		for i = 1, dimensionSize, 1 do tensor[i] = initialValue end
 
 	end
 
@@ -1020,7 +1020,7 @@ function AqwamTensorLibrary:createTensor(dimensionSizeArray, initialValue)
 
 	initialValue = initialValue or 0
 
-	return createTensor(dimensionSizeArray, initialValue)
+	return createTensor(dimensionSizeArray, #dimensionSizeArray, 1, initialValue)
 
 end
 
@@ -2238,7 +2238,7 @@ local function subTensorSumAlongFirstDimension(tensor, dimensionSizeArray)
 
 	sumDimensionalSizeArray[1] = 1
 
-	local sumTensor = createTensor(sumDimensionalSizeArray, 0)
+	local sumTensor = createTensor(sumDimensionalSizeArray, #dimensionSizeArray, 1, 0)
 
 	recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArray, #dimensionSizeArray, 1, sumTensor, {})
 
