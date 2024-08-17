@@ -2865,9 +2865,11 @@ function AqwamTensorLibrary:reshape(tensor, dimensionSizeArray) -- This one requ
 
 	if (totalNumberOfValue ~= totalNumberOfValuesRequired) then error("The number of values of the tensor does not equal to total number of values of the reshaped tensor.") end
 	
+	local numberOfDimensions = #tensorDimensionSizeArray
+	
 	local flattenedTensor
 	
-	if (#tensorDimensionSizeArray ~= 1) then
+	if (numberOfDimensions ~= 1) then
 		
 		flattenedTensor = {}
 
