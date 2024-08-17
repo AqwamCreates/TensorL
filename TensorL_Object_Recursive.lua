@@ -2440,7 +2440,7 @@ local function getTotalSizeFromDimensionSizeArray(dimensionSizeArray)
 
 end
 
-local function flattenAlongSpecifiedDimensions(tensor, dimensionSizeArray, startDimension, endDimension)
+local function flattenAlongSpecifiedDimensions(dimensionSizeArray, startDimension, endDimension)
 	
 	local newDimensionSizeArray = {}
 
@@ -2456,31 +2456,27 @@ local function flattenAlongSpecifiedDimensions(tensor, dimensionSizeArray, start
 
 	end
 
-	return tensor:reshape(newDimensionSizeArray)
+	return newDimensionSizeArray
 
 end
 
 function AqwamTensorLibrary:flatten(dimensionArray)
 
+	dimensionArray = dimensionArray or {}
+
 	local dimensionSizeArray = self:getDimensionSizeArray()
 
-	if (not dimensionArray) then
+	local numberOfDimensions = #dimensionSizeArray
 
-		local flattenedTensor = {}
+	local startDimension = dimensionArray[1] or 1
 
-		flattenIntoASingleDimension(self, dimensionSizeArray, flattenedTensor)
-		
-		return AqwamTensorLibrary.new(flattenedTensor)
+	local endDimension = dimensionArray[2] or numberOfDimensions
 
-	else
+	if (endDimension == math.huge) then endDimension = numberOfDimensions end
 
-		local startDimension = dimensionArray[1] or 1
-
-		local endDimension = dimensionArray[2] or math.huge
-
-		return flattenAlongSpecifiedDimensions(self, dimensionSizeArray, startDimension, endDimension)
-
-	end
+	local newDimensionSizeArray = flattenAlongSpecifiedDimensions(dimensionSizeArray, startDimension, endDimension)
+	
+	return self:reshape(newDimensionSizeArray)
 
 end
 
