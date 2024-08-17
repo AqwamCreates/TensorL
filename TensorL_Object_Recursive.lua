@@ -2440,22 +2440,6 @@ local function getTotalSizeFromDimensionSizeArray(dimensionSizeArray)
 
 end
 
-local function flattenIntoASingleDimension(tensor, dimensionSizeArray, targetTensor)
-
-	if (#dimensionSizeArray >= 2) then
-
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		for i = 1, dimensionSizeArray[1], 1 do flattenIntoASingleDimension(tensor[i], remainingDimensionSizeArray, targetTensor) end
-
-	else
-
-		for _, value in ipairs(tensor) do table.insert(targetTensor, value) end
-
-	end
-
-end
-
 local function flattenAlongSpecifiedDimensions(tensor, dimensionSizeArray, startDimension, endDimension)
 	
 	local newDimensionSizeArray = {}
@@ -2611,6 +2595,22 @@ function AqwamTensorLibrary:inefficientReshape(dimensionSizeArray) -- This one r
 
 end
 
+local function flattenTensor(tensor, dimensionSizeArray, targetTensor)
+
+	if (#dimensionSizeArray >= 2) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do flattenTensor(tensor[i], remainingDimensionSizeArray, targetTensor) end
+
+	else
+
+		for _, value in ipairs(tensor) do table.insert(targetTensor, value) end
+
+	end
+
+end
+
 function AqwamTensorLibrary:reshape(dimensionSizeArray) -- This one requires lower space complexity as it only need to flatten the tensor. Then only need a single target dimension index array that will be used by all values from the original tebsor.
 
 	local tensorDimensionSizeArray = self:getDimensionSizeArray()
@@ -2623,11 +2623,11 @@ function AqwamTensorLibrary:reshape(dimensionSizeArray) -- This one requires low
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
-	local resultTensor
+	local flattenedTensor = {}
 
-	if (numberOfDimensions >= 2) then resultTensor = self:flatten() end
+	flattenTensor(self, tensorDimensionSizeArray, flattenedTensor)
 
-	resultTensor = reshapeFromFlattenedTensor(resultTensor, dimensionSizeArray, 1)
+	local resultTensor = reshapeFromFlattenedTensor(flattenedTensor, dimensionSizeArray, 1)
 
 	return AqwamTensorLibrary.new(resultTensor)
 
