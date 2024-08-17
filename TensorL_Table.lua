@@ -460,17 +460,17 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 end
 
-local function get2DTensorTextSpacing(tensor, dimensionSizeArray, textSpacingArray) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
+local function get2DTensorTextSpacing(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, textSpacingArray) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
+	
+	local dimensionSize = dimensionSizeArray[currentDimension]
+	
+	if (currentDimension < numberOfDimensions) then
 
-	if (#dimensionSizeArray > 1) then
-
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		for i = 1, dimensionSizeArray[1], 1 do textSpacingArray = get2DTensorTextSpacing(tensor[i], remainingDimensionSizeArray, textSpacingArray) end
+		for i = 1, dimensionSize, 1 do textSpacingArray = get2DTensorTextSpacing(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, textSpacingArray) end
 
 	else
 
-		for i = 1, dimensionSizeArray[1], 1 do textSpacingArray[i] = math.max(textSpacingArray[i], string.len(tostring(tensor[i]))) end
+		for i = 1, dimensionSize, 1 do textSpacingArray[i] = math.max(textSpacingArray[i], string.len(tostring(tensor[i]))) end
 
 	end
 
@@ -488,7 +488,7 @@ function AqwamTensorLibrary:get2DTensorTextSpacing(tensor)
 
 	local textSpacingArray = table.create(sizeAtFinalDimension, 0)
 
-	return get2DTensorTextSpacing(tensor, dimensionSizeArray, textSpacingArray)
+	return get2DTensorTextSpacing(tensor, dimensionSizeArray, #dimensionSizeArray, 1, textSpacingArray)
 
 end
 
