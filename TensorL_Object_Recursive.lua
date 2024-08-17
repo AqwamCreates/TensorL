@@ -2547,25 +2547,25 @@ local function reshapeFromFlattenedTensor(tensor, dimensionSizeArray, dimensionI
 
 end
 
-local function incrementFinalDimensionIndex(targetDimensionSizeArray, currentTargetDimensionIndexArray)
+local function incrementFinalDimensionIndex(targetDimensionSizeArray, currentDimensionIndexArray)
 
-	local numberOfDimensions = #currentTargetDimensionIndexArray
+	local numberOfDimensions = #currentDimensionIndexArray
 
-	currentTargetDimensionIndexArray[numberOfDimensions] = currentTargetDimensionIndexArray[numberOfDimensions] + 1
+	currentDimensionIndexArray[numberOfDimensions] = currentDimensionIndexArray[numberOfDimensions] + 1
 
 	for dimension = numberOfDimensions, 1, -1 do
 
-		if ((targetDimensionSizeArray[dimension] + 1) == currentTargetDimensionIndexArray[dimension]) then
+		if ((targetDimensionSizeArray[dimension] + 1) == currentDimensionIndexArray[dimension]) then
 
-			currentTargetDimensionIndexArray[dimension] = 1
+			currentDimensionIndexArray[dimension] = 1
 
-			if (dimension >= 2) then currentTargetDimensionIndexArray[dimension - 1] = currentTargetDimensionIndexArray[dimension - 1] + 1 end
+			if (dimension >= 2) then currentDimensionIndexArray[dimension - 1] = currentDimensionIndexArray[dimension - 1] + 1 end
 
 		end	
 
 	end
 
-	return currentTargetDimensionIndexArray
+	return currentDimensionIndexArray
 
 end
 
