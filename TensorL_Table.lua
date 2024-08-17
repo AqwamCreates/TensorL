@@ -2688,23 +2688,7 @@ function AqwamTensorLibrary:findMinimumValueDimensionIndexArray(tensor)
 
 end
 
-local function flattenIntoASingleDimension(tensor, dimensionSizeArray, targetTensor)
-
-	if (#dimensionSizeArray >= 2) then
-
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		for i = 1, dimensionSizeArray[1], 1 do flattenIntoASingleDimension(tensor[i], remainingDimensionSizeArray, targetTensor) end
-
-	else
-
-		for _, value in ipairs(tensor) do table.insert(targetTensor, value) end
-
-	end
-
-end
-
-local function flattenAlongSpecifiedDimensions(tensor, dimensionSizeArray, startDimension, endDimension)
+local function flattenAlongSpecifiedDimensions(dimensionSizeArray, startDimension, endDimension)
 	
 	local newDimensionSizeArray = {}
 
@@ -2720,33 +2704,29 @@ local function flattenAlongSpecifiedDimensions(tensor, dimensionSizeArray, start
 		
 	end
 	
-	return AqwamTensorLibrary:reshape(tensor, newDimensionSizeArray)
+	return newDimensionSizeArray
 
 end
 
 function AqwamTensorLibrary:flatten(tensor, dimensionArray)
+	
+	dimensionArray = dimensionArray or {}
 
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	
+	local numberOfDimensions = #dimensionSizeArray
+	
+	local startDimension = dimensionArray[1] or 1
 
-	local flattenedTensor
+	local endDimension = dimensionArray[2] or numberOfDimensions
+	
+	if (endDimension == math.huge) then endDimension = numberOfDimensions end
+	
+	local newDimensionSizeArray = flattenAlongSpecifiedDimensions(dimensionSizeArray, startDimension, endDimension)
+	
+	print(newDimensionSizeArray)
 
-	if (not dimensionArray) then
-
-		flattenedTensor = {}
-
-		flattenIntoASingleDimension(tensor, dimensionSizeArray, flattenedTensor)
-
-	else
-
-		local startDimension = dimensionArray[1] or 1
-
-		local endDimension = dimensionArray[2] or math.huge
-
-		flattenedTensor = flattenAlongSpecifiedDimensions(tensor, dimensionSizeArray, startDimension, endDimension)
-
-	end
-
-	return flattenedTensor
+	return AqwamTensorLibrary:reshape(tensor, newDimensionSizeArray)
 
 end
 
@@ -2861,6 +2841,22 @@ function AqwamTensorLibrary:inefficientReshape(tensor, dimensionSizeArray) -- Th
 
 end
 
+local function flattenTensor(tensor, dimensionSizeArray, targetTensor)
+
+	if (#dimensionSizeArray >= 2) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do flattenTensor(tensor[i], remainingDimensionSizeArray, targetTensor) end
+
+	else
+
+		for _, value in ipairs(tensor) do table.insert(targetTensor, value) end
+
+	end
+
+end
+
 function AqwamTensorLibrary:reshape(tensor, dimensionSizeArray) -- This one requires lower space complexity as it only need to flatten the tensor. Then only need a single target dimension index array that will be used by all values from the original tebsor.
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
@@ -2870,12 +2866,12 @@ function AqwamTensorLibrary:reshape(tensor, dimensionSizeArray) -- This one requ
 	local totalNumberOfValuesRequired = getTotalSizeFromDimensionSizeArray(dimensionSizeArray)
 
 	if (totalNumberOfValue ~= totalNumberOfValuesRequired) then error("The number of values of the tensor does not equal to total number of values of the reshaped tensor.") end
+	
+	local flattenedTensor = {}
+	
+	flattenTensor(tensor, tensorDimensionSizeArray, flattenedTensor)
 
-	local numberOfDimensions = #tensorDimensionSizeArray
-
-	if (numberOfDimensions >= 2) then tensor = AqwamTensorLibrary:flatten(tensor) end
-
-	local resultTensor = reshapeFromFlattenedTensor(tensor, dimensionSizeArray, 1)
+	local resultTensor = reshapeFromFlattenedTensor(flattenedTensor, dimensionSizeArray, 1)
 
 	return resultTensor
 
