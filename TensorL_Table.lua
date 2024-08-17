@@ -492,31 +492,27 @@ function AqwamTensorLibrary:get2DTensorTextSpacing(tensor)
 
 end
 
-local function generateTensorString(tensor, dimensionSizeArray, textSpacingArray, dimensionDepth)
+local function generateTensorString(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, textSpacingArray)
 
-	local numberOfDimensions = #dimensionSizeArray
-
-	local tensorLength = #tensor
+	local dimensionSize = dimensionSizeArray[currentDimension]
 
 	local text = " "
 
-	if (numberOfDimensions > 1) then
+	if (currentDimension < numberOfDimensions) then
 
 		local spacing = ""
 
 		text = text .. "{"
 
-		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
+		for i = 1, currentDimension, 1 do spacing = spacing .. "  " end
 
-		local remainingDimensionSizeArray = removeLastValueFromArray(dimensionSizeArray)
-
-		for i = 1, #tensor do
+		for i = 1, dimensionSize, 1 do
 
 			if (i > 1) then text = text .. spacing end
 
-			text = text .. generateTensorString(tensor[i], remainingDimensionSizeArray, textSpacingArray, dimensionDepth + 1)
+			text = text .. generateTensorString(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, textSpacingArray)
 
-			if (i == tensorLength) then continue end
+			if (i == dimensionSize) then continue end
 
 			text = text .. "\n"
 
@@ -528,7 +524,7 @@ local function generateTensorString(tensor, dimensionSizeArray, textSpacingArray
 
 		text = text .. "{ "
 
-		for i = 1, tensorLength do
+		for i = 1, dimensionSize, 1 do
 
 			local cellValue = tensor[i]
 
@@ -540,7 +536,7 @@ local function generateTensorString(tensor, dimensionSizeArray, textSpacingArray
 
 			text = text .. string.rep(" ", padding) .. cellText
 
-			if (i == tensorLength) then continue end
+			if (i == dimensionSize) then continue end
 
 			text = text .. " "
 
@@ -560,35 +556,31 @@ function AqwamTensorLibrary:generateTensorString(tensor)
 
 	local textSpacingArray = AqwamTensorLibrary:get2DTensorTextSpacing(tensor)
 
-	return generateTensorString(tensor, dimensionSizeArray, textSpacingArray, 1)
+	return generateTensorString(tensor, dimensionSizeArray, #dimensionSizeArray, 1, textSpacingArray)
 
 end
 
-local function generateTensorWithCommaString(tensor, dimensionSizeArray, textSpacingArray, dimensionDepth)
+local function generateTensorWithCommaString(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, textSpacingArray)
 
-	local numberOfDimensions = #dimensionSizeArray
-
-	local tensorLength = #tensor
+	local dimensionSize = dimensionSizeArray[currentDimension]
 
 	local text = " "
 
-	if (numberOfDimensions > 1) then
+	if (currentDimension < numberOfDimensions) then
 
 		local spacing = ""
 
 		text = text .. "{"
 
-		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
+		for i = 1, currentDimension, 1 do spacing = spacing .. "  " end
 
-		local remainingDimensionSizeArray = removeLastValueFromArray(dimensionSizeArray)
-
-		for i = 1, #tensor do
+		for i = 1, dimensionSize, 1 do
 
 			if (i > 1) then text = text .. spacing end
 
-			text = text .. generateTensorWithCommaString(tensor[i], remainingDimensionSizeArray, textSpacingArray, dimensionDepth + 1)
+			text = text .. generateTensorWithCommaString(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, textSpacingArray)
 
-			if (i == tensorLength) then continue end
+			if (i == dimensionSize) then continue end
 
 			text = text .. "\n"
 
@@ -600,7 +592,7 @@ local function generateTensorWithCommaString(tensor, dimensionSizeArray, textSpa
 
 		text = text .. "{ "
 
-		for i = 1, tensorLength do 
+		for i = 1, dimensionSize, 1 do 
 
 			local cellValue = tensor[i]
 
@@ -612,7 +604,7 @@ local function generateTensorWithCommaString(tensor, dimensionSizeArray, textSpa
 
 			text = text .. string.rep(" ", padding) .. cellText
 
-			if (i == tensorLength) then continue end
+			if (i == dimensionSize) then continue end
 
 			text = text .. ", "
 
@@ -632,7 +624,7 @@ function AqwamTensorLibrary:generateTensorWithCommaString(tensor)
 
 	local textSpacingArray = AqwamTensorLibrary:get2DTensorTextSpacing(tensor)
 
-	return generateTensorWithCommaString(tensor, dimensionSizeArray, textSpacingArray, 1)
+	return generateTensorWithCommaString(tensor, dimensionSizeArray, #dimensionSizeArray, 1, textSpacingArray)
 
 end
 
@@ -640,7 +632,7 @@ local function generatePortableTensorString(tensor, dimensionSizeArray, textSpac
 
 	local numberOfDimensions = #dimensionSizeArray
 
-	local tensorLength = #tensor
+	local dimensionSize = #tensor
 
 	local text = " "
 
@@ -660,7 +652,7 @@ local function generatePortableTensorString(tensor, dimensionSizeArray, textSpac
 
 			text = text .. generatePortableTensorString(tensor[i], remainingDimensionSizeArray, textSpacingArray, dimensionDepth + 1)
 
-			if (i == tensorLength) then continue end
+			if (i == dimensionSize) then continue end
 
 			text = text .. "\n"
 
@@ -674,7 +666,7 @@ local function generatePortableTensorString(tensor, dimensionSizeArray, textSpac
 
 		text = text .. "{ "
 
-		for i = 1, tensorLength do 
+		for i = 1, dimensionSize, 1 do 
 
 			local cellValue = tensor[i]
 
@@ -686,7 +678,7 @@ local function generatePortableTensorString(tensor, dimensionSizeArray, textSpac
 
 			text = text .. string.rep(" ", padding) .. cellText
 
-			if (i == tensorLength) then continue end
+			if (i == dimensionSize) then continue end
 
 			text = text .. ", "
 
