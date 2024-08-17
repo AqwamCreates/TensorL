@@ -2454,8 +2454,6 @@ local function flattenIntoASingleDimension(tensor, dimensionSizeArray, targetTen
 
 	end
 
-	return tensor
-
 end
 
 local function flattenAlongSpecifiedDimensions(tensor, dimensionSizeArray, startDimension, endDimension)
