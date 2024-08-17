@@ -2716,7 +2716,7 @@ local function flattenAlongSpecifiedDimensions(tensor, dimensionSizeArray, start
 
 		local currentDimensionSize = dimensionSizeArray[currentDimension]
 
-		if (currentDimension > startDimension) and (currentDimension <= endDimension) then 
+		if (currentDimension >= startDimension) and (currentDimension < endDimension) then 
 
 			flattenedDimensionSize = flattenedDimensionSize * currentDimensionSize
 
