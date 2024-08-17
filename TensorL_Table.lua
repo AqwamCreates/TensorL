@@ -2705,10 +2705,10 @@ local function flattenIntoASingleDimension(tensor, dimensionSizeArray, targetTen
 end
 
 local function flattenAlongSpecifiedDimensions(tensor, dimensionSizeArray, startDimension, endDimension)
+	
+	local newDimensionSizeArray = {}
 
 	local flattenedDimensionSize = 1
-
-	local newDimensionSizeArray = {}
 	
 	for dimension, size in ipairs(dimensionSizeArray) do
 
