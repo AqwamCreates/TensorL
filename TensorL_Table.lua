@@ -2863,7 +2863,7 @@ function AqwamTensorLibrary:reshape(tensor, dimensionSizeArray) -- This one requ
 
 	local totalSizeRequired = getTotalSizeFromDimensionSizeArray(dimensionSizeArray)
 
-	if (totalSize ~= totalSizeRequired) then error("The number of values of the tensor does not equal to total number of values of the reshaped tensor.") end
+	if (totalSize ~= totalSizeRequired) then error("The total size of the tensor does not equal to the total size of the reshaped tensor.") end
 	
 	local numberOfDimensions = #tensorDimensionSizeArray
 	
