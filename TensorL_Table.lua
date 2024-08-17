@@ -628,29 +628,25 @@ function AqwamTensorLibrary:generateTensorWithCommaString(tensor)
 
 end
 
-local function generatePortableTensorString(tensor, dimensionSizeArray, textSpacingArray, dimensionDepth)
+local function generatePortableTensorString(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, textSpacingArray)
 
-	local numberOfDimensions = #dimensionSizeArray
-
-	local dimensionSize = #tensor
+	local dimensionSize = dimensionSizeArray[currentDimension]
 
 	local text = " "
 
-	if (numberOfDimensions > 1) then
+	if (currentDimension < numberOfDimensions) then
 
 		local spacing = ""
 
 		text = text .. "{"
 
-		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
-
-		local remainingDimensionSizeArray = removeLastValueFromArray(dimensionSizeArray)
+		for i = 1, currentDimension, 1 do spacing = spacing .. "  " end
 
 		for i = 1, #tensor do
 
 			if (i > 1) then text = text .. spacing end
 
-			text = text .. generatePortableTensorString(tensor[i], remainingDimensionSizeArray, textSpacingArray, dimensionDepth + 1)
+			text = text .. generatePortableTensorString(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, textSpacingArray)
 
 			if (i == dimensionSize) then continue end
 
@@ -660,7 +656,7 @@ local function generatePortableTensorString(tensor, dimensionSizeArray, textSpac
 
 		text = text .. " }"
 
-		if (dimensionDepth > 1) then text = text .. "," end
+		if (currentDimension > 1) then text = text .. "," end
 
 	else
 
@@ -698,7 +694,7 @@ function AqwamTensorLibrary:generatePortableTensorString(tensor)
 
 	local textSpacingArray = AqwamTensorLibrary:get2DTensorTextSpacing(tensor)
 
-	return generatePortableTensorString(tensor, dimensionSizeArray, textSpacingArray, 1)
+	return generatePortableTensorString(tensor, dimensionSizeArray, #dimensionSizeArray, 1, textSpacingArray)
 
 end
 
