@@ -50,9 +50,9 @@ local function checkIfValueIsOutOfBounds(value, minimumValue, maximumValue)
 
 end
 
-local function throwErrorIfDimensionSizeIndexIsOutOfBounds(dimensionSizeIndex, minimumDimensionSizeIndex, maximumDimensionSizeIndex)
+local function throwErrorIfDimensionIndexIsOutOfBounds(dimensionSizeIndex, minimumDimensionSizeIndex, maximumDimensionSizeIndex)
 
-	if checkIfValueIsOutOfBounds(dimensionSizeIndex, minimumDimensionSizeIndex, maximumDimensionSizeIndex) then error("The dimension size index is out of bounds.") end
+	if checkIfValueIsOutOfBounds(dimensionSizeIndex, minimumDimensionSizeIndex, maximumDimensionSizeIndex) then error("The dimension index is out of bounds.") end
 
 end
 
@@ -576,7 +576,7 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 		else
 
-			return functionToApply(tensor, dimensionSizeArray)
+			return functionToApply(tensor)
 
 		end
 
@@ -636,7 +636,7 @@ local function setValue(tensor, dimensionSizeArray, value, dimensionIndexArray)
 
 	elseif (numberOfDimensions >= 2) then
 
-		throwErrorIfDimensionSizeIndexIsOutOfBounds(dimensionIndex, 1, dimensionSizeArray[1])
+		throwErrorIfDimensionIndexIsOutOfBounds(dimensionIndex, 1, dimensionSizeArray[1])
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -670,7 +670,7 @@ local function getValue(tensor, dimensionSizeArray, dimensionIndexArray)
 
 	elseif (numberOfDimensions >= 2) then
 
-		throwErrorIfDimensionSizeIndexIsOutOfBounds(dimensionIndex, 1, dimensionSizeArray[1])
+		throwErrorIfDimensionIndexIsOutOfBounds(dimensionIndex, 1, dimensionSizeArray[1])
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
