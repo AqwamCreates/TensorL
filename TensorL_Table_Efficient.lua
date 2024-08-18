@@ -898,23 +898,17 @@ function AqwamTensorLibrary:inefficientExpand(tensor, targetDimensionSizeArray)
 
 end
 
-local function expand(tensor, dimensionSizeArray, targetDimensionSizeArray)
+local function expand(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, targetDimensionSizeArray)
 
 	-- Does not do the same thing with inefficient expand function. This one expand at the lowest dimension first and then the parent dimension will make copy of this.
 
 	local resultTensor
 
-	local numberOfDimensions = #dimensionSizeArray
-
-	if (numberOfDimensions >= 2) then
+	if (currentDimension < numberOfDimensions) then
 
 		resultTensor = {}
 
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		local remainingTargetDimensionSizeArray = removeFirstValueFromArray(targetDimensionSizeArray)
-
-		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = expand(tensor[i], remainingDimensionSizeArray, remainingTargetDimensionSizeArray) end
+		for i = 1, dimensionSizeArray[currentDimension], 1 do resultTensor[i] = expand(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetDimensionSizeArray) end
 
 	else
 
@@ -923,7 +917,7 @@ local function expand(tensor, dimensionSizeArray, targetDimensionSizeArray)
 	end
 
 	local updatedDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(resultTensor) -- Need to call this again because we may have modified the tensor below it, thus changing the dimension size array.
-
+	
 	local dimensionSize = updatedDimensionSizeArray[1]
 
 	local targetDimensionSize = targetDimensionSizeArray[1]
@@ -932,7 +926,7 @@ local function expand(tensor, dimensionSizeArray, targetDimensionSizeArray)
 
 	local canDimensionBeExpanded = (dimensionSize == 1)
 
-	if (numberOfDimensions >= 1) and (not hasSameDimensionSize) and (canDimensionBeExpanded) then 
+	if (currentDimension <= numberOfDimensions) and (not hasSameDimensionSize) and (canDimensionBeExpanded) then 
 
 		local subTensor = resultTensor[1]
 
@@ -954,7 +948,7 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 
 	if checkIfItHasSameDimensionSizeArray(dimensionSizeArray, targetDimensionSizeArray) then return deepCopyTable(tensor) end -- Do not remove this code even if the code below is related or function similar to this code. You will spend so much time fixing it if you forget that you have removed it.
 
-	return expand(tensor, dimensionSizeArray, targetDimensionSizeArray)
+	return expand(tensor, dimensionSizeArray, #dimensionSizeArray, 1, targetDimensionSizeArray)
 
 end
 
