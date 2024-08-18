@@ -2160,7 +2160,7 @@ local function subTensorSumAlongFirstDimension(tensor, dimensionSizeArray)
 
 end
 
-local function sumAlongOneDimension(tensor, dimensionSizeArray, targetDimension, currentDimension)
+local function sumAlongOneDimension(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, targetDimension)
 
 	local resultTensor = {}
 
@@ -2170,9 +2170,7 @@ local function sumAlongOneDimension(tensor, dimensionSizeArray, targetDimension,
 
 	else
 
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = sumAlongOneDimension(tensor[i], remainingDimensionSizeArray, targetDimension, currentDimension + 1) end
+		for i = 1, dimensionSizeArray[currentDimension], 1 do resultTensor[i] = sumAlongOneDimension(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetDimension) end
 
 	end
 
@@ -2342,7 +2340,7 @@ function AqwamTensorLibrary:sum(tensor, dimension)
 
 	throwErrorIfDimensionIsOutOfBounds(dimension, 1, numberOfDimensions)
 
-	local sumTensor = sumAlongOneDimension(tensor, dimensionSizeArray, dimension, 1)
+	local sumTensor = sumAlongOneDimension(tensor, dimensionSizeArray, #dimensionSizeArray, 1, dimension)
 
 	return sumTensor
 
