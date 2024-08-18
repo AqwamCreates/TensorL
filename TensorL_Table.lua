@@ -72,16 +72,6 @@ local function removeFirstValueFromArray(array)
 
 end
 
-local function removeLastValueFromArray(array)
-
-	local newArray = table.clone(array)
-
-	table.remove(newArray, #newArray)
-
-	return newArray
-
-end
-
 local function deepCopyTable(original, copies)
 
 	copies = copies or {}
@@ -308,7 +298,7 @@ local function applyFunctionUsingOneTensor(functionToApply, tensor, dimensionSiz
 
 	if (numberOfDimensions >= 2) then
 
-		local remainingDimensionSizeArray = removeLastValueFromArray(dimensionSizeArray)
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
 		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = applyFunctionUsingOneTensor(functionToApply, tensor[i], remainingDimensionSizeArray) end
 
@@ -516,7 +506,7 @@ local function generateTensorString(tensor, dimensionSizeArray, textSpacingArray
 
 		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
 
-		local remainingDimensionSizeArray = removeLastValueFromArray(dimensionSizeArray)
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
 		for i = 1, #tensor do
 
@@ -588,7 +578,7 @@ local function generateTensorWithCommaString(tensor, dimensionSizeArray, textSpa
 
 		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
 
-		local remainingDimensionSizeArray = removeLastValueFromArray(dimensionSizeArray)
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
 		for i = 1, #tensor do
 
@@ -660,7 +650,7 @@ local function generatePortableTensorString(tensor, dimensionSizeArray, textSpac
 
 		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
 
-		local remainingDimensionSizeArray = removeLastValueFromArray(dimensionSizeArray)
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
 		for i = 1, #tensor do
 
