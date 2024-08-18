@@ -2845,7 +2845,7 @@ local function findMaximumValueDimensionIndexArray(tensor, dimensionSizeArray, d
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		for i = 1, dimensionSizeArray[1] do 
+		for i = 1, dimensionSizeArray[1], 1 do 
 
 			local copiedDimensionIndexArray = table.clone(dimensionIndexArray)
 
@@ -2911,7 +2911,7 @@ local function findMinimumValueDimensionIndexArray(tensor, dimensionSizeArray, d
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		for i = 1, dimensionSizeArray[1] do 
+		for i = 1, dimensionSizeArray[1], 1 do 
 
 			local copiedDimensionIndexArray = table.clone(dimensionIndexArray)
 
