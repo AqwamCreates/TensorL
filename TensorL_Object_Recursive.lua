@@ -72,16 +72,6 @@ local function removeFirstValueFromArray(array)
 
 end
 
-local function removeLastValueFromArray(array)
-
-	local newArray = table.clone(array)
-
-	table.remove(newArray, #newArray)
-
-	return newArray
-
-end
-
 local function createTensor(dimensionSizeArray, initialValue) -- Don't put dimension size array truncation here. It is needed for several operations like dot product. 
 
 	local tensor = {}
@@ -462,7 +452,7 @@ local function applyFunctionUsingOneTensor(functionToApply, tensor, dimensionSiz
 
 	if (numberOfDimensions >= 2) then
 
-		local remainingDimensionSizeArray = removeLastValueFromArray(dimensionSizeArray)
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
 		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = applyFunctionUsingOneTensor(functionToApply, tensor[i], remainingDimensionSizeArray) end
 
