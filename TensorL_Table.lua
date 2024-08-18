@@ -2410,7 +2410,7 @@ function AqwamTensorLibrary:zScoreNormalization(tensor, dimension)
 
 	local normalizedTensor = AqwamTensorLibrary:divide(subtractedTensor, standardDeviationTensor)
 
-	return normalizedTensor, meanTensor, standardDeviationTensor
+	return normalizedTensor, standardDeviationTensor, meanTensor
 
 end
 
