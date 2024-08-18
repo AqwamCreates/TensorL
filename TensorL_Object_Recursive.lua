@@ -2200,7 +2200,7 @@ local function generateTensorString(tensor, dimensionSizeArray, textSpacingArray
 
 		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
 
-		local remainingDimensionSizeArray = removeLastValueFromArray(dimensionSizeArray)
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
 		for i = 1, dimensionSize, 1 do
 
@@ -2272,7 +2272,7 @@ local function generateTensorWithCommaString(tensor, dimensionSizeArray, textSpa
 
 		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
 
-		local remainingDimensionSizeArray = removeLastValueFromArray(dimensionSizeArray)
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
 		for i = 1, dimensionSize, 1 do
 
@@ -2344,7 +2344,7 @@ local function generatePortableTensorString(tensor, dimensionSizeArray, textSpac
 
 		for i = 1, dimensionDepth, 1 do spacing = spacing .. "  " end
 
-		local remainingDimensionSizeArray = removeLastValueFromArray(dimensionSizeArray)
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
 		for i = 1, dimensionSize do
 
