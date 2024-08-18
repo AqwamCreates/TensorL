@@ -3047,29 +3047,29 @@ function AqwamTensorLibrary:isLessOrEqualTo(tensor1, tensor2)
 
 end
 
-local function applyFunction(functionToApply, dimensionSizeArray, ...)
+local function applyFunction(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension, ...)
 
 	local tensorArray = {...}
 
 	local resultTensor = {}
+	
+	local dimensionSize = dimensionSizeArray[currentDimension]
 
-	if (#dimensionSizeArray >= 2) then
+	if (currentDimension < numberOfDimensions) then
 
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		for i = 1, dimensionSizeArray[1], 1 do 
+		for i = 1, dimensionSize, 1 do 
 
 			local subTensorArray = {}
 
 			for _, tensor in ipairs(tensorArray) do table.insert(subTensorArray, tensor[i]) end
 
-			resultTensor[i] = applyFunction(functionToApply, remainingDimensionSizeArray, table.unpack(subTensorArray)) 
+			resultTensor[i] = applyFunction(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension + 1,  table.unpack(subTensorArray)) 
 
 		end
 
 	else
 
-		for i = 1, dimensionSizeArray[1], 1 do 
+		for i = 1, dimensionSize, 1 do 
 
 			local subTensorArray = {}
 
@@ -3117,7 +3117,7 @@ function AqwamTensorLibrary:applyFunction(functionToApply, ...)
 
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensorArray[1])
 
-	local resultTensor = applyFunction(functionToApply, dimensionSizeArray, ...)
+	local resultTensor = applyFunction(functionToApply, dimensionSizeArray, #dimensionSizeArray, 1, ...)
 
 	return resultTensor
 
