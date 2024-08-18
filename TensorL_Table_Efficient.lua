@@ -72,16 +72,6 @@ local function removeFirstValueFromArray(array)
 
 end
 
-local function removeLastValueFromArray(array)
-
-	local newArray = table.clone(array)
-
-	table.remove(newArray, #newArray)
-
-	return newArray
-
-end
-
 local function deepCopyTable(original, copies)
 
 	copies = copies or {}
@@ -944,19 +934,19 @@ function AqwamTensorLibrary:createTensor(dimensionSizeArray, initialValue)
 
 end
 
-local function createRandomNormalTensor(dimensionSizeArray, mean, standardDeviation)
+local function createRandomNormalTensor(dimensionSizeArray, numberOfDimensions, currentDimension, mean, standardDeviation)
+	
+	local dimensionSize = dimensionSizeArray[currentDimension]
 
 	local tensor = {}
 
-	if (#dimensionSizeArray >= 2) then
+	if (currentDimension < numberOfDimensions) then
 
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = createRandomNormalTensor(remainingDimensionSizeArray, mean, standardDeviation) end
+		for i = 1, dimensionSize, 1 do tensor[i] = createRandomNormalTensor(dimensionSizeArray, numberOfDimensions, currentDimension + 1, mean, standardDeviation) end
 
 	else
 
-		for i = 1, dimensionSizeArray[1], 1 do 
+		for i = 1, dimensionSize, 1 do 
 
 			local randomNumber1 = math.random()
 
@@ -980,7 +970,7 @@ function AqwamTensorLibrary:createRandomNormalTensor(dimensionSizeArray, mean, s
 
 	standardDeviation = standardDeviation or 1
 
-	return createRandomNormalTensor(dimensionSizeArray, mean, standardDeviation)
+	return createRandomNormalTensor(dimensionSizeArray, #dimensionSizeArray, 1, mean, standardDeviation)
 
 end
 
