@@ -2721,6 +2721,250 @@ function AqwamTensorLibrary:squeeze(dimension)
 
 end
 
+function AqwamTensorLibrary:mean(dimension)
+
+	local size = (dimension and self:getDimensionSizeArray()[dimension]) or self:getTotalSize()
+
+	local sumTensor = self:sum(dimension)
+
+	local meanTensor = sumTensor:divide(size)
+
+	return meanTensor
+
+end
+
+function AqwamTensorLibrary:standardDeviation(dimension)
+
+	local size = (dimension and self:getDimensionSizeArray()[dimension]) or self:getTotalSize()
+
+	local meanTensor = self:mean(dimension)
+
+	local subtractedTensor = self:subtract(meanTensor)
+
+	local squaredSubractedTensor = subtractedTensor:power(2)
+
+	local summedSquaredSubtractedTensor = squaredSubractedTensor:sum(dimension)
+
+	local squaredStandardDeviationTensor = summedSquaredSubtractedTensor:divide(size)
+
+	local standardDeviationTensor = squaredStandardDeviationTensor:power(0.5)
+
+	return standardDeviationTensor, meanTensor
+
+end
+
+function AqwamTensorLibrary:zScoreNormalization(dimension)
+
+	local standardDeviationTensor, meanTensor = self:standardDeviation(dimension)
+
+	local subtractedTensor = self:subtract(meanTensor)
+
+	local normalizedTensor = subtractedTensor:divide(standardDeviationTensor)
+
+	return normalizedTensor, meanTensor, standardDeviationTensor
+
+end
+
+local function findMaximumValue(tensor, dimensionSizeArray)
+
+	local highestValue = -math.huge
+
+	if (#dimensionSizeArray >= 2) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do 
+
+			local value = AqwamTensorLibrary:findMaximumValue(tensor[i], remainingDimensionSizeArray) 
+
+			highestValue = math.max(highestValue, value)
+
+		end
+
+	else
+
+		highestValue = math.max(table.unpack(tensor))
+
+	end
+
+	return highestValue
+
+end
+
+function AqwamTensorLibrary:findMaximumValue()
+
+	local dimensionSizeArray = self:getDimensionSizeArray()
+
+	return findMaximumValue(self, dimensionSizeArray)
+
+end
+
+local function findMinimumValue(tensor, dimensionSizeArray)
+
+	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+
+	local lowestValue = math.huge
+
+	if (#dimensionSizeArray >= 2) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do 
+
+			local value = AqwamTensorLibrary:findMinimumValue(tensor[i], remainingDimensionSizeArray) 
+
+			lowestValue = math.min(lowestValue, value)
+
+		end
+
+	else
+
+		lowestValue = math.min(table.unpack(tensor))
+
+	end
+
+	return lowestValue
+
+end
+
+function AqwamTensorLibrary:findMinimumValue()
+
+	local dimensionSizeArray = self:getDimensionSizeArray()
+
+	return findMinimumValue(self, dimensionSizeArray)
+
+end
+
+local function findMaximumValueDimensionIndexArray(tensor, dimensionSizeArray, dimensionIndexArray)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	local highestValue = -math.huge
+
+	local highestValueDimensionIndexArray
+
+	if (numberOfDimensions >= 2) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1] do 
+
+			local copiedDimensionIndexArray = table.clone(dimensionIndexArray)
+
+			table.insert(copiedDimensionIndexArray, i)
+
+			local subTensorHighestValueDimensionArray, value = findMaximumValueDimensionIndexArray(tensor[i], remainingDimensionSizeArray, dimensionIndexArray)
+
+			if (value > highestValue) then
+
+				highestValueDimensionIndexArray = table.clone(subTensorHighestValueDimensionArray)
+
+				table.insert(highestValueDimensionIndexArray, i)
+
+				highestValue = value
+
+			end
+
+		end
+
+	else
+
+		for i = 1, dimensionSizeArray[1], 1 do
+
+			local value = tensor[i]
+
+			if (value > highestValue) then
+
+				highestValueDimensionIndexArray = table.clone(dimensionIndexArray)
+
+				table.insert(highestValueDimensionIndexArray, i)
+
+				highestValue = value
+
+			end
+
+		end
+
+	end
+
+	return highestValueDimensionIndexArray, highestValue
+
+end
+
+function AqwamTensorLibrary:findMaximumValueDimensionIndexArray()
+
+	local dimensionSizeArray = self:getDimensionSizeArray()
+
+	return findMaximumValueDimensionIndexArray(self, dimensionSizeArray, {})
+
+end
+
+local function findMinimumValueDimensionIndexArray(tensor, dimensionSizeArray, dimensionIndexArray)
+
+	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	local lowestValue = math.huge
+
+	local lowestValueDimensionIndexArray
+
+	if (numberOfDimensions >= 2) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1] do 
+
+			local copiedDimensionIndexArray = table.clone(dimensionIndexArray)
+
+			table.insert(copiedDimensionIndexArray, i)
+
+			local subTensorLowestValueDimensionArray, value = findMinimumValueDimensionIndexArray(tensor[i], remainingDimensionSizeArray, dimensionIndexArray)
+
+			if (value < lowestValue) then
+
+				lowestValueDimensionIndexArray = table.clone(subTensorLowestValueDimensionArray)
+
+				table.insert(lowestValueDimensionIndexArray, i)
+
+				lowestValue = value
+
+			end
+
+		end
+
+	else
+
+		for i = 1, dimensionSizeArray[1], 1 do
+
+			local value = tensor[i]
+
+			if (value < lowestValue) then
+
+				lowestValueDimensionIndexArray = table.clone(dimensionIndexArray)
+
+				table.insert(lowestValueDimensionIndexArray, i)
+
+				lowestValue = value
+
+			end
+
+		end
+
+	end
+
+	return lowestValueDimensionIndexArray, lowestValue
+
+end
+
+function AqwamTensorLibrary:findMinimumValueDimensionIndexArray()
+
+	local dimensionSizeArray = self:getDimensionSizeArray()
+
+	return findMinimumValueDimensionIndexArray(self, dimensionSizeArray, {})
+
+end
+
 function AqwamTensorLibrary:destroy()
 
 	self.tensor = nil
