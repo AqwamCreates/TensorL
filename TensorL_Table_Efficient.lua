@@ -2438,31 +2438,25 @@ function AqwamTensorLibrary:findMinimumValue(tensor)
 
 end
 
-local function findMaximumValueDimensionIndexArray(tensor, dimensionSizeArray, dimensionIndexArray)
-
-	local numberOfDimensions = #dimensionSizeArray
+local function findMaximumValueDimensionIndexArray(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, dimensionIndexArray)
+	
+	local dimensionSize = dimensionSizeArray[currentDimension]
 
 	local highestValue = -math.huge
 
 	local highestValueDimensionIndexArray
 
-	if (numberOfDimensions >= 2) then
+	if (currentDimension < numberOfDimensions) then
 
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+		for i = 1, dimensionSize, 1 do 
 
-		for i = 1, dimensionSizeArray[1] do 
+			dimensionIndexArray[currentDimension] = i
 
-			local copiedDimensionIndexArray = table.clone(dimensionIndexArray)
-
-			table.insert(copiedDimensionIndexArray, i)
-
-			local subTensorHighestValueDimensionArray, value = findMaximumValueDimensionIndexArray(tensor[i], remainingDimensionSizeArray, dimensionIndexArray)
+			local subTensorHighestValueDimensionArray, value = findMaximumValueDimensionIndexArray(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, dimensionIndexArray)
 
 			if (value > highestValue) then
 
 				highestValueDimensionIndexArray = table.clone(subTensorHighestValueDimensionArray)
-
-				table.insert(highestValueDimensionIndexArray, i)
 
 				highestValue = value
 
@@ -2472,7 +2466,7 @@ local function findMaximumValueDimensionIndexArray(tensor, dimensionSizeArray, d
 
 	else
 
-		for i = 1, dimensionSizeArray[1], 1 do
+		for i = 1, dimensionSize, 1 do
 
 			local value = tensor[i]
 
@@ -2498,37 +2492,29 @@ function AqwamTensorLibrary:findMaximumValueDimensionIndexArray(tensor)
 
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
-	return findMaximumValueDimensionIndexArray(tensor, dimensionSizeArray, {})
+	return findMaximumValueDimensionIndexArray(tensor, dimensionSizeArray, #dimensionSizeArray, 1, {})
 
 end
 
-local function findMinimumValueDimensionIndexArray(tensor, dimensionSizeArray, dimensionIndexArray)
-
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-
-	local numberOfDimensions = #dimensionSizeArray
+local function findMinimumValueDimensionIndexArray(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, dimensionIndexArray)
+	
+	local dimensionSize = dimensionSizeArray[currentDimension]
 
 	local lowestValue = math.huge
 
 	local lowestValueDimensionIndexArray
 
-	if (numberOfDimensions >= 2) then
+	if (currentDimension < numberOfDimensions) then
 
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+		for i = 1, dimensionSize, 1 do 
 
-		for i = 1, dimensionSizeArray[1] do 
+			dimensionIndexArray[currentDimension] = i
 
-			local copiedDimensionIndexArray = table.clone(dimensionIndexArray)
-
-			table.insert(copiedDimensionIndexArray, i)
-
-			local subTensorLowestValueDimensionArray, value = findMinimumValueDimensionIndexArray(tensor[i], remainingDimensionSizeArray, dimensionIndexArray)
+			local subTensorLowestValueDimensionArray, value = findMinimumValueDimensionIndexArray(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, dimensionIndexArray)
 
 			if (value < lowestValue) then
 
 				lowestValueDimensionIndexArray = table.clone(subTensorLowestValueDimensionArray)
-
-				table.insert(lowestValueDimensionIndexArray, i)
 
 				lowestValue = value
 
@@ -2538,7 +2524,7 @@ local function findMinimumValueDimensionIndexArray(tensor, dimensionSizeArray, d
 
 	else
 
-		for i = 1, dimensionSizeArray[1], 1 do
+		for i = 1, dimensionSize, 1 do
 
 			local value = tensor[i]
 
@@ -2564,7 +2550,7 @@ function AqwamTensorLibrary:findMinimumValueDimensionIndexArray(tensor)
 
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
-	return findMinimumValueDimensionIndexArray(tensor, dimensionSizeArray, {})
+	return findMinimumValueDimensionIndexArray(tensor, dimensionSizeArray, #dimensionSizeArray, 1, {})
 
 end
 
