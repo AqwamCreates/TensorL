@@ -2546,8 +2546,6 @@ end
 
 local function findMinimumValueDimensionIndexArray(tensor, dimensionSizeArray, dimensionIndexArray)
 
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-
 	local numberOfDimensions = #dimensionSizeArray
 
 	local lowestValue = math.huge
