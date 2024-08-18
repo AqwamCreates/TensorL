@@ -2362,15 +2362,13 @@ function AqwamTensorLibrary:standardDeviation(tensor, dimension)
 
 	local standardDeviationTensor = AqwamTensorLibrary:power(squaredSubractedTensor, 0.5)
 
-	return standardDeviationTensor
+	return standardDeviationTensor, meanTensor
 
 end
 
 function AqwamTensorLibrary:zScoreNormalization(tensor, dimension)
 
-	local meanTensor = AqwamTensorLibrary:mean(tensor, dimension)
-
-	local standardDeviationTensor = AqwamTensorLibrary:standardDeviation(tensor, dimension)
+	local standardDeviationTensor, meanTensor = AqwamTensorLibrary:standardDeviation(tensor, dimension)
 
 	local subtractedTensor = AqwamTensorLibrary:subtract(tensor, meanTensor)
 
@@ -2380,17 +2378,15 @@ function AqwamTensorLibrary:zScoreNormalization(tensor, dimension)
 
 end
 
-local function findMaximumValue(tensor, dimensionSizeArray)
+local function findMaximumValue(tensor, dimensionSizeArray, numberOfDimensions, currentDimension)
 
 	local highestValue = -math.huge
 
 	if (#dimensionSizeArray >= 2) then
 
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
 		for i = 1, dimensionSizeArray[1], 1 do 
 
-			local value = AqwamTensorLibrary:findMaximumValue(tensor[i]) 
+			local value = AqwamTensorLibrary:findMaximumValue(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension) 
 
 			highestValue = math.max(highestValue, value)
 
@@ -2401,6 +2397,8 @@ local function findMaximumValue(tensor, dimensionSizeArray)
 		highestValue = math.max(table.unpack(tensor))
 
 	end
+	
+	return highestValue
 
 end
 
@@ -2408,7 +2406,7 @@ function AqwamTensorLibrary:findMaximumValue(tensor)
 
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
-	return findMaximumValue(tensor, dimensionSizeArray)
+	return findMaximumValue(tensor, dimensionSizeArray, #dimensionSizeArray, 1)
 
 end
 
@@ -2419,8 +2417,6 @@ local function findMinimumValue(tensor, dimensionSizeArray)
 	local lowestValue = math.huge
 
 	if (#dimensionSizeArray >= 2) then
-
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
 		for i = 1, dimensionSizeArray[1], 1 do 
 
@@ -2444,7 +2440,7 @@ function AqwamTensorLibrary:findMinimumValue(tensor)
 
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
-	return findMinimumValue(tensor, dimensionSizeArray)
+	return findMinimumValue(tensor, dimensionSizeArray, #dimensionSizeArray, 1)
 
 end
 
