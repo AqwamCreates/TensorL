@@ -2084,21 +2084,19 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 
 end
 
-local function sumFromAllDimensions(tensor, dimensionSizeArray)
-
-	local numberOfDimensions = #dimensionSizeArray
+local function sumFromAllDimensions(tensor, dimensionSizeArray, numberOfDimensions, currentDimension)
+	
+	local dimensionSize = dimensionSizeArray[currentDimension]
 
 	local result = 0
 
-	if (numberOfDimensions > 1) then
+	if (currentDimension < numberOfDimensions) then
 
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		for i = 1, dimensionSizeArray[1], 1 do result = result + sumFromAllDimensions(tensor[i], remainingDimensionSizeArray) end
+		for i = 1, dimensionSize, 1 do result = result + sumFromAllDimensions(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1) end
 
 	else
 
-		for i = 1, dimensionSizeArray[1], 1 do result = result + tensor[i] end
+		for i = 1, dimensionSize, 1 do result = result + tensor[i] end
 
 	end
 
@@ -2324,11 +2322,11 @@ function AqwamTensorLibrary:sum(tensor, dimension)
 
 	local numberOfDimensions = #dimensionSizeArray
 
-	if (dimension == 0) then return sumFromAllDimensions(tensor, dimensionSizeArray) end
+	if (dimension == 0) then return sumFromAllDimensions(tensor, dimensionSizeArray, numberOfDimensions, 1) end
 
 	throwErrorIfDimensionIsOutOfBounds(dimension, 1, numberOfDimensions)
 
-	local sumTensor = sumAlongOneDimension(tensor, dimensionSizeArray, #dimensionSizeArray, 1, dimension)
+	local sumTensor = sumAlongOneDimension(tensor, dimensionSizeArray, numberOfDimensions, 1, dimension)
 
 	return sumTensor
 
