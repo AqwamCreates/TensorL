@@ -2504,8 +2504,6 @@ local function findMaximumValueDimensionIndexArray(tensor, dimensionSizeArray, d
 
 				highestValueDimensionIndexArray = table.clone(subTensorHighestValueDimensionArray)
 
-				table.insert(highestValueDimensionIndexArray, i)
-
 				highestValue = value
 
 			end
@@ -2567,8 +2565,6 @@ local function findMinimumValueDimensionIndexArray(tensor, dimensionSizeArray, d
 			if (value < lowestValue) then
 
 				lowestValueDimensionIndexArray = table.clone(subTensorLowestValueDimensionArray)
-
-				table.insert(lowestValueDimensionIndexArray, i)
 
 				lowestValue = value
 
