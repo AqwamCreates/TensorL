@@ -2437,6 +2437,8 @@ local function findMaximumValue(tensor, dimensionSizeArray)
 		highestValue = math.max(table.unpack(tensor))
 
 	end
+	
+	return highestValue
 
 end
 
