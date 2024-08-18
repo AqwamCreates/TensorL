@@ -2851,11 +2851,11 @@ local function findMaximumValueDimensionIndexArray(tensor, dimensionSizeArray, d
 
 			table.insert(copiedDimensionIndexArray, i)
 
-			local subTensorHighestValueDimensionArray, value = findMaximumValueDimensionIndexArray(tensor[i], remainingDimensionSizeArray, dimensionIndexArray)
+			local subTensorHighestValueDimensionIndexArray, value = findMaximumValueDimensionIndexArray(tensor[i], remainingDimensionSizeArray, copiedDimensionIndexArray)
 
 			if (value > highestValue) then
 
-				highestValueDimensionIndexArray = table.clone(subTensorHighestValueDimensionArray)
+				highestValueDimensionIndexArray = table.clone(subTensorHighestValueDimensionIndexArray)
 
 				highestValue = value
 
@@ -2913,11 +2913,11 @@ local function findMinimumValueDimensionIndexArray(tensor, dimensionSizeArray, d
 
 			table.insert(copiedDimensionIndexArray, i)
 
-			local subTensorLowestValueDimensionArray, value = findMinimumValueDimensionIndexArray(tensor[i], remainingDimensionSizeArray, dimensionIndexArray)
+			local subTensorLowestValueDimensionIndexArray, value = findMinimumValueDimensionIndexArray(tensor[i], remainingDimensionSizeArray, copiedDimensionIndexArray)
 
 			if (value < lowestValue) then
 
-				lowestValueDimensionIndexArray = table.clone(subTensorLowestValueDimensionArray)
+				lowestValueDimensionIndexArray = table.clone(subTensorLowestValueDimensionIndexArray)
 
 				lowestValue = value
 
