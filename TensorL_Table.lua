@@ -872,7 +872,7 @@ local function inefficientExpand(tensor, dimensionSizeArray, targetDimensionSize
 
 	local canNextDimensionBeExpanded = (nextDimensionSize == 1)
 
-	local resultTensor = {}
+	local resultTensor
 
 	if (not canNextDimensionBeExpanded) and (not hasSameNextDimensionSize) then
 
@@ -899,6 +899,8 @@ local function inefficientExpand(tensor, dimensionSizeArray, targetDimensionSize
 	end
 
 	if (numberOfDimensions > 1) then
+		
+		resultTensor = {}
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
