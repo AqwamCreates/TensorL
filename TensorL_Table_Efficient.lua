@@ -974,31 +974,29 @@ function AqwamTensorLibrary:createRandomNormalTensor(dimensionSizeArray, mean, s
 
 end
 
-local function createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue)
+local function createRandomUniformTensor(dimensionSizeArray, numberOfDimensions, currentDimension, minimumValue, maximumValue)
 
-	local numberOfDimensions = #dimensionSizeArray
+	local dimensionSize = dimensionSizeArray[currentDimension]
 
 	local tensor = {}
 
-	if (numberOfDimensions >= 2) then
+	if (currentDimension < numberOfDimensions) then
 
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = createRandomUniformTensor(dimensionSizeArray, numberOfDimensions, currentDimension + 1, minimumValue, maximumValue) end
 
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = createRandomUniformTensor(remainingDimensionSizeArray, minimumValue, maximumValue) end
-
-	elseif (numberOfDimensions == 1) and (minimumValue) and (maximumValue) then
+	elseif (currentDimension == numberOfDimensions) and (minimumValue) and (maximumValue) then
 
 		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = math.random(minimumValue, maximumValue) end
 
-	elseif (numberOfDimensions == 1) and (minimumValue) and (not maximumValue) then
+	elseif (currentDimension == numberOfDimensions) and (minimumValue) and (not maximumValue) then
 
 		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = math.random(minimumValue) end
 
-	elseif (numberOfDimensions == 1) and (not minimumValue) and (not maximumValue) then
+	elseif (currentDimension == numberOfDimensions) and (not minimumValue) and (not maximumValue) then
 
 		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = math.random() end
 
-	elseif (numberOfDimensions == 1) and (not minimumValue) and (maximumValue) then
+	elseif (currentDimension == numberOfDimensions) and (not minimumValue) and (maximumValue) then
 
 		error("Invalid minimum value.")
 
@@ -1014,7 +1012,7 @@ end
 
 function AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue)
 
-	return createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue)
+	return createRandomUniformTensor(dimensionSizeArray, #dimensionSizeArray, 1, minimumValue, maximumValue)
 
 end
 
