@@ -980,17 +980,21 @@ end
 
 function AqwamTensorLibrary:increaseNumberOfDimensions(tensor, dimensionSizeToAddArray)
 
-	local resultTensor = {}
+	local resultTensor
 
 	local numberOfDimensionsToAdd = #dimensionSizeToAddArray
 
 	if (numberOfDimensionsToAdd > 1) then
+		
+		resultTensor = {}
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeToAddArray)
 
 		for i = 1, dimensionSizeToAddArray[1], 1 do resultTensor[i] = AqwamTensorLibrary:increaseNumberOfDimensions(tensor, remainingDimensionSizeArray) end
 
 	elseif (numberOfDimensionsToAdd == 1) then
+		
+		resultTensor = {}
 
 		for i = 1, dimensionSizeToAddArray[1], 1 do resultTensor[i] = deepCopyTable(tensor) end
 
