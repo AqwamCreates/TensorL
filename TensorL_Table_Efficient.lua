@@ -2757,21 +2757,21 @@ local function incrementFinalDimensionIndex(targetDimensionSizeArray, currentDim
 
 end
 
-local function reshape(tensor, dimensionSizeArray, targetTensor, targetDimensionSizeArray, currentTargetDimensionIndexArray)
+local function reshape(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, targetTensor, targetDimensionSizeArray, currentTargetDimensionIndexArray)
+	
+	local dimensionSize = dimensionSizeArray[currentDimension]
 
-	if (#dimensionSizeArray >= 2) then
+	if (currentDimension < numberOfDimensions) then
 
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+		for i = 1, dimensionSize, 1 do 
 
-		for i = 1, dimensionSizeArray[1], 1 do 
-
-			currentTargetDimensionIndexArray = reshape(tensor[i], remainingDimensionSizeArray, targetTensor, targetDimensionSizeArray, currentTargetDimensionIndexArray) 
+			currentTargetDimensionIndexArray = reshape(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetTensor, targetDimensionSizeArray, currentTargetDimensionIndexArray) 
 
 		end
 
 	else
 
-		for i = 1, dimensionSizeArray[1], 1 do 
+		for i = 1, dimensionSize, 1 do 
 
 			AqwamTensorLibrary:setValue(targetTensor, tensor[i], currentTargetDimensionIndexArray)
 
@@ -2805,7 +2805,7 @@ function AqwamTensorLibrary:inefficientReshape(tensor, dimensionSizeArray) -- Th
 
 		local currentTargetDimensionIndexArray = table.create(#dimensionSizeArray, 1)
 
-		reshape(tensor, tensorDimensionSizeArray, resultTensor, dimensionSizeArray, currentTargetDimensionIndexArray)
+		reshape(tensor, tensorDimensionSizeArray, #tensorDimensionSizeArray, 1, resultTensor, dimensionSizeArray, currentTargetDimensionIndexArray)
 
 	else
 
@@ -2817,13 +2817,11 @@ function AqwamTensorLibrary:inefficientReshape(tensor, dimensionSizeArray) -- Th
 
 end
 
-local function flattenTensor(tensor, dimensionSizeArray, targetTensor)
+local function flattenTensor(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, targetTensor)
 
-	if (#dimensionSizeArray >= 2) then
+	if (currentDimension < numberOfDimensions) then
 
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		for i = 1, dimensionSizeArray[1], 1 do flattenTensor(tensor[i], remainingDimensionSizeArray, targetTensor) end
+		for i = 1, dimensionSizeArray[currentDimension], 1 do flattenTensor(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetTensor) end
 
 	else
 
@@ -2851,7 +2849,7 @@ function AqwamTensorLibrary:reshape(tensor, dimensionSizeArray) -- This one requ
 
 		flattenedTensor = {}
 
-		flattenTensor(tensor, tensorDimensionSizeArray, flattenedTensor)
+		flattenTensor(tensor, tensorDimensionSizeArray, numberOfDimensions, 1, flattenedTensor)
 
 	else
 
