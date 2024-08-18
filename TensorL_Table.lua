@@ -911,6 +911,8 @@ local function inefficientExpand(tensor, dimensionSizeArray, targetDimensionSize
 		for i = 1, targetDimensionSizeArray[1], 1 do resultTensor[i] = inefficientExpand(resultTensor[i], remainingDimensionSizeArray, remainingTargetDimensionSizeArray) end
 
 	end
+	
+	return resultTensor
 
 end
 
