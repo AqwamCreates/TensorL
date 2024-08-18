@@ -879,7 +879,9 @@ local function inefficientExpand(tensor, dimensionSizeArray, targetDimensionSize
 		error("Unable to expand.")
 
 	elseif (numberOfDimensions > 1) and (not hasSameNextDimensionSize) then
-
+		
+		resultTensor = {}
+		
 		for i = 1, targetDimensionSize, 1 do
 
 			resultTensor[i] = {} 
