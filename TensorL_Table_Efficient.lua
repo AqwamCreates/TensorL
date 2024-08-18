@@ -2314,15 +2314,13 @@ end
 
 function AqwamTensorLibrary:sum(tensor, dimension)
 
-	dimension = dimension or 0
-
 	if (type(dimension) ~= "number") then error("The dimension must be a number.") end
 
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local numberOfDimensions = #dimensionSizeArray
 
-	if (dimension == 0) then return sumFromAllDimensions(tensor, dimensionSizeArray, numberOfDimensions, 1) end
+	if (not dimension) then return sumFromAllDimensions(tensor, dimensionSizeArray, numberOfDimensions, 1) end
 
 	throwErrorIfDimensionIsOutOfBounds(dimension, 1, numberOfDimensions)
 
