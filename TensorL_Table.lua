@@ -2450,8 +2450,6 @@ end
 
 local function findMinimumValue(tensor, dimensionSizeArray)
 
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-
 	local lowestValue = math.huge
 
 	if (#dimensionSizeArray >= 2) then
