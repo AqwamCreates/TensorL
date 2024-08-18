@@ -2398,15 +2398,13 @@ function AqwamTensorLibrary:standardDeviation(tensor, dimension)
 
 	local standardDeviationTensor = AqwamTensorLibrary:power(squaredSubractedTensor, 0.5)
 
-	return standardDeviationTensor
+	return standardDeviationTensor, meanTensor
 
 end
 
 function AqwamTensorLibrary:zScoreNormalization(tensor, dimension)
 
-	local meanTensor = AqwamTensorLibrary:mean(tensor, dimension)
-
-	local standardDeviationTensor = AqwamTensorLibrary:standardDeviation(tensor, dimension)
+	local standardDeviationTensor, meanTensor = AqwamTensorLibrary:standardDeviation(tensor, dimension)
 
 	local subtractedTensor = AqwamTensorLibrary:subtract(tensor, meanTensor)
 
