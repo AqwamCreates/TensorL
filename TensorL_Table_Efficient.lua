@@ -958,19 +958,19 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 
 end
 
-function AqwamTensorLibrary:increaseNumberOfDimensions(tensor, dimensionSizeToAddArray)
+local function increaseNumberOfDimensions(tensor, dimensionSizeToAddArray, numberOfDimensionsToAdd, currentDimension)
+	
+	local resultTensor
 
-	local resultTensor = {}
+	if (currentDimension < numberOfDimensionsToAdd) then
+		
+		resultTensor = {}
 
-	local numberOfDimensionsToAdd = #dimensionSizeToAddArray
+		for i = 1, dimensionSizeToAddArray[1], 1 do resultTensor[i] = increaseNumberOfDimensions(tensor, dimensionSizeToAddArray, numberOfDimensionsToAdd, currentDimension + 1) end
 
-	if (numberOfDimensionsToAdd > 1) then
-
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeToAddArray)
-
-		for i = 1, dimensionSizeToAddArray[1], 1 do resultTensor[i] = AqwamTensorLibrary:increaseNumberOfDimensions(tensor, remainingDimensionSizeArray) end
-
-	elseif (numberOfDimensionsToAdd == 1) then
+	elseif (currentDimension == numberOfDimensionsToAdd) then
+		
+		resultTensor = {}
 
 		for i = 1, dimensionSizeToAddArray[1], 1 do resultTensor[i] = deepCopyTable(tensor) end
 
@@ -981,6 +981,12 @@ function AqwamTensorLibrary:increaseNumberOfDimensions(tensor, dimensionSizeToAd
 	end
 
 	return resultTensor
+	
+end
+
+function AqwamTensorLibrary:increaseNumberOfDimensions(tensor, dimensionSizeToAddArray)
+
+	return increaseNumberOfDimensions(tensor, dimensionSizeToAddArray, #dimensionSizeToAddArray, 1)
 
 end
 
