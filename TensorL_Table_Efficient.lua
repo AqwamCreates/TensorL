@@ -1580,39 +1580,33 @@ function AqwamTensorLibrary:hardcodedTranspose(tensor, dimensionArray)
 
 end
 
-local function transpose(tensor, dimensionSizeArray, currentTargetDimensionIndexArray, targetTensor, dimension1, dimension2)
+local function transpose(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, currentTargetDimensionIndexArray, targetTensor, dimension1, dimension2)
 
-	local numberOfDimensions = #dimensionSizeArray
+	if (currentDimension <= numberOfDimensions) then
 
-	if (numberOfDimensions >= 1) then
+		for i = 1, dimensionSizeArray[currentDimension], 1 do
 
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+			currentTargetDimensionIndexArray[currentDimension] = i
 
-		for i = 1, dimensionSizeArray[1], 1 do
-
-			local copiedCurrentTargetDimensionIndexArray = table.clone(currentTargetDimensionIndexArray)
-
-			table.insert(copiedCurrentTargetDimensionIndexArray, i)
-
-			transpose(tensor[i], remainingDimensionSizeArray, copiedCurrentTargetDimensionIndexArray, targetTensor, dimension1, dimension2)
+			transpose(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, currentTargetDimensionIndexArray, targetTensor, dimension1, dimension2)
 
 		end
 
 	else
+		
+		local targetDimensionIndexArray = table.clone(currentTargetDimensionIndexArray)
 
-		local currentDimensionIndex1 = currentTargetDimensionIndexArray[dimension1]
+		local currentDimensionIndex1 = targetDimensionIndexArray[dimension1]
 
-		local currentDimensionIndex2 = currentTargetDimensionIndexArray[dimension2]
+		local currentDimensionIndex2 = targetDimensionIndexArray[dimension2]
 
-		currentTargetDimensionIndexArray[dimension1] = currentDimensionIndex2
+		targetDimensionIndexArray[dimension1] = currentDimensionIndex2
 
-		currentTargetDimensionIndexArray[dimension2] = currentDimensionIndex1
+		targetDimensionIndexArray[dimension2] = currentDimensionIndex1
 
-		local targetTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(targetTensor)
+		AqwamTensorLibrary:setValue(targetTensor, tensor, targetDimensionIndexArray)
 
-		AqwamTensorLibrary:setValue(targetTensor, tensor, currentTargetDimensionIndexArray)
-
-	end
+	end	
 
 end
 
@@ -1654,7 +1648,7 @@ function AqwamTensorLibrary:transpose(tensor, dimensionArray)
 
 	local transposedTensor = AqwamTensorLibrary:createTensor(transposedDimensionSizeArray, true)
 
-	transpose(tensor, dimensionSizeArray, {}, transposedTensor, dimension1, dimension2)
+	transpose(tensor, dimensionSizeArray, numberOfDimensions, 1, {}, transposedTensor, dimension1, dimension2)
 
 	return transposedTensor
 
