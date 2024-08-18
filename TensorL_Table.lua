@@ -907,7 +907,7 @@ function AqwamTensorLibrary:increaseNumberOfDimensions(tensor, dimensionSizeToAd
 	local numberOfDimensionsToAdd = #dimensionSizeToAddArray
 
 	if (numberOfDimensionsToAdd > 1) then
-		
+
 		resultTensor = {}
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeToAddArray)
@@ -915,7 +915,7 @@ function AqwamTensorLibrary:increaseNumberOfDimensions(tensor, dimensionSizeToAd
 		for i = 1, dimensionSizeToAddArray[1], 1 do resultTensor[i] = AqwamTensorLibrary:increaseNumberOfDimensions(tensor, remainingDimensionSizeArray) end
 
 	elseif (numberOfDimensionsToAdd == 1) then
-		
+
 		resultTensor = {}
 
 		for i = 1, dimensionSizeToAddArray[1], 1 do resultTensor[i] = deepCopyTable(tensor) end
@@ -2352,15 +2352,13 @@ end
 
 function AqwamTensorLibrary:sum(tensor, dimension)
 
-	dimension = dimension or 0
-
-	if (type(dimension) ~= "number") then error("The dimension must be a number.") end
-
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local numberOfDimensions = #dimensionSizeArray
 
-	if (dimension == 0) then return sumFromAllDimensions(tensor, dimensionSizeArray) end
+	if (not dimension) then return sumFromAllDimensions(tensor, dimensionSizeArray) end
+	
+	if (type(dimension) ~= "number") then error("The dimension must be a number.") end
 
 	throwErrorIfDimensionIsOutOfBounds(dimension, 1, numberOfDimensions)
 
@@ -2435,7 +2433,7 @@ local function findMaximumValue(tensor, dimensionSizeArray)
 		highestValue = math.max(table.unpack(tensor))
 
 	end
-	
+
 	return highestValue
 
 end
