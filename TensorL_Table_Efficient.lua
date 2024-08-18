@@ -2374,7 +2374,7 @@ function AqwamTensorLibrary:zScoreNormalization(tensor, dimension)
 
 	local normalizedTensor = AqwamTensorLibrary:divide(subtractedTensor, standardDeviationTensor)
 
-	return normalizedTensor, meanTensor, standardDeviationTensor
+	return normalizedTensor, standardDeviationTensor, meanTensor
 
 end
 
@@ -2382,11 +2382,11 @@ local function findMaximumValue(tensor, dimensionSizeArray, numberOfDimensions, 
 
 	local highestValue = -math.huge
 
-	if (#dimensionSizeArray >= 2) then
+	if (currentDimension < numberOfDimensions) then
 
-		for i = 1, dimensionSizeArray[1], 1 do 
+		for i = 1, dimensionSizeArray[currentDimension], 1 do 
 
-			local value = AqwamTensorLibrary:findMaximumValue(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension) 
+			local value = AqwamTensorLibrary:findMaximumValue(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1) 
 
 			highestValue = math.max(highestValue, value)
 
@@ -2410,17 +2410,15 @@ function AqwamTensorLibrary:findMaximumValue(tensor)
 
 end
 
-local function findMinimumValue(tensor, dimensionSizeArray)
-
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+local function findMinimumValue(tensor, dimensionSizeArray, numberOfDimensions, currentDimension)
 
 	local lowestValue = math.huge
 
-	if (#dimensionSizeArray >= 2) then
+	if (currentDimension < numberOfDimensions) then
 
-		for i = 1, dimensionSizeArray[1], 1 do 
+		for i = 1, dimensionSizeArray[currentDimension], 1 do 
 
-			local value = AqwamTensorLibrary:findMinimumValue(tensor[i]) 
+			local value = AqwamTensorLibrary:findMinimumValue(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1) 
 
 			lowestValue = math.min(lowestValue, value)
 
