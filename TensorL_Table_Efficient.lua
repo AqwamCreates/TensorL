@@ -2845,9 +2845,7 @@ local function concatenate(targetTensor, otherTensor, targetDimensionSizeArray, 
 
 	if (currentDimension ~= targetDimension) then
 
-		local remainingTargetDimensionSizeArray = removeFirstValueFromArray(targetDimensionSizeArray)
-
-		for i = 1, targetDimensionSizeArray[1], 1 do targetTensor[i] = concatenate(targetTensor[i], otherTensor[i], remainingTargetDimensionSizeArray, targetDimension, currentDimension + 1) end
+		for i = 1, targetDimensionSizeArray[currentDimension], 1 do targetTensor[i] = concatenate(targetTensor[i], otherTensor[i], targetDimensionSizeArray, targetDimension, currentDimension + 1) end
 
 	else
 
