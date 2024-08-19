@@ -2773,7 +2773,7 @@ local function findMaximumValue(tensor, dimensionSizeArray)
 
 		for i = 1, dimensionSizeArray[1], 1 do 
 
-			local value = AqwamTensorLibrary:findMaximumValue(tensor[i], remainingDimensionSizeArray) 
+			local value = findMaximumValue(tensor[i], remainingDimensionSizeArray) 
 
 			highestValue = math.max(highestValue, value)
 
@@ -2799,8 +2799,6 @@ end
 
 local function findMinimumValue(tensor, dimensionSizeArray)
 
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-
 	local lowestValue = math.huge
 
 	if (#dimensionSizeArray >= 2) then
@@ -2809,7 +2807,7 @@ local function findMinimumValue(tensor, dimensionSizeArray)
 
 		for i = 1, dimensionSizeArray[1], 1 do 
 
-			local value = AqwamTensorLibrary:findMinimumValue(tensor[i], remainingDimensionSizeArray) 
+			local value = findMinimumValue(tensor[i], remainingDimensionSizeArray) 
 
 			lowestValue = math.min(lowestValue, value)
 
