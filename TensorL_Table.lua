@@ -1810,13 +1810,13 @@ end
 
 local function dotProduct(tensor1, tensor2, tensor1DimensionSizeArray, tensor2DimensionSizeArray) -- Best one. Do not delete!
 
-	local numberOfDimensions1 = #tensor1DimensionSizeArray
+	local tensor1NumberOfDimensions = #tensor1DimensionSizeArray
 
-	local numberOfDimensions2 = #tensor2DimensionSizeArray
+	local tensor2NumberOfDimensions = #tensor2DimensionSizeArray
 
 	local tensor = {}
 
-	if (numberOfDimensions1 == 1) and (numberOfDimensions2 == 2) then
+	if (tensor1NumberOfDimensions == 1) and (tensor2NumberOfDimensions == 2) then
 
 		for i = 1, #tensor1, 1 do -- Last dimension, so represents columns.
 
@@ -1826,7 +1826,7 @@ local function dotProduct(tensor1, tensor2, tensor1DimensionSizeArray, tensor2Di
 
 		end
 
-	elseif (numberOfDimensions1 == 2) and (numberOfDimensions2 == 2) then
+	elseif (tensor1NumberOfDimensions == 2) and (tensor2NumberOfDimensions == 2) then
 
 		local tensor1Row = #tensor1
 
@@ -1850,7 +1850,7 @@ local function dotProduct(tensor1, tensor2, tensor1DimensionSizeArray, tensor2Di
 
 		end
 
-	elseif (numberOfDimensions1 > 1) and (numberOfDimensions2 > 2) then
+	elseif (tensor1NumberOfDimensions > 1) and (tensor2NumberOfDimensions > 2) then
 
 		local remainingTensor1DimensionSizeArray = removeFirstValueFromArray(tensor1DimensionSizeArray)
 
@@ -1858,19 +1858,19 @@ local function dotProduct(tensor1, tensor2, tensor1DimensionSizeArray, tensor2Di
 
 		for i = 1, tensor1DimensionSizeArray[1] do tensor[i] = dotProduct(tensor1[i], tensor2[i], remainingTensor1DimensionSizeArray, remainingTensor2DimensionSizeArray) end
 
-	elseif (numberOfDimensions1 > 1) and (numberOfDimensions2 == 2) then
+	elseif (tensor1NumberOfDimensions > 1) and (tensor2NumberOfDimensions == 2) then
 
 		local remainingTensor1DimensionSizeArray = removeFirstValueFromArray(tensor1DimensionSizeArray)
 
 		for i = 1, tensor1DimensionSizeArray[1] do tensor = dotProduct(tensor1[i], tensor2, remainingTensor1DimensionSizeArray, tensor2DimensionSizeArray) end
 
-	elseif (numberOfDimensions1 == 1) and (numberOfDimensions2 > 2) then
+	elseif (tensor1NumberOfDimensions == 1) and (tensor2NumberOfDimensions > 2) then
 
 		local remainingTensor2DimensionSizeArray = removeFirstValueFromArray(tensor2DimensionSizeArray)
 
 		for i = 1, tensor2DimensionSizeArray[1] do tensor = dotProduct(tensor1, tensor2[i], tensor1DimensionSizeArray, remainingTensor2DimensionSizeArray) end
 
-	elseif (numberOfDimensions1 > 1) and (numberOfDimensions2 == 1) then
+	elseif (tensor1NumberOfDimensions > 1) and (tensor2NumberOfDimensions == 1) then
 
 		for i = 1, tensor1DimensionSizeArray[1], 1 do
 
@@ -1892,13 +1892,13 @@ local function dotProduct(tensor1, tensor2, tensor1DimensionSizeArray, tensor2Di
 
 		end
 
-	elseif (numberOfDimensions1 == 0) or (numberOfDimensions2 == 0) then
+	elseif (tensor1NumberOfDimensions == 0) or (tensor2NumberOfDimensions == 0) then
 
 		tensor = AqwamTensorLibrary:multiply(tensor1, tensor2)
 
 	else
 
-		error({numberOfDimensions1, numberOfDimensions2})
+		error({tensor1NumberOfDimensions, tensor2NumberOfDimensions})
 
 	end
 
