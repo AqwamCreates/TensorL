@@ -2542,23 +2542,21 @@ function AqwamTensorLibrary:flatten(tensor, dimensionArray)
 
 end
 
-local function reshapeFromFlattenedTensor(tensor, dimensionSizeArray, dimensionIndex)
+local function reshapeFromFlattenedTensor(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, dimensionIndex)
 
 	local resultTensor = {}
 
-	if (#dimensionSizeArray >= 2) then
+	if ((numberOfDimensions - currentDimension) >= 1) then
 
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+		for i = 1, dimensionSizeArray[currentDimension], 1 do 
 
-		for i = 1, dimensionSizeArray[1], 1 do 
-
-			resultTensor[i], dimensionIndex = reshapeFromFlattenedTensor(tensor, remainingDimensionSizeArray, dimensionIndex) 
+			resultTensor[i], dimensionIndex = reshapeFromFlattenedTensor(tensor, dimensionSizeArray, numberOfDimensions, currentDimension + 1, dimensionIndex) 
 
 		end
 
 	else
 
-		for i = 1, dimensionSizeArray[1], 1 do 
+		for i = 1, dimensionSizeArray[currentDimension], 1 do 
 
 			table.insert(resultTensor, tensor[dimensionIndex])
 			dimensionIndex = dimensionIndex + 1
@@ -2645,7 +2643,7 @@ function AqwamTensorLibrary:inefficientReshape(tensor, dimensionSizeArray) -- Th
 
 	else
 
-		resultTensor = reshapeFromFlattenedTensor(tensor, dimensionSizeArray, 1)
+		resultTensor = reshapeFromFlattenedTensor(tensor, dimensionSizeArray, #dimensionSizeArray, 1, 1)
 
 	end
 
@@ -2693,7 +2691,7 @@ function AqwamTensorLibrary:reshape(tensor, dimensionSizeArray) -- This one requ
 
 	end
 
-	local resultTensor = reshapeFromFlattenedTensor(flattenedTensor, dimensionSizeArray, 1)
+	local resultTensor = reshapeFromFlattenedTensor(flattenedTensor, dimensionSizeArray, #dimensionSizeArray, 1, 1)
 
 	return resultTensor
 
