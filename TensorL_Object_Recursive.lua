@@ -2965,29 +2965,29 @@ function AqwamTensorLibrary:destroy()
 
 end
 
-local function containAFalseBooleanInTensor(booleanTensor, dimensionSizeArray)
+local function containNoFalseBooleanInTensor(booleanTensor, dimensionSizeArray)
 
 	local numberOfValues = dimensionSizeArray[1]
 
-	local containsAFalseBoolean = true
+	local containNoFalseBoolean = true
 
 	if (#dimensionSizeArray > 1) then
 
-		for i = 1, numberOfValues, 1 do containsAFalseBoolean = containAFalseBooleanInTensor(booleanTensor[i]) end
+		for i = 1, numberOfValues, 1 do containNoFalseBoolean = containNoFalseBooleanInTensor(booleanTensor[i]) end
 
 	else
 
 		for i = 1, numberOfValues, 1 do 
 
-			containsAFalseBoolean = (containsAFalseBoolean == booleanTensor[i])
+			containNoFalseBoolean = (containNoFalseBoolean == booleanTensor[i])
 
-			if (not containsAFalseBoolean) then return false end
+			if (not containNoFalseBoolean) then return false end
 
 		end
 
 	end
 
-	return containsAFalseBoolean
+	return containNoFalseBoolean
 
 end
 
@@ -2995,7 +2995,7 @@ function AqwamTensorLibrary:isSameTensor(other)
 
 	local booleanTensor = self:isEqualTo(other)
 
-	return containAFalseBooleanInTensor(booleanTensor)
+	return containNoFalseBooleanInTensor(booleanTensor)
 
 end
 
