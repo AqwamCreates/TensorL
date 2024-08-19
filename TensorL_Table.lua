@@ -816,32 +816,6 @@ function AqwamTensorLibrary:squeeze(tensor, dimension)
 
 end
 
-local function containNoFalseBooleanInTensor(booleanTensor, dimensionSizeArray)
-
-	local numberOfValues = dimensionSizeArray[1]
-
-	local containNoFalseBoolean = true
-
-	if (#dimensionSizeArray > 1) then
-
-		for i = 1, numberOfValues, 1 do containNoFalseBoolean = containNoFalseBooleanInTensor(booleanTensor[i]) end
-
-	else
-
-		for i = 1, numberOfValues, 1 do 
-
-			containNoFalseBoolean = (containNoFalseBoolean == booleanTensor[i])
-
-			if (not containNoFalseBoolean) then return false end
-
-		end
-
-	end
-
-	return containNoFalseBoolean
-
-end
-
 local function expand(tensor, dimensionSizeArray, targetDimensionSizeArray)
 
 	local resultTensor
@@ -3034,6 +3008,32 @@ end
 function AqwamTensorLibrary:power(...)
 
 	return applyFunctionOnMultipleTensors(math.pow, ...)
+
+end
+
+local function containNoFalseBooleanInTensor(booleanTensor, dimensionSizeArray)
+
+	local numberOfValues = dimensionSizeArray[1]
+
+	local containNoFalseBoolean = true
+
+	if (#dimensionSizeArray > 1) then
+
+		for i = 1, numberOfValues, 1 do containNoFalseBoolean = containNoFalseBooleanInTensor(booleanTensor[i]) end
+
+	else
+
+		for i = 1, numberOfValues, 1 do 
+
+			containNoFalseBoolean = (containNoFalseBoolean == booleanTensor[i])
+
+			if (not containNoFalseBoolean) then return false end
+
+		end
+
+	end
+
+	return containNoFalseBoolean
 
 end
 
