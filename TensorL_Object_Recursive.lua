@@ -1944,7 +1944,7 @@ local function dotProduct(tensor1, tensor2, tensor1DimensionSizeArray, tensor2Di
 
 	else
 
-		error({tensor1NumberOfDimensions, tensor2NumberOfDimensions})
+		error("Unable to dot product.")
 
 	end
 
