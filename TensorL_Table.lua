@@ -1088,7 +1088,7 @@ local function createIdentityTensor(dimensionSizeArray, dimensionIndexArray)
 
 	if (numberOfDimensions >= 2) then
 
-		for i = 1, dimensionSizeArray[1] do 
+		for i = 1, dimensionSizeArray[1], 1 do 
 
 			local copiedDimensionIndexArray = table.clone(dimensionIndexArray)
 
