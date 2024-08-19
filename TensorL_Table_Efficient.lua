@@ -62,16 +62,6 @@ local function throwErrorIfDimensionIsOutOfBounds(dimension, minimumNumberOfDime
 
 end
 
-local function removeFirstValueFromArray(array)
-
-	local newArray = {}
-
-	for i = 2, #array, 1 do table.insert(newArray, array[i]) end
-
-	return newArray
-
-end
-
 local function deepCopyTable(original, copies)
 
 	copies = copies or {}
