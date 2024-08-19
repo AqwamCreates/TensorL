@@ -766,32 +766,6 @@ function AqwamTensorLibrary:squeeze(tensor, dimension)
 
 end
 
-local function containNoFalseBooleanInTensor(booleanTensor, dimensionSizeArray)
-
-	local numberOfValues = dimensionSizeArray[1]
-
-	local containNoFalseBoolean = true
-
-	if (#dimensionSizeArray > 1) then
-
-		for i = 1, numberOfValues, 1 do containNoFalseBoolean = containNoFalseBooleanInTensor(booleanTensor[i]) end
-
-	else
-
-		for i = 1, numberOfValues, 1 do 
-
-			containNoFalseBoolean = (containNoFalseBoolean == booleanTensor[i])
-
-			if (not containNoFalseBoolean) then return false end
-
-		end
-
-	end
-
-	return containNoFalseBoolean
-
-end
-
 local function expand(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, targetDimensionSizeArray)
 
 	local resultTensor
@@ -2905,11 +2879,39 @@ function AqwamTensorLibrary:power(...)
 
 end
 
+local function containNoFalseBooleanInTensor(booleanTensor, dimensionSizeArray, numberOfDimensions, currentDimension)
+
+	local numberOfValues = dimensionSizeArray[1]
+
+	local containNoFalseBoolean = true
+
+	if (#dimensionSizeArray > 1) then
+
+		for i = 1, numberOfValues, 1 do containNoFalseBoolean = containNoFalseBooleanInTensor(booleanTensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1) end
+
+	else
+
+		for i = 1, numberOfValues, 1 do 
+
+			containNoFalseBoolean = (containNoFalseBoolean == booleanTensor[i])
+
+			if (not containNoFalseBoolean) then return false end
+
+		end
+
+	end
+
+	return containNoFalseBoolean
+
+end
+
 function AqwamTensorLibrary:isSameTensor(tensor1, tensor2)
 
 	local booleanTensor = AqwamTensorLibrary:isEqualTo(tensor1, tensor2)
+	
+	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(booleanTensor)
 
-	return containNoFalseBooleanInTensor(booleanTensor)
+	return containNoFalseBooleanInTensor(booleanTensor, dimensionSizeArray, #dimensionSizeArray, 1)
 
 end
 
