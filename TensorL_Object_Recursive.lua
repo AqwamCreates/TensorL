@@ -2052,7 +2052,7 @@ local function expandedDotProduct(tensor1, tensor2)
 
 		for i = 1, numberOfDimensionsOffset1, 1 do table.insert(dimensionSizeToAddArray, dimensionSizeArray2[i]) end
 
-		expandedTensor1 = AqwamTensorLibrary:increaseNumberOfDimensions(tensor1, dimensionSizeToAddArray)
+		expandedTensor1 = tensor1:increaseNumberOfDimensions(dimensionSizeToAddArray)
 
 	else
 
@@ -2066,7 +2066,7 @@ local function expandedDotProduct(tensor1, tensor2)
 
 		for i = 1, numberOfDimensionsOffset2, 1 do table.insert(dimensionSizeToAddArray, dimensionSizeArray1[i]) end
 
-		expandedTensor2 = AqwamTensorLibrary:increaseNumberOfDimensions(tensor2, dimensionSizeToAddArray)
+		expandedTensor2 = tensor2:increaseNumberOfDimensions(dimensionSizeToAddArray)
 
 	else
 
@@ -2074,9 +2074,9 @@ local function expandedDotProduct(tensor1, tensor2)
 
 	end
 
-	local expandedTensor1DimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(expandedTensor1)
+	local expandedTensor1DimensionSizeArray = expandedTensor1:getDimensionSizeArray()
 
-	local expandedTensor2DimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(expandedTensor2)
+	local expandedTensor2DimensionSizeArray = expandedTensor2:getDimensionSizeArray()
 
 	return recursiveExpandedDotProduct(expandedTensor1, expandedTensor2, expandedTensor1DimensionSizeArray, expandedTensor2DimensionSizeArray)
 
