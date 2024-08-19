@@ -1940,7 +1940,7 @@ local function dotProduct(tensor1, tensor2, tensor1DimensionSizeArray, tensor2Di
 
 	elseif (tensor1NumberOfDimensions == 0) or (tensor2NumberOfDimensions == 0) then
 
-		tensor = AqwamTensorLibrary:multiply(tensor1, tensor2)
+		tensor = tensor1:multiply(tensor2)
 
 	else
 
@@ -2012,7 +2012,7 @@ local function recursiveExpandedDotProduct(tensor1, tensor2, tensor1DimensionSiz
 
 	elseif (tensor1NumberOfDimensions == 0) or (tensor2NumberOfDimensions == 0) then
 
-		tensor = AqwamTensorLibrary:multiply(tensor1, tensor2)
+		tensor = tensor1:multiply(tensor2)
 
 	elseif (tensor1NumberOfDimensions >= 2) and (tensor2NumberOfDimensions >= 2) and (not hasSameSize) then
 
