@@ -1986,33 +1986,33 @@ local function tensor2DimensionalDotProduct(tensor1, tensor2)
 
 end
 
-local function recursiveExpandedDotProduct(tensor1, tensor2, dimensionSizeArray1, dimensionSizeArray2) -- Since both have equal number of dimensions now, we only need to use only one dimension size array.
+local function recursiveExpandedDotProduct(tensor1, tensor2, tensor1DimensionSizeArray, tensor2DimensionSizeArray) -- Since both have equal number of dimensions now, we only need to use only one dimension size array.
 
-	local numberOfDimensions1 = #dimensionSizeArray1
+	local tensor1NumberOfDimensions = #tensor1DimensionSizeArray
 
-	local numberOfDimensions2 = #dimensionSizeArray2
+	local tensor2NumberOfDimensions = #tensor2DimensionSizeArray
 
 	local tensor
 
-	if (numberOfDimensions1 >= 3) and (numberOfDimensions2 >= 3) and (dimensionSizeArray1[1] == dimensionSizeArray2[1]) then
+	if (tensor1NumberOfDimensions >= 3) and (tensor2NumberOfDimensions >= 3) and (tensor1DimensionSizeArray[1] == tensor2DimensionSizeArray[1]) then
 
 		tensor = {}
 
-		local remainingDimensionSizeArray1 = removeFirstValueFromArray(dimensionSizeArray1)
+		local remainingDimensionSizeArray1 = removeFirstValueFromArray(tensor1DimensionSizeArray)
 
-		local remainingDimensionSizeArray2 = removeFirstValueFromArray(dimensionSizeArray2)
+		local remainingDimensionSizeArray2 = removeFirstValueFromArray(tensor2DimensionSizeArray)
 
-		for i = 1, dimensionSizeArray1[1], 1 do tensor[i] = recursiveExpandedDotProduct(tensor1[i], tensor2[i], remainingDimensionSizeArray1, remainingDimensionSizeArray2) end
+		for i = 1, tensor1DimensionSizeArray[1], 1 do tensor[i] = recursiveExpandedDotProduct(tensor1[i], tensor2[i], remainingDimensionSizeArray1, remainingDimensionSizeArray2) end
 
-	elseif (numberOfDimensions1 == 2) and (numberOfDimensions2 == 2) and (dimensionSizeArray1[2] == dimensionSizeArray2[1]) then -- No need an elseif statement where number of dimension is 1. This operation requires 2D tensors.
+	elseif (tensor1NumberOfDimensions == 2) and (tensor2NumberOfDimensions == 2) and (tensor1DimensionSizeArray[2] == tensor2DimensionSizeArray[1]) then -- No need an elseif statement where number of dimension is 1. This operation requires 2D tensors.
 
 		tensor = tensor2DimensionalDotProduct(tensor1, tensor2)
 
-	elseif (numberOfDimensions1 == 0) or (numberOfDimensions2 == 0) then
+	elseif (tensor1NumberOfDimensions == 0) or (tensor2NumberOfDimensions == 0) then
 
 		tensor = AqwamTensorLibrary:multiply(tensor1, tensor2)
 
-	elseif (numberOfDimensions1 >= 2) and (numberOfDimensions2 >= 2) and (dimensionSizeArray1[1] ~= dimensionSizeArray2[1]) then
+	elseif (tensor1NumberOfDimensions >= 2) and (tensor2NumberOfDimensions >= 2) and (tensor1DimensionSizeArray[1] ~= tensor2DimensionSizeArray[1]) then
 
 		error("Unable to dot product. The starting dimension sizes of the first tensor does not equal to the starting dimension sizes of the second tensor.")
 
