@@ -3013,17 +3013,15 @@ end
 
 local function containNoFalseBooleanInTensor(booleanTensor, dimensionSizeArray)
 
-	local numberOfValues = dimensionSizeArray[1]
-
 	local containNoFalseBoolean = true
 
 	if (#dimensionSizeArray > 1) then
 
-		for i = 1, numberOfValues, 1 do containNoFalseBoolean = containNoFalseBooleanInTensor(booleanTensor[i]) end
+		for i = 1, dimensionSizeArray[1], 1 do containNoFalseBoolean = containNoFalseBooleanInTensor(booleanTensor[i]) end
 
 	else
 
-		for i = 1, numberOfValues, 1 do 
+		for i = 1, dimensionSizeArray[1], 1 do 
 
 			containNoFalseBoolean = (containNoFalseBoolean == booleanTensor[i])
 
