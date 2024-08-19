@@ -2084,21 +2084,21 @@ end
 
 local function hardcodedDotProduct(tensor1, tensor2)
 
-	local numberOfDimensions1 = AqwamTensorLibrary:getNumberOfDimensions(tensor1)
+	local numberOfDimensions1 = tensor1:getNumberOfDimensions()
 
-	local numberOfDimensions2 = AqwamTensorLibrary:getNumberOfDimensions(tensor2)
+	local numberOfDimensions2 = tensor2:getNumberOfDimensions()
 
 	local numberOfDimensionsOffset1 = 5 - numberOfDimensions1
 
 	local numberOfDimensionsOffset2 = 5 - numberOfDimensions2
 
-	local expandedTensor1 = AqwamTensorLibrary:increaseNumberOfDimensions(tensor1, table.create(numberOfDimensionsOffset1, 1))
+	local expandedTensor1 = tensor1:increaseNumberOfDimensions(table.create(numberOfDimensionsOffset1, 1))
 
-	local expandedTensor2 = AqwamTensorLibrary:increaseNumberOfDimensions(tensor2, table.create(numberOfDimensionsOffset2, 1))
+	local expandedTensor2 = tensor2:increaseNumberOfDimensions(table.create(numberOfDimensionsOffset2, 1))
 
-	local expandedNumberOfDimension1 = AqwamTensorLibrary:getDimensionSizeArray(expandedTensor1)
+	local expandedNumberOfDimension1 = expandedTensor1:getDimensionSizeArray()
 
-	local expandedNumberOfDimension2 = AqwamTensorLibrary:getDimensionSizeArray(expandedTensor2)
+	local expandedNumberOfDimension2 = expandedTensor2:getDimensionSizeArray()
 
 	local tensor = {}
 
