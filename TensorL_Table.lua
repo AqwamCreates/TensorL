@@ -824,11 +824,11 @@ local function containAFalseBooleanInTensor(booleanTensor, dimensionSizeArray)
 
 	if (#dimensionSizeArray > 1) then
 
-		for i = 1, numberOfValues do containsAFalseBoolean = containAFalseBooleanInTensor(booleanTensor[i]) end
+		for i = 1, numberOfValues, 1 do containsAFalseBoolean = containAFalseBooleanInTensor(booleanTensor[i]) end
 
 	else
 
-		for i = 1, numberOfValues do 
+		for i = 1, numberOfValues, 1 do 
 
 			containsAFalseBoolean = (containsAFalseBoolean == booleanTensor[i])
 
