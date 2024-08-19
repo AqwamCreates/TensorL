@@ -1622,17 +1622,17 @@ function AqwamTensorLibrary:__sub(other)
 
 end
 
-function AqwamTensorLibrary:subtract(other)
+function AqwamTensorLibrary:subtract(...)
 
-	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a - b) end, self, other)
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a - b) end, self, ...)
 
 	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
-function AqwamTensorLibrary:__mul(...)
+function AqwamTensorLibrary:__mul(other)
 
-	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, self, ...)
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, self, other)
 
 	return AqwamTensorLibrary.new(resultTensor)
 
@@ -2962,6 +2962,40 @@ function AqwamTensorLibrary:destroy()
 	self.tensor = nil
 
 	setmetatable(self, nil)
+
+end
+
+local function containAFalseBooleanInTensor(booleanTensor, dimensionSizeArray)
+
+	local numberOfValues = dimensionSizeArray[1]
+
+	local containsAFalseBoolean = true
+
+	if (#dimensionSizeArray > 1) then
+
+		for i = 1, numberOfValues, 1 do containsAFalseBoolean = containAFalseBooleanInTensor(booleanTensor[i]) end
+
+	else
+
+		for i = 1, numberOfValues, 1 do 
+
+			containsAFalseBoolean = (containsAFalseBoolean == booleanTensor[i])
+
+			if (not containsAFalseBoolean) then return false end
+
+		end
+
+	end
+
+	return containsAFalseBoolean
+
+end
+
+function AqwamTensorLibrary:isSameTensor(other)
+
+	local booleanTensor = self:isEqualTo(other)
+
+	return containAFalseBooleanInTensor(booleanTensor)
 
 end
 
