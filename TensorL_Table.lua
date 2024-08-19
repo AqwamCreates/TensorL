@@ -1898,7 +1898,7 @@ local function dotProduct(tensor1, tensor2, tensor1DimensionSizeArray, tensor2Di
 
 	else
 
-		error({tensor1NumberOfDimensions, tensor2NumberOfDimensions})
+		error("Unable to dot product.")
 
 	end
 
@@ -2355,9 +2355,9 @@ function AqwamTensorLibrary:sum(tensor, dimension)
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	if (not dimension) then return sumFromAllDimensions(tensor, dimensionSizeArray) end
-	
+
 	if (type(dimension) ~= "number") then error("The dimension must be a number.") end
-	
+
 	local numberOfDimensions = #dimensionSizeArray
 
 	throwErrorIfDimensionIsOutOfBounds(dimension, 1, numberOfDimensions)
