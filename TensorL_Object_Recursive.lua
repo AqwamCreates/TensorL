@@ -775,9 +775,9 @@ function AqwamTensorLibrary:sum(dimension)
 	local dimensionSizeArray = self:getDimensionSizeArray()
 
 	if (not dimension) then return sumFromAllDimensions(self, dimensionSizeArray) end
-	
+
 	if (type(dimension) ~= "number") then error("The dimension must be a number.") end
-	
+
 	local numberOfDimensions = #dimensionSizeArray
 
 	throwErrorIfDimensionIsOutOfBounds(dimension, 1, numberOfDimensions)
@@ -2429,7 +2429,7 @@ local function getTotalSizeFromDimensionSizeArray(dimensionSizeArray)
 end
 
 local function flattenAlongSpecifiedDimensions(dimensionSizeArray, startDimension, endDimension)
-	
+
 	local newDimensionSizeArray = {}
 
 	local flattenedDimensionSize = 1
@@ -2463,7 +2463,7 @@ function AqwamTensorLibrary:flatten(dimensionArray)
 	if (endDimension == math.huge) then endDimension = numberOfDimensions end
 
 	local newDimensionSizeArray = flattenAlongSpecifiedDimensions(dimensionSizeArray, startDimension, endDimension)
-	
+
 	return self:reshape(newDimensionSizeArray)
 
 end
@@ -2965,17 +2965,15 @@ end
 
 local function containNoFalseBooleanInTensor(booleanTensor, dimensionSizeArray)
 
-	local numberOfValues = dimensionSizeArray[1]
-
 	local containNoFalseBoolean = true
 
 	if (#dimensionSizeArray > 1) then
 
-		for i = 1, numberOfValues, 1 do containNoFalseBoolean = containNoFalseBooleanInTensor(booleanTensor[i]) end
+		for i = 1, dimensionSizeArray[1], 1 do containNoFalseBoolean = containNoFalseBooleanInTensor(booleanTensor[i]) end
 
 	else
 
-		for i = 1, numberOfValues, 1 do 
+		for i = 1, dimensionSizeArray[1], 1 do 
 
 			containNoFalseBoolean = (containNoFalseBoolean == booleanTensor[i])
 
