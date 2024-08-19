@@ -2667,7 +2667,7 @@ local function squeeze(tensor, dimensionSizeArray, targetDimension, currentDimen
 
 	local isAtTargetDimension = (currentDimension == targetDimension)
 
-	local isATensor = (numberOfDimensions >= 1)
+	local isATensor = (type(tensor) == "table")
 
 	local remainingDimensionSizeArray
 
