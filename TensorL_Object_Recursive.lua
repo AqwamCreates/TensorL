@@ -702,11 +702,11 @@ local function sumFromAllDimensions(tensor, dimensionSizeArray)
 
 end
 
-local function subTensorSumAlongFirstDimensionRecursion(tensor, dimensionSizeArray, targetTensor, targetDimensionIndexArray)
+local function subTensorSumAlongFirstDimensionRecursion(tensor, dimensionSizeArray, targetTensor, targetDimensionSizeArray, targetDimensionIndexArray)
 
 	local numberOfDimensions = #dimensionSizeArray
 
-	if (numberOfDimensions >= 1) then
+	if (numberOfDimensions >= 2) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -716,21 +716,27 @@ local function subTensorSumAlongFirstDimensionRecursion(tensor, dimensionSizeArr
 
 			table.insert(copiedTargetDimensionIndexArray, i)
 
-			subTensorSumAlongFirstDimensionRecursion(tensor[i], remainingDimensionSizeArray, targetTensor, copiedTargetDimensionIndexArray)
+			subTensorSumAlongFirstDimensionRecursion(tensor[i], remainingDimensionSizeArray, targetTensor, targetDimensionSizeArray, copiedTargetDimensionIndexArray)
 
 		end
 
 	else
 
-		targetDimensionIndexArray[1] = 1 -- The target dimension only have a size of 1 for summing.
+		for i = 1, dimensionSizeArray[1], 1 do
 
-		local targetTensorDimensionSizeArray = getDimensionSizeArray(targetTensor)
+			local copiedTargetDimensionIndexArray = table.clone(targetDimensionIndexArray)
 
-		local targetTensorValue = getValue(targetTensor, targetTensorDimensionSizeArray, targetDimensionIndexArray)
+			table.insert(copiedTargetDimensionIndexArray, i)
 
-		local value = targetTensorValue + tensor
+			copiedTargetDimensionIndexArray[1] = 1 -- The target dimension only have a size of 1 for summing.
 
-		setValue(targetTensor, targetTensorDimensionSizeArray, value, targetDimensionIndexArray)
+			local targetTensorValue = getValue(targetTensor, targetDimensionSizeArray, copiedTargetDimensionIndexArray)
+
+			local value = targetTensorValue + tensor[i]
+
+			setValue(targetTensor, targetDimensionSizeArray, value, copiedTargetDimensionIndexArray)
+
+		end
 
 	end	
 
@@ -744,7 +750,7 @@ local function subTensorSumAlongFirstDimension(tensor, dimensionSizeArray)
 
 	local sumTensor = createTensor(sumDimensionalSizeArray, 0)
 
-	subTensorSumAlongFirstDimensionRecursion(tensor, dimensionSizeArray, sumTensor, {})
+	subTensorSumAlongFirstDimensionRecursion(tensor, dimensionSizeArray, sumTensor, sumDimensionalSizeArray, {})
 
 	return sumTensor
 
