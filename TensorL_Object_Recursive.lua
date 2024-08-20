@@ -682,11 +682,9 @@ end
 
 local function sumFromAllDimensions(tensor, dimensionSizeArray)
 
-	local numberOfDimensions = #dimensionSizeArray
-
 	local result = 0
 
-	if (numberOfDimensions > 1) then
+	if (#dimensionSizeArray > 1) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -704,9 +702,7 @@ end
 
 local function recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArray, targetTensor, targetDimensionSizeArray, targetDimensionIndexArray)
 
-	local numberOfDimensions = #dimensionSizeArray
-
-	if (numberOfDimensions >= 2) then
+	if (#dimensionSizeArray >= 2) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -971,11 +967,9 @@ end
 
 local function createIdentityTensor(dimensionSizeArray, dimensionIndexArray)
 
-	local numberOfDimensions = #dimensionSizeArray
-
 	local tensor = {}
 
-	if (numberOfDimensions >= 2) then
+	if (#dimensionSizeArray >= 2) then
 
 		for i = 1, dimensionSizeArray[1], 1 do 
 
@@ -1142,7 +1136,7 @@ end
 
 local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think it is worth the effort to generalize to the rest of dimensions... That being said, to process videos, you need at most 5 dimensions. Don't get confused about the channels! Only number of channels are changed and not the number of dimensions of the tensor!
 
-	local dimensionArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local dimensionArray = tensor:getDimensionSizeArray()
 
 	local numberOfDimensions = #dimensionArray
 
@@ -1445,9 +1439,7 @@ end
 
 local function transpose(tensor, dimensionSizeArray, currentTargetDimensionIndexArray, targetTensor, dimension1, dimension2)
 
-	local numberOfDimensions = #dimensionSizeArray
-
-	if (numberOfDimensions >= 1) then
+	if (#dimensionSizeArray >= 1) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -2190,13 +2182,11 @@ end
 
 local function generateTensorString(tensor, dimensionSizeArray, textSpacingArray, dimensionDepth)
 
-	local numberOfDimensions = #dimensionSizeArray
-
 	local dimensionSize = #tensor
 
 	local text = " "
 
-	if (numberOfDimensions > 1) then
+	if (#dimensionSizeArray > 1) then
 
 		local spacing = ""
 
@@ -2262,13 +2252,11 @@ end
 
 local function generateTensorWithCommaString(tensor, dimensionSizeArray, textSpacingArray, dimensionDepth)
 
-	local numberOfDimensions = #dimensionSizeArray
-
 	local dimensionSize = #tensor
 
 	local text = " "
 
-	if (numberOfDimensions > 1) then
+	if (#dimensionSizeArray > 1) then
 
 		local spacing = ""
 
@@ -2334,13 +2322,11 @@ end
 
 local function generatePortableTensorString(tensor, dimensionSizeArray, textSpacingArray, dimensionDepth)
 
-	local numberOfDimensions = #dimensionSizeArray
-
 	local dimensionSize = #tensor
 
 	local text = " "
 
-	if (numberOfDimensions > 1) then
+	if (#dimensionSizeArray > 1) then
 
 		local spacing = ""
 
@@ -2350,7 +2336,7 @@ local function generatePortableTensorString(tensor, dimensionSizeArray, textSpac
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		for i = 1, dimensionSize do
+		for i = 1, dimensionSize, 1 do
 
 			if (i > 1) then text = text .. spacing end
 
@@ -2563,11 +2549,9 @@ function AqwamTensorLibrary:inefficientReshape(dimensionSizeArray) -- This one r
 
 	if (totalNumberOfValue ~= totalNumberOfValuesRequired) then error("The number of values of the tensor does not equal to total number of values of the reshaped tensor.") end
 
-	local numberOfDimensions = #tensorDimensionSizeArray
-
 	local resultTensor
 
-	if (numberOfDimensions ~= 1) then
+	if (#tensorDimensionSizeArray ~= 1) then
 
 		resultTensor = AqwamTensorLibrary:createTensor(dimensionSizeArray, true)
 
@@ -2611,11 +2595,9 @@ function AqwamTensorLibrary:reshape(dimensionSizeArray) -- This one requires low
 
 	if (totalSize ~= totalSizeRequired) then error("The total size of the tensor does not equal to the total size of the reshaped tensor.") end
 
-	local numberOfDimensions = #tensorDimensionSizeArray
-
 	local flattenedTensor
 
-	if (numberOfDimensions ~= 1) then
+	if (#tensorDimensionSizeArray ~= 1) then
 
 		flattenedTensor = {}
 
@@ -2839,13 +2821,11 @@ end
 
 local function findMaximumValueDimensionIndexArray(tensor, dimensionSizeArray, dimensionIndexArray)
 
-	local numberOfDimensions = #dimensionSizeArray
-
 	local highestValue = -math.huge
 
 	local highestValueDimensionIndexArray
 
-	if (numberOfDimensions >= 2) then
+	if (#dimensionSizeArray >= 2) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -2901,13 +2881,11 @@ end
 
 local function findMinimumValueDimensionIndexArray(tensor, dimensionSizeArray, dimensionIndexArray)
 
-	local numberOfDimensions = #dimensionSizeArray
-
 	local lowestValue = math.huge
 
 	local lowestValueDimensionIndexArray
 
-	if (numberOfDimensions >= 2) then
+	if (#dimensionSizeArray >= 2) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
