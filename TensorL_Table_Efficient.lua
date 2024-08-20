@@ -2003,18 +2003,16 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 end
 
 local function sumFromAllDimensions(tensor, dimensionSizeArray, numberOfDimensions, currentDimension)
-	
-	local dimensionSize = dimensionSizeArray[currentDimension]
 
 	local result = 0
 
 	if (currentDimension < numberOfDimensions) then
 
-		for i = 1, dimensionSize, 1 do result = result + sumFromAllDimensions(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1) end
+		for i = 1, dimensionSizeArray[currentDimension], 1 do result = result + sumFromAllDimensions(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1) end
 
 	else
 
-		for i = 1, dimensionSize, 1 do result = result + tensor[i] end
+		for i = 1, dimensionSizeArray[currentDimension], 1 do result = result + tensor[i] end
 
 	end
 
