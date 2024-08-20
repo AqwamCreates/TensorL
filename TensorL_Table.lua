@@ -492,13 +492,11 @@ end
 
 local function generateTensorString(tensor, dimensionSizeArray, textSpacingArray, dimensionDepth)
 
-	local numberOfDimensions = #dimensionSizeArray
-
-	local tensorLength = #tensor
+	local dimensionSize = #tensor
 
 	local text = " "
 
-	if (numberOfDimensions > 1) then
+	if (#dimensionSizeArray > 1) then
 
 		local spacing = ""
 
@@ -508,13 +506,13 @@ local function generateTensorString(tensor, dimensionSizeArray, textSpacingArray
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		for i = 1, #tensor do
+		for i = 1, dimensionSize, 1 do
 
 			if (i > 1) then text = text .. spacing end
 
 			text = text .. generateTensorString(tensor[i], remainingDimensionSizeArray, textSpacingArray, dimensionDepth + 1)
 
-			if (i == tensorLength) then continue end
+			if (i == dimensionSize) then continue end
 
 			text = text .. "\n"
 
@@ -526,7 +524,7 @@ local function generateTensorString(tensor, dimensionSizeArray, textSpacingArray
 
 		text = text .. "{ "
 
-		for i = 1, tensorLength do
+		for i = 1, dimensionSize, 1 do
 
 			local cellValue = tensor[i]
 
@@ -538,7 +536,7 @@ local function generateTensorString(tensor, dimensionSizeArray, textSpacingArray
 
 			text = text .. string.rep(" ", padding) .. cellText
 
-			if (i == tensorLength) then continue end
+			if (i == dimensionSize) then continue end
 
 			text = text .. " "
 
@@ -564,13 +562,11 @@ end
 
 local function generateTensorWithCommaString(tensor, dimensionSizeArray, textSpacingArray, dimensionDepth)
 
-	local numberOfDimensions = #dimensionSizeArray
-
-	local tensorLength = #tensor
+	local dimensionSize = #tensor
 
 	local text = " "
 
-	if (numberOfDimensions > 1) then
+	if (#dimensionSizeArray > 1) then
 
 		local spacing = ""
 
@@ -580,13 +576,13 @@ local function generateTensorWithCommaString(tensor, dimensionSizeArray, textSpa
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		for i = 1, #tensor do
+		for i = 1, dimensionSize, 1 do
 
 			if (i > 1) then text = text .. spacing end
 
 			text = text .. generateTensorWithCommaString(tensor[i], remainingDimensionSizeArray, textSpacingArray, dimensionDepth + 1)
 
-			if (i == tensorLength) then continue end
+			if (i == dimensionSize) then continue end
 
 			text = text .. "\n"
 
@@ -598,7 +594,7 @@ local function generateTensorWithCommaString(tensor, dimensionSizeArray, textSpa
 
 		text = text .. "{ "
 
-		for i = 1, tensorLength do 
+		for i = 1, dimensionSize do 
 
 			local cellValue = tensor[i]
 
@@ -610,7 +606,7 @@ local function generateTensorWithCommaString(tensor, dimensionSizeArray, textSpa
 
 			text = text .. string.rep(" ", padding) .. cellText
 
-			if (i == tensorLength) then continue end
+			if (i == dimensionSize) then continue end
 
 			text = text .. ", "
 
@@ -636,13 +632,11 @@ end
 
 local function generatePortableTensorString(tensor, dimensionSizeArray, textSpacingArray, dimensionDepth)
 
-	local numberOfDimensions = #dimensionSizeArray
-
-	local tensorLength = #tensor
+	local dimensionSize = #tensor
 
 	local text = " "
 
-	if (numberOfDimensions > 1) then
+	if (#dimensionSizeArray > 1) then
 
 		local spacing = ""
 
@@ -652,13 +646,13 @@ local function generatePortableTensorString(tensor, dimensionSizeArray, textSpac
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
-		for i = 1, #tensor do
+		for i = 1, dimensionSize, 1 do
 
 			if (i > 1) then text = text .. spacing end
 
 			text = text .. generatePortableTensorString(tensor[i], remainingDimensionSizeArray, textSpacingArray, dimensionDepth + 1)
 
-			if (i == tensorLength) then continue end
+			if (i == dimensionSize) then continue end
 
 			text = text .. "\n"
 
@@ -672,7 +666,7 @@ local function generatePortableTensorString(tensor, dimensionSizeArray, textSpac
 
 		text = text .. "{ "
 
-		for i = 1, tensorLength do 
+		for i = 1, dimensionSize do 
 
 			local cellValue = tensor[i]
 
@@ -684,7 +678,7 @@ local function generatePortableTensorString(tensor, dimensionSizeArray, textSpac
 
 			text = text .. string.rep(" ", padding) .. cellText
 
-			if (i == tensorLength) then continue end
+			if (i == dimensionSize) then continue end
 
 			text = text .. ", "
 
@@ -1570,9 +1564,7 @@ end
 
 local function transpose(tensor, dimensionSizeArray, currentTargetDimensionIndexArray, targetTensor, dimension1, dimension2)
 
-	local numberOfDimensions = #dimensionSizeArray
-
-	if (numberOfDimensions >= 1) then
+	if (#dimensionSizeArray >= 1) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -2090,11 +2082,9 @@ end
 
 local function sumFromAllDimensions(tensor, dimensionSizeArray)
 
-	local numberOfDimensions = #dimensionSizeArray
-
 	local result = 0
 
-	if (numberOfDimensions > 1) then
+	if (#dimensionSizeArray > 1) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -2112,9 +2102,7 @@ end
 
 local function recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArray, targetTensor, targetDimensionIndexArray)
 
-	local numberOfDimensions = #dimensionSizeArray
-
-	if (numberOfDimensions >= 2) then
+	if (#dimensionSizeArray >= 2) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -2464,13 +2452,11 @@ end
 
 local function findMaximumValueDimensionIndexArray(tensor, dimensionSizeArray, dimensionIndexArray)
 
-	local numberOfDimensions = #dimensionSizeArray
-
 	local highestValue = -math.huge
 
 	local highestValueDimensionIndexArray
 
-	if (numberOfDimensions >= 2) then
+	if (#dimensionSizeArray >= 2) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -2526,13 +2512,11 @@ end
 
 local function findMinimumValueDimensionIndexArray(tensor, dimensionSizeArray, dimensionIndexArray)
 
-	local numberOfDimensions = #dimensionSizeArray
-
 	local lowestValue = math.huge
 
 	local lowestValueDimensionIndexArray
 
-	if (numberOfDimensions >= 2) then
+	if (#dimensionSizeArray >= 2) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -2763,11 +2747,9 @@ function AqwamTensorLibrary:reshape(tensor, dimensionSizeArray) -- This one requ
 
 	if (totalSize ~= totalSizeRequired) then error("The total size of the tensor does not equal to the total size of the reshaped tensor.") end
 
-	local numberOfDimensions = #tensorDimensionSizeArray
-
 	local flattenedTensor
 
-	if (numberOfDimensions ~= 1) then
+	if (#tensorDimensionSizeArray ~= 1) then
 
 		flattenedTensor = {}
 
