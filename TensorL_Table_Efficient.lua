@@ -2022,7 +2022,7 @@ end
 
 local function recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, targetTensor, targetDimensionIndexArray)
 
-	if (currentDimension <= numberOfDimensions) then
+	if (currentDimension < numberOfDimensions) then
 
 		for i = 1, dimensionSizeArray[currentDimension], 1 do
 
@@ -2033,14 +2033,22 @@ local function recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArr
 		end
 
 	else
+		
+		local copiedTargetDimensionIndexArray = table.clone(targetDimensionIndexArray)
+		
+		copiedTargetDimensionIndexArray[1] = 1 -- The target dimension only have a size of 1 for summing.
+		
+		for i = 1, dimensionSizeArray[currentDimension], 1 do
 
-		targetDimensionIndexArray[1] = 1  -- Ensure the first dimension index is set to 1 for summing.
+			copiedTargetDimensionIndexArray[currentDimension] = i
+			
+			local targetTensorValue = AqwamTensorLibrary:getValue(targetTensor, copiedTargetDimensionIndexArray)
 
-		local targetTensorValue = AqwamTensorLibrary:getValue(targetTensor, targetDimensionIndexArray)
+			local value = targetTensorValue + tensor[i]
 
-		local value = targetTensorValue + tensor
+			AqwamTensorLibrary:setValue(targetTensor, value, copiedTargetDimensionIndexArray)
 
-		AqwamTensorLibrary:setValue(targetTensor, value, targetDimensionIndexArray)
+		end
 
 	end
 
