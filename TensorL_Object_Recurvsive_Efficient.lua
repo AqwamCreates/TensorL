@@ -2210,7 +2210,7 @@ local function generatePortableTensorString(tensor, dimensionSizeArray, numberOf
 
 		for i = 1, currentDimension, 1 do spacing = spacing .. "  " end
 
-		for i = 1, #tensor do
+		for i = 1, dimensionSize, 1 do
 
 			if (i > 1) then text = text .. spacing end
 
