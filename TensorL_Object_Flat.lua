@@ -86,11 +86,7 @@ local function convertTensorToData(tensor, dimensionSizeArray, numberOfDimension
 			
 			currentNumberOfElements = currentNumberOfElements + 1
 
-			if ((currentNumberOfElements % maximumTableLength) == 0) then
-
-				dataTableIndex = dataTableIndex + 1
-
-			end
+			if ((currentNumberOfElements % maximumTableLength) == 0) then dataTableIndex = dataTableIndex + 1 end
 			
 		end
 		
@@ -116,11 +112,7 @@ local function setValueFromFunctionToData(functionToApply, dimensionSizeArray, n
 
 			currentNumberOfElements = currentNumberOfElements + 1
 
-			if ((currentNumberOfElements % maximumTableLength) == 0) then
-
-				dataTableIndex = dataTableIndex + 1
-
-			end
+			if ((currentNumberOfElements % maximumTableLength) == 0) then dataTableIndex = dataTableIndex + 1 end
 			
 		end
 
