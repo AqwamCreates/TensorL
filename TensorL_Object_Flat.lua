@@ -588,7 +588,7 @@ function AqwamTensorLibrary:setValue(value, dimensionIndexArray)
 		
 		if (dimensionIndex <= 0) then error("The dimension index at dimension " .. i .. " must be greater than zero.") end
 		
-		if (dimensionIndex > dimensionSizeArray[i]) then error("The dimension index exceeds the dimension size at dimension " .. i .. "  of the tensor.") end
+		if (dimensionIndex > dimensionSizeArray[i]) then error("The dimension index exceeds the dimension size at dimension " .. i .. ".") end
 
 	end
 	
@@ -614,7 +614,7 @@ function AqwamTensorLibrary:getValue(dimensionIndexArray)
 
 		if (dimensionIndex <= 0) then error("The dimension index at dimension " .. i .. " must be greater than zero.") end
 
-		if (dimensionIndex > dimensionSizeArray[i]) then error("The dimension index exceeds the dimension size at dimension " .. i .. "  of the tensor.") end
+		if (dimensionIndex > dimensionSizeArray[i]) then error("The dimension index exceeds the dimension size at dimension " .. i .. ".") end
 
 	end
 
