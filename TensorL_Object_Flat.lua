@@ -72,11 +72,11 @@ local function getTotalSizeFromDimensionSizeArray(dimensionSizeArray)
 
 end
 
-local function convertTensorToData(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, targetData, dataTableIndex, currentNumberOfElements)
+local function convertTensorToData(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, targetData, dataTableIndex, currentDataLocation)
 
 	if (currentDimension < numberOfDimensions) then
 
-		for i = 1, dimensionSizeArray[currentDimension], 1 do dataTableIndex, currentNumberOfElements = convertTensorToData(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetData, dataTableIndex, currentNumberOfElements) end
+		for i = 1, dimensionSizeArray[currentDimension], 1 do dataTableIndex, currentDataLocation = convertTensorToData(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetData, dataTableIndex, currentDataLocation) end
 
 	else
 
@@ -84,41 +84,41 @@ local function convertTensorToData(tensor, dimensionSizeArray, numberOfDimension
 			
 			table.insert(targetData[dataTableIndex], value) 
 			
-			currentNumberOfElements = currentNumberOfElements + 1
+			currentDataLocation = currentDataLocation + 1
 
-			if ((currentNumberOfElements % maximumTableLength) == 0) then dataTableIndex = dataTableIndex + 1 end
+			if ((currentDataLocation % maximumTableLength) == 0) then dataTableIndex = dataTableIndex + 1 end
 			
 		end
 		
 	end
 	
-	return dataTableIndex, currentNumberOfElements
+	return dataTableIndex, currentDataLocation
 
 end
 
-local function setValueFromFunctionToData(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension, targetData, dataTableIndex, currentNumberOfElements)
+local function setValueFromFunctionToData(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension, targetData, dataTableIndex, currentDataLocation)
 
 	if (currentDimension < numberOfDimensions) then
 
-		for i = 1, dimensionSizeArray[currentDimension], 1 do dataTableIndex, currentNumberOfElements = setValueFromFunctionToData(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetData, dataTableIndex, currentNumberOfElements) end
+		for i = 1, dimensionSizeArray[currentDimension], 1 do dataTableIndex, currentDataLocation = setValueFromFunctionToData(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetData, dataTableIndex, currentDataLocation) end
 
 	else
 		
 		for i = 1, dimensionSizeArray[currentDimension], 1 do
 			
-			local value = functionToApply(currentNumberOfElements)
+			local value = functionToApply(currentDataLocation)
 			
 			table.insert(targetData[dataTableIndex], value) 
 
-			currentNumberOfElements = currentNumberOfElements + 1
+			currentDataLocation = currentDataLocation + 1
 
-			if ((currentNumberOfElements % maximumTableLength) == 0) then dataTableIndex = dataTableIndex + 1 end
+			if ((currentDataLocation % maximumTableLength) == 0) then dataTableIndex = dataTableIndex + 1 end
 			
 		end
 
 	end
 
-	return dataTableIndex, currentNumberOfElements
+	return dataTableIndex, currentDataLocation
 	
 end
 
@@ -194,11 +194,11 @@ function AqwamTensorLibrary.createIdentityTensor(dimensionSizeArray)
 	
 	local currentNumberOfOne = 1
 	
-	local elementLocation = 1
+	local dataLocation = 1
 	
-	local functionToApply = function(currentNumberOfElements) -- Generalized row-major location calculation: (i−1)×(d2×d3×d4) + (i−1)×(d3×d4) + (i−1)×d4 + (i−1) + 1
+	local functionToApply = function(currentDataLocation) -- Generalized row-major location calculation: (i−1)×(d2×d3×d4) + (i−1)×(d3×d4) + (i−1)×d4 + (i−1) + 1
 		
-		if (elementLocation ~= currentNumberOfElements) then return 0 end
+		if (dataLocation ~= currentDataLocation) then return 0 end
 		
 		currentNumberOfOne = currentNumberOfOne + 1
 		
@@ -206,17 +206,17 @@ function AqwamTensorLibrary.createIdentityTensor(dimensionSizeArray)
 		
 		local multipliedDimensionSize = 1
 		
-		elementLocation = subtractedCurrentNumberOfOne
+		dataLocation = subtractedCurrentNumberOfOne
 		
 		for i = numberOfDimensions, 2, -1 do
 			
 			multipliedDimensionSize = multipliedDimensionSize * dimensionSizeArray[i]
 			
-			elementLocation = elementLocation + (multipliedDimensionSize * subtractedCurrentNumberOfOne)
+			dataLocation = dataLocation + (multipliedDimensionSize * subtractedCurrentNumberOfOne)
 			
 		end
 			
-		elementLocation = elementLocation + 1 -- 1 is added due to the nature of Lua's 1-indexing.
+		dataLocation = dataLocation + 1 -- 1 is added due to the nature of Lua's 1-indexing.
 		
 		return 1
 			
