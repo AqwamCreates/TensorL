@@ -578,4 +578,78 @@ function AqwamTensorLibrary:__len()
 
 end
 
+function AqwamTensorLibrary:setValue(value, dimensionIndexArray)
+	
+	local dimensionSizeArray = self.dimensionSizeArray
+	
+	if (#dimensionIndexArray ~= #dimensionSizeArray) then error("The number of dimensions does not match.") end
+	
+	for i, dimensionIndex in ipairs(dimensionIndexArray) do
+		
+		if (dimensionIndex < 1) then error("The dimension index at " .. i .. " is less than 1.") end
+		
+		if (dimensionIndex > dimensionSizeArray[i]) then error("The dimension index exceeds the dimension size at dimension " .. i .. "  of the tensor.") end
+
+	end
+	
+	local dataLocation = 1
+	
+	for _, index in ipairs(dimensionIndexArray) do dataLocation = dataLocation * index end
+	
+	local dataTableIndex = math.ceil(dataLocation / maximumTableLength)
+	
+	local dataIndex = dataLocation % maximumTableLength
+	
+	self.data[dataTableIndex][dataIndex] = value
+	
+end
+
+function AqwamTensorLibrary:getValue(dimensionIndexArray)
+
+	local dimensionSizeArray = self.dimensionSizeArray
+
+	if (#dimensionIndexArray ~= #dimensionSizeArray) then error("The number of dimensions does not match.") end
+
+	for i, dimensionIndex in ipairs(dimensionIndexArray) do
+
+		if (dimensionIndex < 1) then error("The dimension index at " .. i .. " is less than 1.") end
+
+		if (dimensionIndex > dimensionSizeArray[i]) then error("The dimension index exceeds the dimension size at dimension " .. i .. "  of the tensor.") end
+
+	end
+
+	local dataLocation = 1
+
+	for _, index in ipairs(dimensionIndexArray) do dataLocation = dataLocation * index end
+
+	local dataTableIndex = math.ceil(dataLocation / maximumTableLength)
+
+	local dataIndex = dataLocation % maximumTableLength
+
+	return self.data[dataTableIndex][dataIndex]
+
+end
+
+function AqwamTensorLibrary:transpose(dimensionArray)
+	
+	if (#dimensionArray ~= 2) then error("Dimension array must contain 2 dimensions.") end
+
+	local dimension1 = dimensionArray[1]
+
+	local dimension2 = dimensionArray[2]
+
+	local numberOfDimensions = #self.dimensionSizeArray
+
+	if (dimension1 <= 0) then error("The first dimension must be greater than zero.") end
+
+	if (dimension2 <= 0) then error("The second dimension must be greater than zero.") end
+
+	if (dimension1 > numberOfDimensions) then error("The first dimension exceeds the tensor's number of dimensions") end
+
+	if (dimension2 > numberOfDimensions) then error("The second dimension exceeds the tensor's number of dimensions") end
+
+	if (dimension1 == dimension2) then error("The first dimension is equal to the second dimension.") end
+	
+end
+
 return AqwamTensorLibrary
