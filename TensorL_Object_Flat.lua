@@ -610,11 +610,11 @@ local function getLinearIndex(dimensionIndexArray, dimensionSizeArray)
 	
 end
 
-local function getDataIndex(dataLocation)
+local function getDataIndex(linearIndex)
 	
-	local dataTableIndex = math.ceil(dataLocation / maximumTableLength)
+	local dataTableIndex = math.ceil(linearIndex / maximumTableLength)
 
-	local dataIndex = dataLocation % maximumTableLength
+	local dataIndex = linearIndex % maximumTableLength
 	
 	return dataTableIndex, dataIndex
 	
