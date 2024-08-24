@@ -662,4 +662,14 @@ function AqwamTensorLibrary:transpose(dimensionArray)
 	
 end
 
+function AqwamTensorLibrary:destroy()
+
+	self.data = nil
+	
+	self.dimensionSizeArray = nil
+
+	setmetatable(self, nil)
+
+end
+
 return AqwamTensorLibrary
