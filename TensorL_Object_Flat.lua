@@ -156,19 +156,21 @@ function AqwamTensorLibrary.new(tensor)
 
 end
 
-function AqwamTensorLibrary.construct(data, dimensionSizeArray)
+function AqwamTensorLibrary.construct(data, dimensionSizeArray, mode)
 
 	local self = setmetatable({}, AqwamTensorLibrary)
 
 	self.data = data
 
 	self.dimensionSizeArray = dimensionSizeArray
+	
+	self.mode = mode or defaultMode
 
 	return self
 
 end
 
-function AqwamTensorLibrary.createTensor(dimensionSizeArray, initialValue)
+function AqwamTensorLibrary.createTensor(dimensionSizeArray, initialValue, mode)
 
 	initialValue = initialValue or 0
 
@@ -181,12 +183,14 @@ function AqwamTensorLibrary.createTensor(dimensionSizeArray, initialValue)
 	self.data = data
 
 	self.dimensionSizeArray = dimensionSizeArray
+	
+	self.mode = mode or defaultMode
 
 	return self
 
 end
 
-function AqwamTensorLibrary.createIdentityTensor(dimensionSizeArray)
+function AqwamTensorLibrary.createIdentityTensor(dimensionSizeArray, mode)
 
 	local self = setmetatable({}, AqwamTensorLibrary)
 
@@ -229,12 +233,14 @@ function AqwamTensorLibrary.createIdentityTensor(dimensionSizeArray)
 	self.data = data
 
 	self.dimensionSizeArray = dimensionSizeArray
+	
+	self.mode = mode or defaultMode
 
 	return self
 
 end
 
-function AqwamTensorLibrary.createRandomNormalTensor(dimensionSizeArray, mean, standardDeviation)
+function AqwamTensorLibrary.createRandomNormalTensor(dimensionSizeArray, mean, standardDeviation, mode)
 
 	mean = mean or 0
 
@@ -262,11 +268,13 @@ function AqwamTensorLibrary.createRandomNormalTensor(dimensionSizeArray, mean, s
 
 	self.dimensionSizeArray = dimensionSizeArray
 	
+	self.mode = mode or defaultMode
+	
 	return self
 
 end
 
-function AqwamTensorLibrary.createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue)
+function AqwamTensorLibrary.createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue, mode)
 	
 	local self = setmetatable({}, AqwamTensorLibrary)
 
@@ -303,6 +311,8 @@ function AqwamTensorLibrary.createRandomUniformTensor(dimensionSizeArray, minimu
 	self.data = data
 
 	self.dimensionSizeArray = dimensionSizeArray
+	
+	self.mode = mode or defaultMode
 
 	return self
 	
@@ -662,11 +672,9 @@ local function getDataIndex(linearIndex)
 	
 end
 
-function AqwamTensorLibrary:setValue(value, dimensionIndexArray, mode)
+function AqwamTensorLibrary:setValue(value, dimensionIndexArray)
 	
-	mode = mode or defaultMode
-	
-	local linearIndex = getLinearIndexFunctionList[mode](dimensionIndexArray, self.dimensionSizeArray)
+	local linearIndex = getLinearIndexFunctionList[self.mode](dimensionIndexArray, self.dimensionSizeArray)
 	
 	local dataTableIndex, dataIndex = getDataIndex(linearIndex)
 	
@@ -674,11 +682,9 @@ function AqwamTensorLibrary:setValue(value, dimensionIndexArray, mode)
 	
 end
 
-function AqwamTensorLibrary:getValue(dimensionIndexArray, mode)
-	
-	mode = mode or defaultMode
+function AqwamTensorLibrary:getValue(dimensionIndexArray)
 
-	local linearIndex = getLinearIndexFunctionList[mode](dimensionIndexArray, self.dimensionSizeArray)
+	local linearIndex = getLinearIndexFunctionList[self.mode](dimensionIndexArray, self.dimensionSizeArray)
 
 	local dataTableIndex, dataIndex = getDataIndex(linearIndex)
 	
