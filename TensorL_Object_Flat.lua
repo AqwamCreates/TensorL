@@ -666,11 +666,11 @@ local getLinearIndexFunctionList = {
 
 local function getDataIndex(linearIndex)
 	
-	local dataTableIndex = math.ceil(linearIndex / maximumTableLength)
+	local dataIndex = math.ceil(linearIndex / maximumTableLength)
 
-	local dataIndex = linearIndex % maximumTableLength
+	local subDataIndex = linearIndex % maximumTableLength
 	
-	return dataTableIndex, dataIndex
+	return dataIndex, subDataIndex
 	
 end
 
@@ -678,9 +678,9 @@ function AqwamTensorLibrary:setValue(value, dimensionIndexArray)
 	
 	local linearIndex = getLinearIndexFunctionList[self.mode](dimensionIndexArray, self.dimensionSizeArray)
 	
-	local dataTableIndex, dataIndex = getDataIndex(linearIndex)
+	local dataIndex, subDataIndex = getDataIndex(linearIndex)
 	
-	self.data[dataTableIndex][dataIndex] = value
+	self.data[dataIndex][subDataIndex] = value
 	
 end
 
@@ -688,9 +688,9 @@ function AqwamTensorLibrary:getValue(dimensionIndexArray)
 
 	local linearIndex = getLinearIndexFunctionList[self.mode](dimensionIndexArray, self.dimensionSizeArray)
 
-	local dataTableIndex, dataIndex = getDataIndex(linearIndex)
+	local dataIndex, subDataIndex = getDataIndex(linearIndex)
 	
-	return self.data[dataTableIndex][dataIndex]
+	return self.data[dataIndex][subDataIndex]
 
 end
 
