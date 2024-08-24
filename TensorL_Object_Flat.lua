@@ -1,5 +1,7 @@
 local maximumTableLength = 2 ^ 26
 
+local defaultMode = "Row"
+
 local AqwamTensorLibrary = {}
 
 local function deepCopyTable(original, copies)
@@ -662,7 +664,7 @@ end
 
 function AqwamTensorLibrary:setValue(value, dimensionIndexArray, mode)
 	
-	mode = mode or "Row"
+	mode = mode or defaultMode
 	
 	local linearIndex = getLinearIndexFunctionList[mode](dimensionIndexArray, self.dimensionSizeArray)
 	
@@ -674,7 +676,7 @@ end
 
 function AqwamTensorLibrary:getValue(dimensionIndexArray, mode)
 	
-	mode = mode or "Row"
+	mode = mode or defaultMode
 
 	local linearIndex = getLinearIndexFunctionList[mode](dimensionIndexArray, self.dimensionSizeArray)
 
