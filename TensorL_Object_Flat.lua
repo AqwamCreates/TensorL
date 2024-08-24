@@ -138,7 +138,7 @@ local function generateEmptyDataFromDimensionSizeArray(dimensionSizeArray)
 	
 end
 
-function AqwamTensorLibrary.new(tensor)
+function AqwamTensorLibrary.new(tensor, mode)
 
 	local self = setmetatable({}, AqwamTensorLibrary)
 	
@@ -151,6 +151,8 @@ function AqwamTensorLibrary.new(tensor)
 	self.data = data
 	
 	self.dimensionSizeArray = dimensionSizeArray
+	
+	self.mode = mode or defaultMode
 	
 	return self
 
