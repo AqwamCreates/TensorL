@@ -578,7 +578,7 @@ function AqwamTensorLibrary:__len()
 
 end
 
-local function getLinearIndex(dimensionIndexArray, dimensionSizeArray)
+local function getLinearIndexForRowMajorStorage(dimensionIndexArray, dimensionSizeArray)
 	
 	local numberOfDimensions = #dimensionSizeArray
 	
@@ -610,6 +610,46 @@ local function getLinearIndex(dimensionIndexArray, dimensionSizeArray)
 	
 end
 
+local function getLinearIndexForColumnMajorStorage(dimensionIndexArray, dimensionSizeArray)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	if (#dimensionIndexArray ~= numberOfDimensions) then error("The number of dimensions does not match.") end
+
+	for i, dimensionIndex in ipairs(dimensionIndexArray) do
+
+		if (dimensionIndex <= 0) then error("The dimension index at dimension " .. i .. " must be greater than zero.") end
+
+		if (dimensionIndex > dimensionSizeArray[i]) then error("The dimension index exceeds the dimension size at dimension " .. i .. ".") end
+
+	end
+
+	local linearIndex = 0
+
+	local multipliedDimensionSize = 1
+
+	for i = 1, numberOfDimensions, 1 do
+		
+		linearIndex = linearIndex + (multipliedDimensionSize * (dimensionIndexArray[i] - 1))
+		
+		multipliedDimensionSize = multipliedDimensionSize * dimensionSizeArray[i]
+		
+	end
+
+	linearIndex = linearIndex + 1 -- 1 is added due to the nature of Lua's 1-indexing.
+
+	return linearIndex
+
+end
+
+local getLinearIndexFunctionList = {
+	
+	["Row"] = getLinearIndexForRowMajorStorage,
+	
+	["Column"] = getLinearIndexForColumnMajorStorage
+	
+}
+
 local function getDataIndex(linearIndex)
 	
 	local dataTableIndex = math.ceil(linearIndex / maximumTableLength)
@@ -620,9 +660,11 @@ local function getDataIndex(linearIndex)
 	
 end
 
-function AqwamTensorLibrary:setValue(value, dimensionIndexArray)
+function AqwamTensorLibrary:setValue(value, dimensionIndexArray, mode)
 	
-	local linearIndex = getLinearIndex(dimensionIndexArray, self.dimensionSizeArray)
+	mode = mode or "Row"
+	
+	local linearIndex = getLinearIndexFunctionList[mode](dimensionIndexArray, self.dimensionSizeArray)
 	
 	local dataTableIndex, dataIndex = getDataIndex(linearIndex)
 	
@@ -630,9 +672,11 @@ function AqwamTensorLibrary:setValue(value, dimensionIndexArray)
 	
 end
 
-function AqwamTensorLibrary:getValue(dimensionIndexArray)
+function AqwamTensorLibrary:getValue(dimensionIndexArray, mode)
+	
+	mode = mode or "Row"
 
-	local linearIndex = getLinearIndex(dimensionIndexArray, self.dimensionSizeArray)
+	local linearIndex = getLinearIndexFunctionList[mode](dimensionIndexArray, self.dimensionSizeArray)
 
 	local dataTableIndex, dataIndex = getDataIndex(linearIndex)
 	
