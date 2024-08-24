@@ -72,11 +72,11 @@ local function getTotalSizeFromDimensionSizeArray(dimensionSizeArray)
 
 end
 
-local function convertTensorToData(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, targetData, dataTableIndex, currentDataLocation)
+local function convertTensorToData(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, targetData, dataTableIndex, currentLinearIndex)
 
 	if (currentDimension < numberOfDimensions) then
 
-		for i = 1, dimensionSizeArray[currentDimension], 1 do dataTableIndex, currentDataLocation = convertTensorToData(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetData, dataTableIndex, currentDataLocation) end
+		for i = 1, dimensionSizeArray[currentDimension], 1 do dataTableIndex, currentLinearIndex = convertTensorToData(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetData, dataTableIndex, currentLinearIndex) end
 
 	else
 
@@ -84,41 +84,41 @@ local function convertTensorToData(tensor, dimensionSizeArray, numberOfDimension
 			
 			table.insert(targetData[dataTableIndex], value) 
 			
-			currentDataLocation = currentDataLocation + 1
+			currentLinearIndex = currentLinearIndex + 1
 
-			if ((currentDataLocation % maximumTableLength) == 0) then dataTableIndex = dataTableIndex + 1 end
+			if ((currentLinearIndex % maximumTableLength) == 0) then dataTableIndex = dataTableIndex + 1 end
 			
 		end
 		
 	end
 	
-	return dataTableIndex, currentDataLocation
+	return dataTableIndex, currentLinearIndex
 
 end
 
-local function setValueFromFunctionToData(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension, targetData, dataTableIndex, currentDataLocation)
+local function setValueFromFunctionToData(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension, targetData, dataTableIndex, currentLinearIndex)
 
 	if (currentDimension < numberOfDimensions) then
 
-		for i = 1, dimensionSizeArray[currentDimension], 1 do dataTableIndex, currentDataLocation = setValueFromFunctionToData(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetData, dataTableIndex, currentDataLocation) end
+		for i = 1, dimensionSizeArray[currentDimension], 1 do dataTableIndex, currentLinearIndex = setValueFromFunctionToData(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetData, dataTableIndex, currentLinearIndex) end
 
 	else
 		
 		for i = 1, dimensionSizeArray[currentDimension], 1 do
 			
-			local value = functionToApply(currentDataLocation)
+			local value = functionToApply(currentLinearIndex)
 			
 			table.insert(targetData[dataTableIndex], value) 
 
-			currentDataLocation = currentDataLocation + 1
+			currentLinearIndex = currentLinearIndex + 1
 
-			if ((currentDataLocation % maximumTableLength) == 0) then dataTableIndex = dataTableIndex + 1 end
+			if ((currentLinearIndex % maximumTableLength) == 0) then dataTableIndex = dataTableIndex + 1 end
 			
 		end
 
 	end
 
-	return dataTableIndex, currentDataLocation
+	return dataTableIndex, currentLinearIndex
 	
 end
 
@@ -194,11 +194,11 @@ function AqwamTensorLibrary.createIdentityTensor(dimensionSizeArray)
 	
 	local currentNumberOfOne = 1
 	
-	local dataLocation = 1
+	local linearIndex = 1
 	
-	local functionToApply = function(currentDataLocation) -- Generalized row-major location calculation: (i−1)×(d2×d3×d4) + (i−1)×(d3×d4) + (i−1)×d4 + (i−1) + 1
+	local functionToApply = function(currentLinearIndex) -- Generalized row-major location calculation: (i−1)×(d2×d3×d4) + (i−1)×(d3×d4) + (i−1)×d4 + (i−1) + 1
 		
-		if (dataLocation ~= currentDataLocation) then return 0 end
+		if (linearIndex ~= currentLinearIndex) then return 0 end
 		
 		currentNumberOfOne = currentNumberOfOne + 1
 		
@@ -206,17 +206,17 @@ function AqwamTensorLibrary.createIdentityTensor(dimensionSizeArray)
 		
 		local multipliedDimensionSize = 1
 		
-		dataLocation = subtractedCurrentNumberOfOne
+		linearIndex = subtractedCurrentNumberOfOne
 		
 		for i = numberOfDimensions, 2, -1 do
 			
 			multipliedDimensionSize = multipliedDimensionSize * dimensionSizeArray[i]
 			
-			dataLocation = dataLocation + (multipliedDimensionSize * subtractedCurrentNumberOfOne)
+			linearIndex = linearIndex + (multipliedDimensionSize * subtractedCurrentNumberOfOne)
 			
 		end
 			
-		dataLocation = dataLocation + 1 -- 1 is added due to the nature of Lua's 1-indexing.
+		linearIndex = linearIndex + 1 -- 1 is added due to the nature of Lua's 1-indexing.
 		
 		return 1
 			
@@ -578,7 +578,7 @@ function AqwamTensorLibrary:__len()
 
 end
 
-local function getDataLocation(dimensionIndexArray, dimensionSizeArray)
+local function getLinearIndex(dimensionIndexArray, dimensionSizeArray)
 	
 	local numberOfDimensions = #dimensionSizeArray
 	
@@ -592,21 +592,21 @@ local function getDataLocation(dimensionIndexArray, dimensionSizeArray)
 
 	end
 	
-	local dataLocation = 0
+	local linearIndex = 0
 
 	local multipliedDimensionSize = 1
 
 	for i = numberOfDimensions, 1, -1 do
 
-		dataLocation = dataLocation + (multipliedDimensionSize * (dimensionIndexArray[i] - 1))
+		linearIndex = linearIndex + (multipliedDimensionSize * (dimensionIndexArray[i] - 1))
 
 		multipliedDimensionSize = multipliedDimensionSize * dimensionSizeArray[i]
 
 	end
 
-	dataLocation = dataLocation + 1 -- 1 is added due to the nature of Lua's 1-indexing.
+	linearIndex = linearIndex + 1 -- 1 is added due to the nature of Lua's 1-indexing.
 	
-	return dataLocation
+	return linearIndex
 	
 end
 
@@ -622,9 +622,9 @@ end
 
 function AqwamTensorLibrary:setValue(value, dimensionIndexArray)
 	
-	local dataLocation = getDataLocation(dimensionIndexArray, self.dimensionSizeArray)
+	local linearIndex = getLinearIndex(dimensionIndexArray, self.dimensionSizeArray)
 	
-	local dataTableIndex, dataIndex = getDataIndex(dataLocation)
+	local dataTableIndex, dataIndex = getDataIndex(linearIndex)
 	
 	self.data[dataTableIndex][dataIndex] = value
 	
@@ -632,9 +632,9 @@ end
 
 function AqwamTensorLibrary:getValue(dimensionIndexArray)
 
-	local dataLocation = getDataLocation(dimensionIndexArray, self.dimensionSizeArray)
+	local linearIndex = getLinearIndex(dimensionIndexArray, self.dimensionSizeArray)
 
-	local dataTableIndex, dataIndex = getDataIndex(dataLocation)
+	local dataTableIndex, dataIndex = getDataIndex(linearIndex)
 	
 	return self.data[dataTableIndex][dataIndex]
 
