@@ -424,7 +424,7 @@ local function applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2)
 			
 			local subData2 = tensor2[j]
 
-			for k, value in ipairs(subData1) do table.insert(newSubSubData, functionToApply(value, subData2)) end
+			for k, value in ipairs(subData1) do table.insert(newSubSubData, functionToApply(value, subData2[k])) end
 
 			newSubData[j] = newSubSubData
 
