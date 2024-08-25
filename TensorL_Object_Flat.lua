@@ -501,6 +501,20 @@ local function getDataIndex(linearIndex)
 
 end
 
+local function checkIfDimensionIndexArrayAreEqual(dimensionSizeArray1, dimensionSizeArray2)
+
+	if (#dimensionSizeArray1 ~= #dimensionSizeArray2) then return false end
+
+	for i, index in ipairs(dimensionSizeArray1) do
+
+		if (index ~= dimensionSizeArray2[i]) then return false end
+
+	end
+
+	return true
+
+end
+
 local function applyFunctionUsingOneTensor(functionToApply, tensor)
 
 	local newData = {}
@@ -569,43 +583,23 @@ local function applyFunctionUsingTwoTensorsOfDifferentModes(functionToApply, ten
 	
 	local getLinearIndex2 = getLinearIndexFunctionList[tensor2.mode] 
 	
-	local newData = {}
-
-	for i = 1, #tensor1, 1 do
-
-		local data1 = tensor1[i]
-
-		local newSubData = {}
-
-		for _, subData1 in ipairs(data1) do 
-
-			local newSubSubData = {}
-
-			for _, _ in ipairs(subData1) do
-				
-				local linearIndex1 = getLinearIndex1(currentDimensionIndexArray)
-				
-				local linearIndex2 = getLinearIndex2(currentDimensionIndexArray)
-				
-				local dataIndex1, subDataIndex1, subSubDataIndex1 = getDataIndex(linearIndex1)
-				
-				local dataIndex2, subDataIndex2, subSubDataIndex2 = getDataIndex(linearIndex2)
-				
-				local value = functionToApply(tensor1[dataIndex1][subDataIndex1][subSubDataIndex1], tensor1[dataIndex2][dataIndex2][dataIndex2])
-				
-				table.insert(newSubSubData, value)
-				
-				currentDimensionIndexArray = incrementDimensionIndexArray(dimensionSizeArray, currentDimensionIndexArray)
-				
-			end
-			
-			table.insert(newSubData, newSubSubData)
-
-		end
+	local newData = createEmptyDataFromDimensionSizeArray(dimensionSizeArray)
+	
+	repeat
 		
-		table.insert(newData, newSubData)
+		local linearIndex1 = getLinearIndex1(currentDimensionIndexArray)
 
-	end
+		local linearIndex2 = getLinearIndex2(currentDimensionIndexArray)
+
+		local dataIndex1, subDataIndex1, subSubDataIndex1 = getDataIndex(linearIndex1)
+
+		local dataIndex2, subDataIndex2, subSubDataIndex2 = getDataIndex(linearIndex2)
+
+		newData[dataIndex1][subDataIndex1][subSubDataIndex1] = functionToApply(tensor1[dataIndex1][subDataIndex1][subSubDataIndex1], tensor1[dataIndex2][dataIndex2][dataIndex2])
+
+		currentDimensionIndexArray = incrementDimensionIndexArray(dimensionSizeArray, currentDimensionIndexArray)
+		
+	until checkIfDimensionIndexArrayAreEqual(currentDimensionIndexArray, dimensionSizeArray)
 
 	return newData
 	
@@ -865,20 +859,6 @@ function AqwamTensorLibrary:getValue(dimensionIndexArray)
 
 end
 
-local function checkIfDimensionIndexArrayAreEqual(dimensionSizeArray1, dimensionSizeArray2)
-
-	if (#dimensionSizeArray1 ~= #dimensionSizeArray2) then return false end
-	
-	for i, index in ipairs(dimensionSizeArray1) do
-		
-		if (index ~= dimensionSizeArray2[i]) then return false end
-		
-	end
-	
-	return true
-
-end
-
 function AqwamTensorLibrary:transpose(dimensionArray)
 	
 	local dimensionSizeArray = self.dimensionSizeArray
@@ -935,7 +915,7 @@ function AqwamTensorLibrary:transpose(dimensionArray)
 
 		currentDimensionIndexArray = incrementDimensionIndexArray(dimensionSizeArray, currentDimensionIndexArray)
 		
-	until checkIfDimensionIndexArrayAreEqual(dimensionSizeArray, currentDimensionIndexArray)
+	until checkIfDimensionIndexArrayAreEqual(currentDimensionIndexArray, dimensionSizeArray)
 	
 	return AqwamTensorLibrary.construct(newData, newDimensionSizeArray)
 	
