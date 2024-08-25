@@ -557,6 +557,8 @@ local function applyFunctionUsingTwoTensorsOfSameModes(functionToApply, tensor1,
 
 	end
 	
+	return newData
+	
 end
 
 local function applyFunctionUsingTwoTensorsOfDifferentModes(functionToApply, tensor1, tensor2, dimensionSizeArray)
