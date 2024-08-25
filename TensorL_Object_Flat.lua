@@ -378,6 +378,101 @@ function AqwamTensorLibrary:broadcast(tensor1, tensor2)
 
 end
 
+local function throwErrorWhenDimensionIndexArrayIsOutOfBounds(dimensionIndexArray, dimensionSizeArray)
+
+	if (#dimensionIndexArray ~= #dimensionSizeArray) then error("The number of dimensions does not match.") end
+
+	for i, dimensionIndex in ipairs(dimensionIndexArray) do
+
+		if (dimensionIndex <= 0) then error("The dimension index at dimension " .. i .. " must be greater than zero.") end
+
+		if (dimensionIndex > dimensionSizeArray[i]) then error("The dimension index exceeds the dimension size at dimension " .. i .. ".") end
+
+	end
+
+end
+
+
+local function getLinearIndexForRowMajorStorage(dimensionIndexArray, dimensionSizeArray)
+
+	throwErrorWhenDimensionIndexArrayIsOutOfBounds(dimensionIndexArray, dimensionSizeArray)
+
+	local linearIndex = 0
+
+	local multipliedDimensionSize = 1
+
+	for i = #dimensionSizeArray, 1, -1 do
+
+		linearIndex = linearIndex + (multipliedDimensionSize * (dimensionIndexArray[i] - 1))
+
+		multipliedDimensionSize = multipliedDimensionSize * dimensionSizeArray[i]
+
+	end
+
+	linearIndex = linearIndex + 1 -- 1 is added due to the nature of Lua's 1-indexing.
+
+	return linearIndex
+
+end
+
+local function getLinearIndexForColumnMajorStorage(dimensionIndexArray, dimensionSizeArray)
+
+	throwErrorWhenDimensionIndexArrayIsOutOfBounds(dimensionIndexArray, dimensionSizeArray)
+
+	local linearIndex = 0
+
+	local multipliedDimensionSize = 1
+
+	for i = 1, #dimensionSizeArray, 1 do
+
+		linearIndex = linearIndex + (multipliedDimensionSize * (dimensionIndexArray[i] - 1))
+
+		multipliedDimensionSize = multipliedDimensionSize * dimensionSizeArray[i]
+
+	end
+
+	linearIndex = linearIndex + 1 -- 1 is added due to the nature of Lua's 1-indexing.
+
+	return linearIndex
+
+end
+
+local getLinearIndexFunctionList = {
+
+	["Row"] = getLinearIndexForRowMajorStorage,
+
+	["Column"] = getLinearIndexForColumnMajorStorage
+
+}
+
+local function incrementDimensionIndexArray(dimensionSizeArray, dimensionIndexArray)
+
+	for i = #dimensionIndexArray, 1, -1 do
+
+		dimensionIndexArray[i] = dimensionIndexArray[i] + 1
+
+		if (dimensionIndexArray[i] <= dimensionSizeArray[i]) then break end
+
+		dimensionIndexArray[i] = 1
+
+	end
+
+	return dimensionIndexArray
+
+end
+
+local function getDataIndex(linearIndex)
+
+	local subSubDataIndex = (linearIndex - 1) % maximumTableLength + 1
+
+	local subDataIndex = math.floor((linearIndex - 1) / maximumTableLength) % maximumTableLength + 1
+
+	local dataIndex = math.floor((linearIndex - 1) / (maximumTableLength * maximumTableLength)) + 1
+
+	return dataIndex, subDataIndex, subSubDataIndex
+
+end
+
 local function applyFunctionUsingOneTensor(functionToApply, tensor)
 
 	local newData = {}
@@ -389,13 +484,13 @@ local function applyFunctionUsingOneTensor(functionToApply, tensor)
 		local newSubData = {}
 
 		for j, subData in ipairs(data) do 
-			
+
 			local newSubSubData = {}
-			
+
 			for k, value in ipairs(subData) do table.insert(newSubSubData, functionToApply(value)) end
-			
+
 			newSubData[j] = newSubSubData
-			
+
 		end
 
 		newData[i] = newSubData
@@ -406,14 +501,14 @@ local function applyFunctionUsingOneTensor(functionToApply, tensor)
 
 end
 
-local function applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2)
-
-	local newData = {}
+local function applyFunctionUsingTwoTensorsOfSameModes(functionToApply, tensor1, tensor2)
 	
+	local newData = {}
+
 	for i = 1, #tensor1, 1 do
-		
+
 		local data1 = tensor1[i]
-		
+
 		local data2 = tensor2[i]
 
 		local newSubData = {}
@@ -421,7 +516,7 @@ local function applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2)
 		for j, subData1 in ipairs(data1) do 
 
 			local newSubSubData = {}
-			
+
 			local subData2 = tensor2[j]
 
 			for k, value in ipairs(subData1) do table.insert(newSubSubData, functionToApply(value, subData2[k])) end
@@ -431,10 +526,70 @@ local function applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2)
 		end
 
 		newData[i] = newSubData
-		
+
+	end
+	
+end
+
+local function applyFunctionUsingTwoTensorsOfDifferentModes(functionToApply, tensor1, tensor2, dimensionSizeArray)
+	
+	local currentDimensionIndexArray = table.create(#dimensionSizeArray, 1)
+	
+	local getLinearIndex1 = getLinearIndexFunctionList[tensor1.mode]
+	
+	local getLinearIndex2 = getLinearIndexFunctionList[tensor2.mode] 
+	
+	local newData = {}
+
+	for i = 1, #tensor1, 1 do
+
+		local data1 = tensor1[i]
+
+		local data2 = tensor2[i]
+
+		local newSubData = {}
+
+		for j, subData1 in ipairs(data1) do 
+
+			local newSubSubData = {}
+
+			local subData2 = tensor2[j]
+
+			for k, _ in ipairs(subData1) do
+				
+				local linearIndex1 = getLinearIndex1(currentDimensionIndexArray)
+				
+				local linearIndex2 = getLinearIndex2(currentDimensionIndexArray)
+				
+				local dataIndex1, subDataIndex1, subSubDataIndex1 = getDataIndex(linearIndex1)
+				
+				local dataIndex2, subDataIndex2, subSubDataIndex2 = getDataIndex(linearIndex1)
+				
+				local value = functionToApply(tensor1[dataIndex1][subDataIndex1][subSubDataIndex1], tensor1[dataIndex2][dataIndex2][dataIndex2])
+				
+				table.insert(newSubSubData, value)
+				
+				currentDimensionIndexArray = incrementDimensionIndexArray(dimensionSizeArray, currentDimensionIndexArray)
+				
+			end
+
+			newSubData[j] = newSubSubData
+
+		end
+
+		newData[i] = newSubData
+
 	end
 
 	return newData
+	
+end
+
+local function applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2, dimensionSizeArray)
+	
+	if (tensor1.mode == tensor2.mode) then return applyFunctionUsingTwoTensorsOfSameModes(functionToApply, tensor1, tensor2) end
+
+	return applyFunctionUsingTwoTensorsOfDifferentModes(functionToApply, tensor1, tensor2, dimensionSizeArray)
 
 end
 
@@ -500,8 +655,6 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 	if (numberOfTensors == 1) then 
 
-		local dimensionSizeArray = getDimensionSizeArray(tensor)
-
 		if (type(tensor) == "table") then
 
 			return applyFunctionUsingOneTensor(functionToApply, tensor)
@@ -526,7 +679,7 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 			--tensor, otherTensor = broadcast(tensor, otherTensor, false)
 
-			tensor = applyFunctionUsingTwoTensors(functionToApply, tensor, otherTensor)
+			tensor = applyFunctionUsingTwoTensors(functionToApply, tensor, otherTensor, dimensionSizeArray)
 
 		elseif (not isFirstValueATensor) and (isSecondValueATensor) then
 
@@ -654,84 +807,6 @@ function AqwamTensorLibrary:__len()
 
 end
 
-local function throwErrorWhenDimensionIndexArrayIsOutOfBounds(dimensionIndexArray, dimensionSizeArray)
-	
-	if (#dimensionIndexArray ~= #dimensionSizeArray) then error("The number of dimensions does not match.") end
-
-	for i, dimensionIndex in ipairs(dimensionIndexArray) do
-
-		if (dimensionIndex <= 0) then error("The dimension index at dimension " .. i .. " must be greater than zero.") end
-
-		if (dimensionIndex > dimensionSizeArray[i]) then error("The dimension index exceeds the dimension size at dimension " .. i .. ".") end
-
-	end
-	
-end
-
-local function getLinearIndexForRowMajorStorage(dimensionIndexArray, dimensionSizeArray)
-	
-	throwErrorWhenDimensionIndexArrayIsOutOfBounds(dimensionIndexArray, dimensionSizeArray)
-	
-	local linearIndex = 0
-
-	local multipliedDimensionSize = 1
-
-	for i = #dimensionSizeArray, 1, -1 do
-
-		linearIndex = linearIndex + (multipliedDimensionSize * (dimensionIndexArray[i] - 1))
-
-		multipliedDimensionSize = multipliedDimensionSize * dimensionSizeArray[i]
-
-	end
-
-	linearIndex = linearIndex + 1 -- 1 is added due to the nature of Lua's 1-indexing.
-	
-	return linearIndex
-	
-end
-
-local function getLinearIndexForColumnMajorStorage(dimensionIndexArray, dimensionSizeArray)
-
-	throwErrorWhenDimensionIndexArrayIsOutOfBounds(dimensionIndexArray, dimensionSizeArray)
-
-	local linearIndex = 0
-
-	local multipliedDimensionSize = 1
-
-	for i = 1, #dimensionSizeArray, 1 do
-		
-		linearIndex = linearIndex + (multipliedDimensionSize * (dimensionIndexArray[i] - 1))
-		
-		multipliedDimensionSize = multipliedDimensionSize * dimensionSizeArray[i]
-		
-	end
-
-	linearIndex = linearIndex + 1 -- 1 is added due to the nature of Lua's 1-indexing.
-
-	return linearIndex
-
-end
-
-local getLinearIndexFunctionList = {
-	
-	["Row"] = getLinearIndexForRowMajorStorage,
-	
-	["Column"] = getLinearIndexForColumnMajorStorage
-	
-}
-
-local function getDataIndex(linearIndex)
-	
-	local subSubDataIndex = (linearIndex - 1) % maximumTableLength + 1
-
-	local subDataIndex = math.floor((linearIndex - 1) / maximumTableLength) % maximumTableLength + 1
-
-	local dataIndex = math.floor((linearIndex - 1) / (maximumTableLength * maximumTableLength)) + 1
-	
-	return dataIndex, subDataIndex, subSubDataIndex
-	
-end
-
 function AqwamTensorLibrary:setValue(value, dimensionIndexArray)
 	
 	local linearIndex = getLinearIndexFunctionList[self.mode](dimensionIndexArray, self.dimensionSizeArray)
@@ -749,22 +824,6 @@ function AqwamTensorLibrary:getValue(dimensionIndexArray)
 	local dataIndex, subDataIndex, subSubDataIndex = getDataIndex(linearIndex)
 	
 	return self.data[dataIndex][subDataIndex][subSubDataIndex]
-
-end
-
-local function incrementDimensionIndexArray(dimensionSizeArray, dimensionIndexArray)
-	
-	for i = #dimensionIndexArray, 1, -1 do
-
-		dimensionIndexArray[i] = dimensionIndexArray[i] + 1
-
-		if (dimensionIndexArray[i] <= dimensionSizeArray[i]) then break end
-
-		dimensionIndexArray[i] = 1
-
-	end
-
-	return dimensionIndexArray
 
 end
 
