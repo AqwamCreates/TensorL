@@ -615,9 +615,9 @@ local function applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2, d
 	
 	local tensor2Mode = tensor2.mode
 	
-	if (tensor1Mode ~= "Row") and (tensor1Mode ~= "Column") then error("Tensor " .. (index - 1) .. " has an invalid mode!") end -- Index is subtracted by one because it starts at 2 instead of 1.
+	if (tensor1Mode ~= "Row") and (tensor1Mode ~= "Column") then error("Tensor " .. (index - 1) .. " has an invalid mode.") end -- Index is subtracted by one because it starts at 2 instead of 1.
 	
-	if (tensor2Mode ~= "Row") and (tensor2Mode ~= "Column") then error("Tensor " .. index .. " has an invalid mode!") end
+	if (tensor2Mode ~= "Row") and (tensor2Mode ~= "Column") then error("Tensor " .. index .. " has an invalid mode.") end
 	
 	if (tensor1Mode == tensor2Mode) then return applyFunctionUsingTwoTensorsOfSameModes(functionToApply, tensor1, tensor2) end
 
