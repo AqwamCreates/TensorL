@@ -592,11 +592,9 @@ function AqwamTensorLibrary:__len()
 
 end
 
-local function getLinearIndexForRowMajorStorage(dimensionIndexArray, dimensionSizeArray)
+local function throwErrorWhenDimensionIndexArrayIsOutOfBounds(dimensionIndexArray, dimensionSizeArray)
 	
-	local numberOfDimensions = #dimensionSizeArray
-	
-	if (#dimensionIndexArray ~= numberOfDimensions) then error("The number of dimensions does not match.") end
+	if (#dimensionIndexArray ~= #dimensionSizeArray) then error("The number of dimensions does not match.") end
 
 	for i, dimensionIndex in ipairs(dimensionIndexArray) do
 
@@ -606,11 +604,17 @@ local function getLinearIndexForRowMajorStorage(dimensionIndexArray, dimensionSi
 
 	end
 	
+end
+
+local function getLinearIndexForRowMajorStorage(dimensionIndexArray, dimensionSizeArray)
+	
+	throwErrorWhenDimensionIndexArrayIsOutOfBounds(dimensionIndexArray, dimensionSizeArray)
+	
 	local linearIndex = 0
 
 	local multipliedDimensionSize = 1
 
-	for i = numberOfDimensions, 1, -1 do
+	for i = #dimensionSizeArray, 1, -1 do
 
 		linearIndex = linearIndex + (multipliedDimensionSize * (dimensionIndexArray[i] - 1))
 
@@ -626,23 +630,13 @@ end
 
 local function getLinearIndexForColumnMajorStorage(dimensionIndexArray, dimensionSizeArray)
 
-	local numberOfDimensions = #dimensionSizeArray
-
-	if (#dimensionIndexArray ~= numberOfDimensions) then error("The number of dimensions does not match.") end
-
-	for i, dimensionIndex in ipairs(dimensionIndexArray) do
-
-		if (dimensionIndex <= 0) then error("The dimension index at dimension " .. i .. " must be greater than zero.") end
-
-		if (dimensionIndex > dimensionSizeArray[i]) then error("The dimension index exceeds the dimension size at dimension " .. i .. ".") end
-
-	end
+	throwErrorWhenDimensionIndexArrayIsOutOfBounds(dimensionIndexArray, dimensionSizeArray)
 
 	local linearIndex = 0
 
 	local multipliedDimensionSize = 1
 
-	for i = 1, numberOfDimensions, 1 do
+	for i = 1, #dimensionSizeArray, 1 do
 		
 		linearIndex = linearIndex + (multipliedDimensionSize * (dimensionIndexArray[i] - 1))
 		
@@ -694,7 +688,31 @@ function AqwamTensorLibrary:getValue(dimensionIndexArray)
 
 end
 
+local function incrementDimensionIndexArray(dimensionSizeArray, dimensionIndexArray)
+
+	local numberOfDimensions = #dimensionIndexArray
+
+	dimensionIndexArray[numberOfDimensions] = dimensionIndexArray[numberOfDimensions] + 1
+
+	for dimension = numberOfDimensions, 1, -1 do
+
+		if ((dimensionSizeArray[dimension] + 1) == dimensionIndexArray[dimension]) then
+
+			dimensionIndexArray[dimension] = 1
+
+			if (dimension >= 2) then dimensionIndexArray[dimension - 1] = dimensionIndexArray[dimension - 1] + 1 end
+
+		end	
+
+	end
+
+	return dimensionIndexArray
+
+end
+
 function AqwamTensorLibrary:transpose(dimensionArray)
+	
+	local dimensionSizeArray = self.dimensionSizeArray
 	
 	if (#dimensionArray ~= 2) then error("Dimension array must contain 2 dimensions.") end
 
@@ -702,7 +720,7 @@ function AqwamTensorLibrary:transpose(dimensionArray)
 
 	local dimension2 = dimensionArray[2]
 
-	local numberOfDimensions = #self.dimensionSizeArray
+	local numberOfDimensions = #dimensionSizeArray
 
 	if (dimension1 <= 0) then error("The first dimension must be greater than zero.") end
 
@@ -713,6 +731,46 @@ function AqwamTensorLibrary:transpose(dimensionArray)
 	if (dimension2 > numberOfDimensions) then error("The second dimension exceeds the tensor's number of dimensions") end
 
 	if (dimension1 == dimension2) then error("The first dimension is equal to the second dimension.") end
+
+	local newDimensionSizeArray = table.clone(dimensionSizeArray)
+
+	newDimensionSizeArray[dimension1] = dimensionSizeArray[dimension2]
+
+	newDimensionSizeArray[dimension2] = dimensionSizeArray[dimension1]
+	
+	local getLinearIndex = getLinearIndexFunctionList[self.mode]
+	
+	local currentDimensionIndexArray = table.create(numberOfDimensions, 1)
+	
+	local data = self.data
+	
+	local newData = {}
+	
+	for i, _ in ipairs(data) do newData[i] = {} end
+	
+	for i, subData in ipairs(data) do
+		
+		for j, value in ipairs(subData) do
+			
+			local targetDimensionIndexArray = table.clone(currentDimensionIndexArray)
+			
+			targetDimensionIndexArray[dimension1] = currentDimensionIndexArray[dimension2]
+			
+			targetDimensionIndexArray[dimension2] = currentDimensionIndexArray[dimension1]
+			
+			local linearIndex = getLinearIndex(targetDimensionIndexArray, newDimensionSizeArray)
+			
+			local dataIndex, subDataIndex = getDataIndex(linearIndex)
+			
+			newData[dataIndex][subDataIndex] = value
+			
+			currentDimensionIndexArray = incrementDimensionIndexArray(dimensionSizeArray, currentDimensionIndexArray)
+			
+		end
+		
+	end
+	
+	return AqwamTensorLibrary.construct(newData, newDimensionSizeArray)
 	
 end
 
