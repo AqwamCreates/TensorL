@@ -208,9 +208,9 @@ function AqwamTensorLibrary.convertToObject(convertedTable)
 	
 	local self = setmetatable({}, AqwamTensorLibrary)
 	
-	self.data = convertedTable.data or {}
+	self.data = convertedTable.data or {{{}}}
 
-	self.dimensionSizeArray = convertedTable.dimensionSizeArray
+	self.dimensionSizeArray = convertedTable.dimensionSizeArray or {}
 
 	self.mode = convertedTable.mode or defaultMode
 	
