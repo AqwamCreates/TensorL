@@ -128,21 +128,41 @@ local function setValueFromFunctionToData(functionToApply, dimensionSizeArray, n
 	
 end
 
-local function generateEmptyDataFromDimensionSizeArray(dimensionSizeArray)
+local function createEmptyDataFromDimensionSizeArray(dimensionSizeArray)
 	
 	local totalSize = getTotalSizeFromDimensionSizeArray(dimensionSizeArray)
-
-	local numberOfTables = math.ceil(totalSize / maximumTableLength)
 	
-	local numberOfTablesTables = math.ceil(numberOfTables / maximumTableLength)
+	local squaredMaximumTableLength = math.pow(maximumTableLength, 2)
+	
+	local subDataIndex = 1
+	
+	local subDataDataIndex = 1
 	
 	local data = {}
+
+	data[subDataIndex] = {}
+
+	data[subDataIndex][subDataDataIndex] = {}
 	
-	for i = 1, numberOfTablesTables, 1 do 
+	for i = totalSize, 1, 1 do
 		
-		data[i] = {} 
+		if ((totalSize % math.pow(squaredMaximumTableLength)) == 0) then
+			
+			subDataIndex = subDataIndex + 1
+			
+			subDataDataIndex = 1
+			
+			data[subDataIndex] = {}
+			
+		end
 		
-		for j = 1, numberOfTablesTables, 1 do data[i][j] = {} end
+		if ((totalSize % maximumTableLength) == 0) then
+			
+			subDataDataIndex = subDataDataIndex + 1
+
+			data[subDataIndex][subDataDataIndex] = {}
+
+		end
 		
 	end
 	
@@ -156,7 +176,7 @@ function AqwamTensorLibrary.new(tensor, mode)
 	
 	local dimensionSizeArray = getDimensionSizeArray(tensor)
 	
-	local data = generateEmptyDataFromDimensionSizeArray(dimensionSizeArray)
+	local data = createEmptyDataFromDimensionSizeArray(dimensionSizeArray)
 
 	convertTensorToData(tensor, dimensionSizeArray, #dimensionSizeArray, 1, data, 1, 1, 1)
 	
@@ -190,7 +210,7 @@ function AqwamTensorLibrary.createTensor(dimensionSizeArray, initialValue, mode)
 
 	local self = setmetatable({}, AqwamTensorLibrary)
 
-	local data = generateEmptyDataFromDimensionSizeArray(dimensionSizeArray)
+	local data = createEmptyDataFromDimensionSizeArray(dimensionSizeArray)
 	
 	setValueFromFunctionToData(function() return initialValue end, dimensionSizeArray, #dimensionSizeArray, 1, data, 1, 1, 1)
 
@@ -208,7 +228,7 @@ function AqwamTensorLibrary.createIdentityTensor(dimensionSizeArray, mode)
 
 	local self = setmetatable({}, AqwamTensorLibrary)
 
-	local data = generateEmptyDataFromDimensionSizeArray(dimensionSizeArray)
+	local data = createEmptyDataFromDimensionSizeArray(dimensionSizeArray)
 	
 	local numberOfDimensions = #dimensionSizeArray
 	
@@ -262,7 +282,7 @@ function AqwamTensorLibrary.createRandomNormalTensor(dimensionSizeArray, mean, s
 
 	local self = setmetatable({}, AqwamTensorLibrary)
 	
-	local data = generateEmptyDataFromDimensionSizeArray(dimensionSizeArray)
+	local data = createEmptyDataFromDimensionSizeArray(dimensionSizeArray)
 	
 	local functionToApply = function()
 		
@@ -292,7 +312,7 @@ function AqwamTensorLibrary.createRandomUniformTensor(dimensionSizeArray, minimu
 	
 	local self = setmetatable({}, AqwamTensorLibrary)
 
-	local data = generateEmptyDataFromDimensionSizeArray(dimensionSizeArray)
+	local data = createEmptyDataFromDimensionSizeArray(dimensionSizeArray)
 
 	local functionToApply = function()
 		
@@ -782,15 +802,13 @@ function AqwamTensorLibrary:transpose(dimensionArray)
 	
 	local data = self.data
 	
-	local newData = {}
+	local newData = createEmptyDataFromDimensionSizeArray(newDimensionSizeArray)
 	
-	for i, _ in ipairs(data) do newData[i] = {} end
-	
-	for i, subData in ipairs(data) do
+	for _, subData in ipairs(data) do
 		
-		for j, subSubData in ipairs(subData) do
+		for _, subSubData in ipairs(subData) do
 			
-			for k, value in ipairs(subSubData) do
+			for _, value in ipairs(subSubData) do
 				
 				local targetDimensionIndexArray = table.clone(currentDimensionIndexArray)
 
