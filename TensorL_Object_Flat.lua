@@ -581,9 +581,17 @@ local function applyFunctionUsingTwoTensorsOfDifferentModes(functionToApply, ten
 	
 end
 
-local function applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2, dimensionSizeArray)
+local function applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2, dimensionSizeArray, index)
 	
-	if (tensor1.mode == tensor2.mode) then return applyFunctionUsingTwoTensorsOfSameModes(functionToApply, tensor1, tensor2) end
+	local tensor1Mode = tensor1.mode
+	
+	local tensor2Mode = tensor2.mode
+	
+	if (tensor1Mode ~= "Row") and (tensor1Mode ~= "Column") then error("Tensor " .. (index - 1) .. " has an invalid mode!") end -- Index is subtracted by one because it starts at 2 instead of 1.
+	
+	if (tensor2Mode ~= "Row") and (tensor2Mode ~= "Column") then error("Tensor " .. index .. " has an invalid mode!") end
+	
+	if (tensor1Mode == tensor2Mode) then return applyFunctionUsingTwoTensorsOfSameModes(functionToApply, tensor1, tensor2) end
 
 	return applyFunctionUsingTwoTensorsOfDifferentModes(functionToApply, tensor1, tensor2, dimensionSizeArray)
 
@@ -679,7 +687,7 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 			--tensor, otherTensor = broadcast(tensor, otherTensor, false)
 
-			tensor = applyFunctionUsingTwoTensors(functionToApply, tensor, otherTensor, dimensionSizeArray)
+			tensor = applyFunctionUsingTwoTensors(functionToApply, tensor, otherTensor, dimensionSizeArray, i)
 
 		elseif (not isFirstValueATensor) and (isSecondValueATensor) then
 
