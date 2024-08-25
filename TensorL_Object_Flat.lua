@@ -865,6 +865,20 @@ function AqwamTensorLibrary:getValue(dimensionIndexArray)
 
 end
 
+local function checkIfDimensionIndexArrayAreEqual(dimensionSizeArray1, dimensionSizeArray2)
+
+	if (#dimensionSizeArray1 ~= #dimensionSizeArray2) then return false end
+	
+	for i, index in ipairs(dimensionSizeArray1) do
+		
+		if (index ~= dimensionSizeArray2[i]) then return false end
+		
+	end
+	
+	return true
+
+end
+
 function AqwamTensorLibrary:transpose(dimensionArray)
 	
 	local dimensionSizeArray = self.dimensionSizeArray
@@ -901,31 +915,27 @@ function AqwamTensorLibrary:transpose(dimensionArray)
 	
 	local newData = createEmptyDataFromDimensionSizeArray(newDimensionSizeArray)
 	
-	for _, subData in ipairs(data) do
+	repeat
 		
-		for _, subSubData in ipairs(subData) do
-			
-			for _, value in ipairs(subSubData) do
-				
-				local targetDimensionIndexArray = table.clone(currentDimensionIndexArray)
+		local targetDimensionIndexArray = table.clone(currentDimensionIndexArray)
 
-				targetDimensionIndexArray[dimension1] = currentDimensionIndexArray[dimension2]
+		targetDimensionIndexArray[dimension1] = currentDimensionIndexArray[dimension2]
 
-				targetDimensionIndexArray[dimension2] = currentDimensionIndexArray[dimension1]
-
-				local linearIndex = getLinearIndex(targetDimensionIndexArray, newDimensionSizeArray)
-
-				local dataIndex, subDataIndex, subSubDataIndex = getDataIndex(linearIndex)
-
-				newData[dataIndex][subDataIndex][subSubDataIndex] = value
-
-				currentDimensionIndexArray = incrementDimensionIndexArray(dimensionSizeArray, currentDimensionIndexArray)
-				
-			end
-
-		end
+		targetDimensionIndexArray[dimension2] = currentDimensionIndexArray[dimension1]
 		
-	end
+		local currentLinearIndex = getLinearIndex(currentDimensionIndexArray, dimensionSizeArray)
+
+		local targetLinearIndex = getLinearIndex(targetDimensionIndexArray, newDimensionSizeArray)
+		
+		local currentDataIndex, currentSubDataIndex, currentSubSubDataIndex = getDataIndex(currentLinearIndex)
+
+		local targetDataIndex, targetSubDataIndex, targetSubSubDataIndex = getDataIndex(targetLinearIndex)
+
+		newData[targetDataIndex][targetSubDataIndex][targetSubSubDataIndex] = data[currentDataIndex][currentSubDataIndex][currentSubSubDataIndex]
+
+		currentDimensionIndexArray = incrementDimensionIndexArray(dimensionSizeArray, currentDimensionIndexArray)
+		
+	until checkIfDimensionIndexArrayAreEqual(dimensionSizeArray, currentDimensionIndexArray)
 	
 	return AqwamTensorLibrary.construct(newData, newDimensionSizeArray)
 	
