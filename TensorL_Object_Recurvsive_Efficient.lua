@@ -2367,15 +2367,9 @@ local function incrementDimensionIndexArray(dimensionSizeArray, dimensionIndexAr
 
 		dimensionIndexArray[i] = dimensionIndexArray[i] + 1
 
-		if (dimensionIndexArray[i] > dimensionSizeArray[i]) then
+		if (dimensionIndexArray[i] <= dimensionSizeArray[i]) then break end
 
-			dimensionIndexArray[i] = 1
-
-		else
-
-			break
-
-		end
+		dimensionIndexArray[i] = 1
 
 	end
 
