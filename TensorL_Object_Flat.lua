@@ -74,35 +74,37 @@ local function getTotalSizeFromDimensionSizeArray(dimensionSizeArray)
 
 end
 
-local function convertTensorToData(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, targetData, dataTableIndex, currentLinearIndex)
+local function convertTensorToData(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, targetData, dataTableTableIndex, dataTableIndex, currentLinearIndex)
 
 	if (currentDimension < numberOfDimensions) then
 
-		for i = 1, dimensionSizeArray[currentDimension], 1 do dataTableIndex, currentLinearIndex = convertTensorToData(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetData, dataTableIndex, currentLinearIndex) end
+		for i = 1, dimensionSizeArray[currentDimension], 1 do dataTableTableIndex, dataTableIndex, currentLinearIndex = convertTensorToData(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetData, dataTableTableIndex, dataTableIndex, currentLinearIndex) end
 
 	else
 
 		for _, value in ipairs(tensor) do 
 			
-			table.insert(targetData[dataTableIndex], value) 
+			table.insert(targetData[dataTableTableIndex][dataTableIndex], value) 
 			
 			currentLinearIndex = currentLinearIndex + 1
 
 			if ((currentLinearIndex % maximumTableLength) == 0) then dataTableIndex = dataTableIndex + 1 end
 			
+			if ((dataTableIndex % maximumTableLength) == 0) then dataTableTableIndex = dataTableTableIndex + 1 end
+			
 		end
 		
 	end
 	
-	return dataTableIndex, currentLinearIndex
+	return dataTableTableIndex, dataTableIndex, currentLinearIndex
 
 end
 
-local function setValueFromFunctionToData(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension, targetData, dataTableIndex, currentLinearIndex)
+local function setValueFromFunctionToData(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension, targetData, dataTableTableIndex, dataTableIndex, currentLinearIndex)
 
 	if (currentDimension < numberOfDimensions) then
 
-		for i = 1, dimensionSizeArray[currentDimension], 1 do dataTableIndex, currentLinearIndex = setValueFromFunctionToData(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetData, dataTableIndex, currentLinearIndex) end
+		for i = 1, dimensionSizeArray[currentDimension], 1 do dataTableTableIndex, dataTableIndex, currentLinearIndex = setValueFromFunctionToData(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetData, dataTableTableIndex, dataTableIndex, currentLinearIndex) end
 
 	else
 		
@@ -110,17 +112,19 @@ local function setValueFromFunctionToData(functionToApply, dimensionSizeArray, n
 			
 			local value = functionToApply(currentLinearIndex)
 			
-			table.insert(targetData[dataTableIndex], value) 
+			table.insert(targetData[dataTableTableIndex][dataTableIndex], value) 
 
 			currentLinearIndex = currentLinearIndex + 1
 
 			if ((currentLinearIndex % maximumTableLength) == 0) then dataTableIndex = dataTableIndex + 1 end
 			
+			if ((dataTableIndex % maximumTableLength) == 0) then dataTableTableIndex = dataTableTableIndex + 1 end
+			
 		end
 
 	end
 
-	return dataTableIndex, currentLinearIndex
+	return dataTableTableIndex, dataTableIndex, currentLinearIndex
 	
 end
 
@@ -128,11 +132,19 @@ local function generateEmptyDataFromDimensionSizeArray(dimensionSizeArray)
 	
 	local totalSize = getTotalSizeFromDimensionSizeArray(dimensionSizeArray)
 
-	local numberOfTablesForData = math.ceil(totalSize / maximumTableLength)
+	local numberOfTables = math.ceil(totalSize / maximumTableLength)
+	
+	local numberOfTablesTables = math.ceil(numberOfTables / maximumTableLength)
 	
 	local data = {}
 	
-	for i = 1, numberOfTablesForData, 1 do data[i] = {} end
+	for i = 1, numberOfTablesTables, 1 do 
+		
+		data[i] = {} 
+		
+		for j = 1, numberOfTablesTables, 1 do data[i][j] = {} end
+		
+	end
 	
 	return data
 	
@@ -146,7 +158,7 @@ function AqwamTensorLibrary.new(tensor, mode)
 	
 	local data = generateEmptyDataFromDimensionSizeArray(dimensionSizeArray)
 
-	convertTensorToData(tensor, dimensionSizeArray, #dimensionSizeArray, 1, data, 1, 1)
+	convertTensorToData(tensor, dimensionSizeArray, #dimensionSizeArray, 1, data, 1, 1, 1)
 	
 	self.data = data
 	
@@ -180,7 +192,7 @@ function AqwamTensorLibrary.createTensor(dimensionSizeArray, initialValue, mode)
 
 	local data = generateEmptyDataFromDimensionSizeArray(dimensionSizeArray)
 	
-	setValueFromFunctionToData(function() return initialValue end, dimensionSizeArray, #dimensionSizeArray, 1, data, 1, 1)
+	setValueFromFunctionToData(function() return initialValue end, dimensionSizeArray, #dimensionSizeArray, 1, data, 1, 1, 1)
 
 	self.data = data
 
@@ -230,7 +242,7 @@ function AqwamTensorLibrary.createIdentityTensor(dimensionSizeArray, mode)
 			
 	end
 	
-	setValueFromFunctionToData(functionToApply, dimensionSizeArray, #dimensionSizeArray, 1, data, 1, 1)
+	setValueFromFunctionToData(functionToApply, dimensionSizeArray, #dimensionSizeArray, 1, data, 1, 1, 1)
 
 	self.data = data
 
@@ -264,7 +276,7 @@ function AqwamTensorLibrary.createRandomNormalTensor(dimensionSizeArray, mean, s
 		
 	end
 
-	setValueFromFunctionToData(functionToApply, dimensionSizeArray, #dimensionSizeArray, 1, data, 1, 1)
+	setValueFromFunctionToData(functionToApply, dimensionSizeArray, #dimensionSizeArray, 1, data, 1, 1, 1)
 
 	self.data = data
 
@@ -356,7 +368,15 @@ local function applyFunctionUsingOneTensor(functionToApply, tensor)
 
 		local newSubData = {}
 
-		for j, value in ipairs(data) do table.insert(newSubData, functionToApply(data[j])) end
+		for j, subData in ipairs(data) do 
+			
+			local newSubSubData = {}
+			
+			for k, value in ipairs(subData) do table.insert(newSubSubData, functionToApply(value)) end
+			
+			newSubData[j] = newSubSubData
+			
+		end
 
 		newData[i] = newSubData
 
@@ -378,7 +398,17 @@ local function applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2)
 
 		local newSubData = {}
 
-		for j, value in ipairs(data1) do table.insert(newSubData, functionToApply(data1[j], data2[j])) end
+		for j, subData1 in ipairs(data1) do 
+
+			local newSubSubData = {}
+			
+			local subData2 = tensor2[j]
+
+			for k, value in ipairs(subData1) do table.insert(newSubSubData, functionToApply(value, subData2)) end
+
+			newSubData[j] = newSubSubData
+
+		end
 
 		newData[i] = newSubData
 		
@@ -398,33 +428,45 @@ local function applyFunctionWhenTheFirstValueIsAScalar(functionToApply, scalar, 
 
 		local newSubData = {}
 
-		for j, value in ipairs(data) do table.insert(newSubData, functionToApply(scalar, data[j])) end
+		for j, subData in ipairs(data) do 
+
+			local newSubSubData = {}
+
+			for k, value in ipairs(subData) do table.insert(newSubSubData, functionToApply(scalar, value)) end
+
+			newSubData[j] = newSubSubData
+
+		end
 
 		newData[i] = newSubData
 
 	end
-
-	return newData
 
 end
 
 local function applyFunctionWhenTheSecondValueIsAScalar(functionToApply, tensor, scalar)
 
 	local newData = {}
-	
+
 	for i = 1, #tensor, 1 do
 
 		local data = tensor[i]
 
 		local newSubData = {}
 
-		for j, value in ipairs(data) do table.insert(newSubData, functionToApply(data[j], scalar)) end
+		for j, subData in ipairs(data) do 
+
+			local newSubSubData = {}
+
+			for k, value in ipairs(subData) do table.insert(newSubSubData, functionToApply(value, scalar)) end
+
+			newSubData[j] = newSubSubData
+
+		end
 
 		newData[i] = newSubData
 
 	end
-
-	return newData
 
 end
 
@@ -660,11 +702,13 @@ local getLinearIndexFunctionList = {
 
 local function getDataIndex(linearIndex)
 	
-	local dataIndex = math.ceil(linearIndex / maximumTableLength)
+	local subSubDataIndex = (linearIndex - 1) % maximumTableLength + 1
 
-	local subDataIndex = linearIndex % maximumTableLength
+	local subDataIndex = math.floor((linearIndex - 1) / maximumTableLength) % maximumTableLength + 1
+
+	local dataIndex = math.floor((linearIndex - 1) / (maximumTableLength * maximumTableLength)) + 1
 	
-	return dataIndex, subDataIndex
+	return dataIndex, subDataIndex, subSubDataIndex
 	
 end
 
@@ -672,9 +716,9 @@ function AqwamTensorLibrary:setValue(value, dimensionIndexArray)
 	
 	local linearIndex = getLinearIndexFunctionList[self.mode](dimensionIndexArray, self.dimensionSizeArray)
 	
-	local dataIndex, subDataIndex = getDataIndex(linearIndex)
+	local dataIndex, subDataIndex, subSubDataIndex = getDataIndex(linearIndex)
 	
-	self.data[dataIndex][subDataIndex] = value
+	self.data[dataIndex][subDataIndex][subSubDataIndex] = value
 	
 end
 
@@ -682,27 +726,21 @@ function AqwamTensorLibrary:getValue(dimensionIndexArray)
 
 	local linearIndex = getLinearIndexFunctionList[self.mode](dimensionIndexArray, self.dimensionSizeArray)
 
-	local dataIndex, subDataIndex = getDataIndex(linearIndex)
+	local dataIndex, subDataIndex, subSubDataIndex = getDataIndex(linearIndex)
 	
-	return self.data[dataIndex][subDataIndex]
+	return self.data[dataIndex][subDataIndex][subSubDataIndex]
 
 end
 
 local function incrementDimensionIndexArray(dimensionSizeArray, dimensionIndexArray)
+	
+	for i = #dimensionIndexArray, 1, -1 do
 
-	local numberOfDimensions = #dimensionIndexArray
+		dimensionIndexArray[i] = dimensionIndexArray[i] + 1
 
-	dimensionIndexArray[numberOfDimensions] = dimensionIndexArray[numberOfDimensions] + 1
+		if (dimensionIndexArray[i] <= dimensionSizeArray[i]) then break end
 
-	for dimension = numberOfDimensions, 1, -1 do
-
-		if ((dimensionSizeArray[dimension] + 1) == dimensionIndexArray[dimension]) then
-
-			dimensionIndexArray[dimension] = 1
-
-			if (dimension >= 2) then dimensionIndexArray[dimension - 1] = dimensionIndexArray[dimension - 1] + 1 end
-
-		end	
+		dimensionIndexArray[i] = 1
 
 	end
 
@@ -750,22 +788,26 @@ function AqwamTensorLibrary:transpose(dimensionArray)
 	
 	for i, subData in ipairs(data) do
 		
-		for j, value in ipairs(subData) do
+		for j, subSubData in ipairs(subData) do
 			
-			local targetDimensionIndexArray = table.clone(currentDimensionIndexArray)
-			
-			targetDimensionIndexArray[dimension1] = currentDimensionIndexArray[dimension2]
-			
-			targetDimensionIndexArray[dimension2] = currentDimensionIndexArray[dimension1]
-			
-			local linearIndex = getLinearIndex(targetDimensionIndexArray, newDimensionSizeArray)
-			
-			local dataIndex, subDataIndex = getDataIndex(linearIndex)
-			
-			newData[dataIndex][subDataIndex] = value
-			
-			currentDimensionIndexArray = incrementDimensionIndexArray(dimensionSizeArray, currentDimensionIndexArray)
-			
+			for k, value in ipairs(subSubData) do
+				
+				local targetDimensionIndexArray = table.clone(currentDimensionIndexArray)
+
+				targetDimensionIndexArray[dimension1] = currentDimensionIndexArray[dimension2]
+
+				targetDimensionIndexArray[dimension2] = currentDimensionIndexArray[dimension1]
+
+				local linearIndex = getLinearIndex(targetDimensionIndexArray, newDimensionSizeArray)
+
+				local dataIndex, subDataIndex, subSubDataIndex = getDataIndex(linearIndex)
+
+				newData[dataIndex][subDataIndex][subSubDataIndex] = value
+
+				currentDimensionIndexArray = incrementDimensionIndexArray(dimensionSizeArray, currentDimensionIndexArray)
+				
+			end
+
 		end
 		
 	end
