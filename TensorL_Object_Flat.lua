@@ -563,7 +563,7 @@ local function applyFunctionUsingTwoTensorsOfDifferentModes(functionToApply, ten
 				
 				local dataIndex1, subDataIndex1, subSubDataIndex1 = getDataIndex(linearIndex1)
 				
-				local dataIndex2, subDataIndex2, subSubDataIndex2 = getDataIndex(linearIndex1)
+				local dataIndex2, subDataIndex2, subSubDataIndex2 = getDataIndex(linearIndex2)
 				
 				local value = functionToApply(tensor1[dataIndex1][subDataIndex1][subSubDataIndex1], tensor1[dataIndex2][dataIndex2][dataIndex2])
 				
