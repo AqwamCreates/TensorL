@@ -194,14 +194,42 @@ function AqwamTensorLibrary.construct(data, dimensionSizeArray, mode)
 
 	local self = setmetatable({}, AqwamTensorLibrary)
 
-	self.data = data
+	self.data = data or {{{}}}
 
-	self.dimensionSizeArray = dimensionSizeArray
+	self.dimensionSizeArray = dimensionSizeArray or {}
 	
 	self.mode = mode or defaultMode
 
 	return self
 
+end
+
+function AqwamTensorLibrary.convertToObject(convertedTable)
+	
+	local self = setmetatable({}, AqwamTensorLibrary)
+	
+	self.data = convertedTable.data or {}
+
+	self.dimensionSizeArray = convertedTable.dimensionSizeArray
+
+	self.mode = convertedTable.mode or defaultMode
+	
+end
+
+function AqwamTensorLibrary:convertToTable()
+	
+	local convertedTable = {
+		
+		data = deepCopyTable(self.data),
+		
+		dimensionSizeArray = deepCopyTable(self.dimensionSizeArray),
+		
+		mode = deepCopyTable(self.mode)
+		
+	}
+	
+	return convertedTable
+	
 end
 
 function AqwamTensorLibrary.createTensor(dimensionSizeArray, initialValue, mode)
