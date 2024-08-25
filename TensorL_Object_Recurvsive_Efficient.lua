@@ -2363,19 +2363,19 @@ end
 
 local function incrementDimensionIndexArray(dimensionSizeArray, dimensionIndexArray)
 
-	local numberOfDimensions = #dimensionIndexArray
+	for i = #dimensionIndexArray, 1, -1 do
 
-	dimensionIndexArray[numberOfDimensions] = dimensionIndexArray[numberOfDimensions] + 1
+		dimensionIndexArray[i] = dimensionIndexArray[i] + 1
 
-	for dimension = numberOfDimensions, 1, -1 do
+		if (dimensionIndexArray[i] > dimensionSizeArray[i]) then
 
-		if ((dimensionSizeArray[dimension] + 1) == dimensionIndexArray[dimension]) then
+			dimensionIndexArray[i] = 1
 
-			dimensionIndexArray[dimension] = 1
+		else
 
-			if (dimension >= 2) then dimensionIndexArray[dimension - 1] = dimensionIndexArray[dimension - 1] + 1 end
+			break
 
-		end	
+		end
 
 	end
 
