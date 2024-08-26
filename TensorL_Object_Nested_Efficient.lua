@@ -148,11 +148,13 @@ local function getDimensionSizeArray(tensor)
 
 end
 
-function AqwamTensorLibrary:getDimensionSizeArray(tensor)
-	
-	if (not self.tensor) then return tensor:getDimensionSizeArray() end
-	
-	return getDimensionSizeArray(self)
+function AqwamTensorLibrary:getDimensionSizeArray()
+
+	local dimensionSizeArray = {}
+
+	getDimensionSizeArrayRecursive(self, dimensionSizeArray)
+
+	return dimensionSizeArray
 
 end
 
@@ -1515,14 +1517,6 @@ end
 function AqwamTensorLibrary:rawCopy()
 
 	return deepCopyTable(self.tensor)
-
-end
-
-function AqwamTensorLibrary:__add(other)
-
-	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, self, other)
-
-	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -2944,16 +2938,20 @@ end
 function AqwamTensorLibrary:applyFunction(functionToApply, ...)
 
 	local tensorArray = {...}
-
-	for i = 1, (#tensorArray - 1), 1 do
-
-		tensorArray[i], tensorArray[i + 1] = broadcast(tensorArray[i], tensorArray[i + 1], false)
-
+	
+	if (self.tensor) then table.insert(tensorArray, 1, self) end
+	
+	local numberOfTensors = #tensorArray
+	
+	if (numberOfTensors >= 2) then
+		
+		for i = 1, (numberOfTensors - 1), 1 do tensorArray[i], tensorArray[i + 1] = broadcast(tensorArray[i], tensorArray[i + 1], false) end
+		
 	end
 
 	local dimensionSizeArray = tensorArray[1]:getDimensionSizeArray()
 
-	local resultTensor = applyFunction(functionToApply, dimensionSizeArray, #dimensionSizeArray, 1, ...)
+	local resultTensor = applyFunction(functionToApply, dimensionSizeArray, #dimensionSizeArray, 1, table.unpack(tensorArray))
 
 	return AqwamTensorLibrary.new(resultTensor)
 
