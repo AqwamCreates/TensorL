@@ -939,13 +939,36 @@ function AqwamTensorLibrary:transpose(dimensionArray)
 	
 end
 
+local function sumFromAllDimensions(functionToApply, tensor)
+
+	local totalValue = 0
+
+	for i = 1, #tensor, 1 do
+
+		local data = tensor[i]
+
+		for _, subData in ipairs(data) do 
+
+			for _, value in ipairs(subData) do totalValue = totalValue + value end
+
+		end
+
+	end
+
+	return totalValue
+
+end
+
+
 function AqwamTensorLibrary:sum(dimension)
 	
-	local dimensionSizeArray = self.dimensionSizeArray
+	local data = self.data
 
-	if (not dimension) then return sumFromAllDimensions(tensor, dimensionSizeArray) end
+	if (not dimension) then return sumFromAllDimensions(data) end
 
 	if (type(dimension) ~= "number") then error("The dimension must be a number.") end
+	
+	local dimensionSizeArray = self.dimensionSizeArray
 
 	local numberOfDimensions = #dimensionSizeArray
 
@@ -958,8 +981,6 @@ function AqwamTensorLibrary:sum(dimension)
 	local getLinearIndex = getLinearIndexFunctionList[self.mode]
 
 	local currentDimensionIndexArray = table.create(numberOfDimensions, 1)
-
-	local data = self.data
 
 	local newData = createEmptyDataFromDimensionSizeArray(newDimensionSizeArray)
 	
