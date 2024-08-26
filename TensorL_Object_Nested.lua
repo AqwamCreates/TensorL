@@ -3019,7 +3019,7 @@ function AqwamTensorLibrary.applyFunction(functionToApply, ...)
 
 	for _, tensor in ipairs(tensorArray) do
 
-		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+		local dimensionSizeArray = tensor:getDimensionSizeArray()
 
 		table.insert(allDimensionSizeArrays, dimensionSizeArray)
 
