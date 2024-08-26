@@ -2938,16 +2938,20 @@ end
 function AqwamTensorLibrary:applyFunction(functionToApply, ...)
 
 	local tensorArray = {...}
-
-	for i = 1, (#tensorArray - 1), 1 do
-
-		tensorArray[i], tensorArray[i + 1] = broadcast(tensorArray[i], tensorArray[i + 1], false)
-
+	
+	if (self.tensor) then table.insert(tensorArray, 1, self) end
+	
+	local numberOfTensors = #tensorArray
+	
+	if (numberOfTensors >= 2) then
+		
+		for i = 1, (numberOfTensors - 1), 1 do tensorArray[i], tensorArray[i + 1] = broadcast(tensorArray[i], tensorArray[i + 1], false) end
+		
 	end
 
 	local dimensionSizeArray = tensorArray[1]:getDimensionSizeArray()
 
-	local resultTensor = applyFunction(functionToApply, dimensionSizeArray, #dimensionSizeArray, 1, ...)
+	local resultTensor = applyFunction(functionToApply, dimensionSizeArray, #dimensionSizeArray, 1, table.unpack(tensorArray))
 
 	return AqwamTensorLibrary.new(resultTensor)
 
