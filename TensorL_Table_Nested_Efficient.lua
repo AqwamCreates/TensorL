@@ -148,11 +148,13 @@ local function getDimensionSizeArray(tensor)
 
 end
 
-function AqwamTensorLibrary:getDimensionSizeArray(tensor)
-	
-	if (not self.tensor) then return tensor:getDimensionSizeArray() end
-	
-	return getDimensionSizeArray(self)
+function AqwamTensorLibrary:getDimensionSizeArray()
+
+	local dimensionSizeArray = {}
+
+	getDimensionSizeArrayRecursive(self, dimensionSizeArray)
+
+	return dimensionSizeArray
 
 end
 
@@ -270,19 +272,13 @@ local function onBroadcastError(dimensionSizeArray1, dimensionSizeArray2)
 
 end
 
-function AqwamTensorLibrary:expand(...)
-	
-	local parameterArray = {...}
-	
-	if (not self.tensor) then return parameterArray[1]:expand(select(2, ...)) end
-	
-	local targetDimensionSizeArray = parameterArray[1]
+function AqwamTensorLibrary:expand(targetDimensionSizeArray)
 
 	local dimensionSizeArray = self:getDimensionSizeArray()
 
 	if checkIfDimensionIndexArrayAreEqual(dimensionSizeArray, targetDimensionSizeArray) then return deepCopyTable(self) end -- Do not remove this code even if the code below is related or function similar to this code. You will spend so much time fixing it if you forget that you have removed it.
 
-	local resultTensor = expand(self.tensor, dimensionSizeArray, #dimensionSizeArray, 1, targetDimensionSizeArray) -- This function contains a deepCopyTable function(), which will deep copy the tensor object as opposed to tensor value if .tensor is not used instead.
+	local resultTensor = expand(self.tensor, dimensionSizeArray, targetDimensionSizeArray) -- This function contains a deepCopyTable function(), which will deep copy the tensor object as opposed to tensor value if .tensor is not used instead.
 
 	return AqwamTensorLibrary.new(resultTensor)
 
@@ -1521,14 +1517,6 @@ end
 function AqwamTensorLibrary:rawCopy()
 
 	return deepCopyTable(self.tensor)
-
-end
-
-function AqwamTensorLibrary:__add(other)
-
-	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, self, other)
-
-	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
