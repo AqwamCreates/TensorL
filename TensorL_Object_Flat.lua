@@ -585,7 +585,7 @@ local function applyFunctionUsingTwoTensorsOfSameModes(functionToApply, tensor1,
 
 	end
 	
-	return newData
+	return AqwamTensorLibrary.construct(newData, deepCopyTable(tensor1.dimensionSizeArray), deepCopyTable(tensor1.mode))
 	
 end
 
@@ -615,7 +615,7 @@ local function applyFunctionUsingTwoTensorsOfDifferentModes(functionToApply, ten
 		
 	until checkIfDimensionIndexArrayAreEqual(currentDimensionIndexArray, dimensionSizeArray)
 
-	return newData
+	return AqwamTensorLibrary.construct(newData, deepCopyTable(tensor1.dimensionSizeArray), deepCopyTable(tensor1.mode))
 	
 end
 
@@ -657,7 +657,7 @@ local function applyFunctionWhenTheFirstValueIsAScalar(functionToApply, scalar, 
 
 	end
 	
-	return newData
+	return AqwamTensorLibrary.construct(newData, deepCopyTable(tensor.dimensionSizeArray), deepCopyTable(tensor.mode))
 
 end
 
@@ -683,7 +683,7 @@ local function applyFunctionWhenTheSecondValueIsAScalar(functionToApply, tensor,
 
 	end
 	
-	return newData
+	return AqwamTensorLibrary.construct(newData, deepCopyTable(tensor.dimensionSizeArray), deepCopyTable(tensor.mode))
 
 end
 
@@ -743,83 +743,69 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 end
 
+function AqwamTensorLibrary.applyFunction(functionToApply, ...)
+
+	return applyFunctionOnMultipleTensors(functionToApply, ...)
+
+end
+
 function AqwamTensorLibrary:__add(other)
 
-	local data, dimensionSizeArray = applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, self, other)
-
-	return AqwamTensorLibrary.construct(data, dimensionSizeArray, self.mode)
+	return applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, self, other)
 
 end
 
 function AqwamTensorLibrary:add(...)
 
-	local data, dimensionSizeArray = applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, self, ...)
-
-	return AqwamTensorLibrary.construct(data, dimensionSizeArray, self.mode)
+	return applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, self, ...)
 
 end
 
 function AqwamTensorLibrary:__sub(other)
 
-	local data, dimensionSizeArray = applyFunctionOnMultipleTensors(function(a, b) return (a - b) end, self, other)
-
-	return AqwamTensorLibrary.construct(data, dimensionSizeArray, self.mode)
+	return applyFunctionOnMultipleTensors(function(a, b) return (a - b) end, self, other)
 
 end
 
 function AqwamTensorLibrary:subtract(...)
 
-	local data, dimensionSizeArray = applyFunctionOnMultipleTensors(function(a, b) return (a - b) end, self, ...)
-
-	return AqwamTensorLibrary.construct(data, dimensionSizeArray, self.mode)
+	return applyFunctionOnMultipleTensors(function(a, b) return (a - b) end, self, ...)
 
 end
 
 function AqwamTensorLibrary:__mul(other)
 
-	local data, dimensionSizeArray = applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, self, other)
-
-	return AqwamTensorLibrary.construct(data, dimensionSizeArray, self.mode)
+	return applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, self, other)
 
 end
 
 function AqwamTensorLibrary:multiply(...)
 
-	local data, dimensionSizeArray = applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, self, ...)
-
-	return AqwamTensorLibrary.construct(data, dimensionSizeArray, self.mode)
+	return applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, self, ...)
 
 end
 
 function AqwamTensorLibrary:__div(other)
 
-	local data, dimensionSizeArray = applyFunctionOnMultipleTensors(function(a, b) return (a / b) end, self, other)
-
-	return AqwamTensorLibrary.construct(data, dimensionSizeArray, self.mode)
+	return applyFunctionOnMultipleTensors(function(a, b) return (a / b) end, self, other)
 
 end
 
 function AqwamTensorLibrary:divide(...)
 
-	local data, dimensionSizeArray = applyFunctionOnMultipleTensors(function(a, b) return (a / b) end, self, ...)
-
-	return AqwamTensorLibrary.construct(data, dimensionSizeArray, self.mode)
+	return applyFunctionOnMultipleTensors(function(a, b) return (a / b) end, self, ...)
 
 end
 
 function AqwamTensorLibrary:__unm()
 
-	local data, dimensionSizeArray = applyFunctionOnMultipleTensors(function(a) return (-a) end, self)
-
-	return AqwamTensorLibrary.construct(data, dimensionSizeArray, self.mode)
+	return applyFunctionOnMultipleTensors(function(a) return (-a) end, self)
 
 end
 
 function AqwamTensorLibrary:unaryMinus()
 
-	local data, dimensionSizeArray = applyFunctionOnMultipleTensors(function(a) return (-a) end, self)
-
-	return AqwamTensorLibrary.construct(data, dimensionSizeArray, self.mode)
+	return applyFunctionOnMultipleTensors(function(a) return (-a) end, self)
 
 end
 
