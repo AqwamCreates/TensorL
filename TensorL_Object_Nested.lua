@@ -1620,9 +1620,21 @@ function AqwamTensorLibrary:__add(other)
 
 end
 
-function AqwamTensorLibrary:add(other)
+function AqwamTensorLibrary:add(...)
 
-	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, self, other)
+	local functionToApply = function(a, b) return (a + b) end
+
+	local resultTensor
+
+	if (self.tensor) then
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, self, ...)
+
+	else
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, ...)
+
+	end
 
 	return AqwamTensorLibrary.new(resultTensor)
 
@@ -1638,7 +1650,19 @@ end
 
 function AqwamTensorLibrary:subtract(...)
 
-	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a - b) end, self, ...)
+	local functionToApply = function(a, b) return (a - b) end
+
+	local resultTensor
+
+	if (self.tensor) then
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, self, ...)
+
+	else
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, ...)
+
+	end
 
 	return AqwamTensorLibrary.new(resultTensor)
 
@@ -1654,7 +1678,19 @@ end
 
 function AqwamTensorLibrary:multiply(...)
 
-	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, self, ...)
+	local functionToApply = function(a, b) return (a * b) end
+
+	local resultTensor
+
+	if (self.tensor) then
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, self, ...)
+
+	else
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, ...)
+
+	end
 
 	return AqwamTensorLibrary.new(resultTensor)
 
@@ -1670,7 +1706,19 @@ end
 
 function AqwamTensorLibrary:divide(...)
 
-	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a / b) end, self, ...)
+	local functionToApply = function(a, b) return (a / b) end
+
+	local resultTensor
+
+	if (self.tensor) then
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, self, ...)
+
+	else
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, ...)
+
+	end
 
 	return AqwamTensorLibrary.new(resultTensor)
 
@@ -1684,9 +1732,21 @@ function AqwamTensorLibrary:__unm()
 
 end
 
-function AqwamTensorLibrary:unaryMinus()
+function AqwamTensorLibrary:unaryMinus(...)
 
-	local resultTensor = applyFunctionOnMultipleTensors(function(a) return (-a) end, self)
+	local functionToApply = function(a) return (-a) end
+
+	local resultTensor
+
+	if (self.tensor) then
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, self, ...)
+
+	else
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, ...)
+
+	end
 
 	return AqwamTensorLibrary.new(resultTensor)
 
