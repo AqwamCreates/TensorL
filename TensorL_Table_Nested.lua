@@ -185,10 +185,6 @@ local function onBroadcastError(dimensionSizeArray1, dimensionSizeArray2)
 end
 
 local function broadcast(tensor1, tensor2, deepCopyOriginalTensor)
-	
-	if (type(tensor1) ~= "table") then tensor1 = {tensor1} end
-
-	if (type(tensor2) ~= "table") then tensor2 = {tensor2} end
 
 	local dimensionSizeArray1 = AqwamTensorLibrary:getDimensionSizeArray(tensor1)
 
@@ -205,6 +201,22 @@ local function broadcast(tensor1, tensor2, deepCopyOriginalTensor)
 			return tensor1, tensor2 
 
 		end
+
+	end
+	
+	if (type(tensor1) ~= "table") then 
+
+		tensor1 = {tensor1} 
+
+		dimensionSizeArray1[1] = 1
+
+	end
+
+	if (type(tensor2) ~= "table") then 
+
+		tensor2 = {tensor2} 
+
+		dimensionSizeArray2[1] = 1
 
 	end
 
