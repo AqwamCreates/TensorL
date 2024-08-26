@@ -2989,17 +2989,17 @@ end
 
 function AqwamTensorLibrary:applyFunction(functionToApply, ...)
 
-	local valueArray = {...}
+	local tensorArray = {...}
 
 	local tensorArray = {}
 
-	for i = 1, #valueArray, 1 do
+	for i = 1, #tensorArray, 1 do
 
-		valueArray[i], valueArray[i + 1] = AqwamTensorLibrary:broadcast(valueArray[i], valueArray[i + 1])
+		tensorArray[i], tensorArray[i + 1] = AqwamTensorLibrary:broadcast(tensorArray[i], tensorArray[i + 1])
 
 	end
 
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(valueArray[1])
+	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensorArray[1])
 
 	local resultTensor = applyFunction(functionToApply, dimensionSizeArray, #dimensionSizeArray, 1, ...)
 
