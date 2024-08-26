@@ -340,7 +340,7 @@ local function broadcast(tensor1, tensor2, deepCopyOriginalTensor)
 	
 	if (type(tensor1) ~= "table") then 
 
-		tensor1 = {tensor1} 
+		tensor1 = AqwamTensorLibrary.new({tensor1})
 
 		dimensionSizeArray1[1] = 1
 
@@ -348,7 +348,7 @@ local function broadcast(tensor1, tensor2, deepCopyOriginalTensor)
 
 	if (type(tensor2) ~= "table") then 
 
-		tensor2 = {tensor2} 
+		tensor2 = AqwamTensorLibrary.new({tensor2})
 
 		dimensionSizeArray2[1] = 1
 
