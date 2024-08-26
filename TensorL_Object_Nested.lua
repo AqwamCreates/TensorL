@@ -3011,33 +3011,13 @@ local function applyFunction(functionToApply, dimensionSizeArray, ...)
 
 end
 
-function AqwamTensorLibrary.applyFunction(functionToApply, ...)
+function AqwamTensorLibrary:applyFunction(functionToApply, ...)
 
 	local tensorArray = {...}
 
-	local allDimensionSizeArrays = {}
+	for i = 1, (#tensorArray - 1), 1 do
 
-	for _, tensor in ipairs(tensorArray) do
-
-		local dimensionSizeArray = tensor:getDimensionSizeArray()
-
-		table.insert(allDimensionSizeArrays, dimensionSizeArray)
-
-	end
-
-	local firstDimensionSizeArray = allDimensionSizeArrays[1]
-
-	for i = 2, #tensorArray, 1 do
-
-		local dimensionSizeArray = allDimensionSizeArrays[i]
-
-		if (#firstDimensionSizeArray ~= #dimensionSizeArray) then error("Tensor ".. (i - 1) .. " and " .. i .. " does not have the same number of dimensions.") end
-
-		for s, size in ipairs(firstDimensionSizeArray) do
-
-			if (size ~= dimensionSizeArray[s]) then error("Tensor " .. (i - 1) .. " and " .. i .. " does not contain equal dimension values at dimension " .. s .. ".") end
-
-		end
+		tensorArray[i], tensorArray[i + 1] = broadcast(tensorArray[i], tensorArray[i + 1], false)
 
 	end
 
