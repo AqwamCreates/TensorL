@@ -2897,7 +2897,7 @@ function AqwamTensorLibrary:applyFunction(functionToApply, ...)
 
 	local resultTensor = applyFunction(functionToApply, dimensionSizeArray, #dimensionSizeArray, 1, ...)
 
-	return AqwamTensorLibrary.new(AqwamTensorLibrary)
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
