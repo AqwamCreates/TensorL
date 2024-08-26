@@ -3041,7 +3041,7 @@ function AqwamTensorLibrary.applyFunction(functionToApply, ...)
 
 	end
 
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensorArray[1])
+	local dimensionSizeArray = tensorArray[1]:getDimensionSizeArray()
 
 	local resultTensor = applyFunction(functionToApply, dimensionSizeArray, ...)
 
