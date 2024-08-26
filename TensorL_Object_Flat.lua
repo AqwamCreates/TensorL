@@ -4,6 +4,38 @@ local defaultMode = "Row"
 
 local AqwamTensorLibrary = {}
 
+local function checkIfDimensionIndexArrayAreEqual(dimensionSizeArray1, dimensionSizeArray2)
+
+	if (#dimensionSizeArray1 ~= #dimensionSizeArray2) then return false end
+
+	for i, index in ipairs(dimensionSizeArray1) do
+
+		if (index ~= dimensionSizeArray2[i]) then return false end
+
+	end
+
+	return true
+
+end
+
+local function checkIfValueIsOutOfBounds(value, minimumValue, maximumValue)
+
+	return (value < minimumValue) or (value > maximumValue)
+
+end
+
+local function throwErrorIfDimensionSizeIndexIsOutOfBounds(dimensionSizeIndex, minimumDimensionSizeIndex, maximumDimensionSizeIndex)
+
+	if checkIfValueIsOutOfBounds(dimensionSizeIndex, minimumDimensionSizeIndex, maximumDimensionSizeIndex) then error("The dimension size index is out of bounds.") end
+
+end
+
+local function throwErrorIfDimensionIsOutOfBounds(dimension, minimumNumberOfDimensions, maximumNumberOfDimensions)
+
+	if checkIfValueIsOutOfBounds(dimension, minimumNumberOfDimensions, maximumNumberOfDimensions) then error("The dimension is out of bounds.") end
+
+end
+
 local function deepCopyTable(original, copies)
 
 	copies = copies or {}
@@ -501,20 +533,6 @@ local function getDataIndex(linearIndex)
 
 end
 
-local function checkIfDimensionIndexArrayAreEqual(dimensionSizeArray1, dimensionSizeArray2)
-
-	if (#dimensionSizeArray1 ~= #dimensionSizeArray2) then return false end
-
-	for i, index in ipairs(dimensionSizeArray1) do
-
-		if (index ~= dimensionSizeArray2[i]) then return false end
-
-	end
-
-	return true
-
-end
-
 local function applyFunctionUsingOneTensor(functionToApply, tensor)
 
 	local newData = {}
@@ -917,6 +935,56 @@ function AqwamTensorLibrary:transpose(dimensionArray)
 		
 	until checkIfDimensionIndexArrayAreEqual(currentDimensionIndexArray, dimensionSizeArray)
 	
+	return AqwamTensorLibrary.construct(newData, newDimensionSizeArray)
+	
+end
+
+function AqwamTensorLibrary:sum(dimension)
+	
+	local dimensionSizeArray = self.dimensionSizeArray
+
+	if (not dimension) then return sumFromAllDimensions(tensor, dimensionSizeArray) end
+
+	if (type(dimension) ~= "number") then error("The dimension must be a number.") end
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	throwErrorIfDimensionIsOutOfBounds(dimension, 1, numberOfDimensions)
+	
+	local newDimensionSizeArray = table.clone(dimensionSizeArray)
+
+	newDimensionSizeArray[dimension] = 1
+
+	local getLinearIndex = getLinearIndexFunctionList[self.mode]
+
+	local currentDimensionIndexArray = table.create(numberOfDimensions, 1)
+
+	local data = self.data
+
+	local newData = createEmptyDataFromDimensionSizeArray(newDimensionSizeArray)
+	
+	repeat
+
+		local targetDimensionIndexArray = table.clone(currentDimensionIndexArray)
+
+		targetDimensionIndexArray[dimension] = 1
+
+		local currentLinearIndex = getLinearIndex(currentDimensionIndexArray, dimensionSizeArray)
+
+		local targetLinearIndex = getLinearIndex(targetDimensionIndexArray, newDimensionSizeArray)
+
+		local currentDataIndex, currentSubDataIndex, currentSubSubDataIndex = getDataIndex(currentLinearIndex)
+
+		local targetDataIndex, targetSubDataIndex, targetSubSubDataIndex = getDataIndex(targetLinearIndex)
+		
+		local newDataValue = newData[targetDataIndex][targetSubDataIndex][targetSubSubDataIndex] or 0
+
+		newData[targetDataIndex][targetSubDataIndex][targetSubSubDataIndex] = newDataValue + data[currentDataIndex][currentSubDataIndex][currentSubSubDataIndex]
+
+		currentDimensionIndexArray = incrementDimensionIndexArray(dimensionSizeArray, currentDimensionIndexArray)
+
+	until checkIfDimensionIndexArrayAreEqual(currentDimensionIndexArray, dimensionSizeArray)
+
 	return AqwamTensorLibrary.construct(newData, newDimensionSizeArray)
 	
 end
