@@ -1596,14 +1596,6 @@ function AqwamTensorLibrary:rawCopy()
 
 end
 
-function AqwamTensorLibrary:applyFunction(functionToApply)
-	
-	local resultTensor = applyFunctionOnMultipleTensors(functionToApply, self)
-
-	return AqwamTensorLibrary.new(resultTensor)
-
-end
-
 function AqwamTensorLibrary:__add(other)
 
 	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, self, other)
@@ -2978,6 +2970,82 @@ function AqwamTensorLibrary:isSameTensor(other)
 	local booleanTensor = self:isEqualTo(other)
 
 	return containNoFalseBooleanInTensor(booleanTensor)
+
+end
+
+local function applyFunction(functionToApply, dimensionSizeArray, ...)
+
+	local tensorArray = {...}
+
+	local resultTensor = {}
+
+	if (#dimensionSizeArray >= 2) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do 
+
+			local subTensorArray = {}
+
+			for _, tensor in ipairs(tensorArray) do table.insert(subTensorArray, tensor[i]) end
+
+			resultTensor[i] = applyFunction(functionToApply, remainingDimensionSizeArray, table.unpack(subTensorArray)) 
+
+		end
+
+	else
+
+		for i = 1, dimensionSizeArray[1], 1 do 
+
+			local subTensorArray = {}
+
+			for _, tensor in ipairs(tensorArray) do table.insert(subTensorArray, tensor[i]) end
+
+			resultTensor[i] = functionToApply(table.unpack(subTensorArray)) 
+
+		end
+
+	end
+
+	return resultTensor
+
+end
+
+function AqwamTensorLibrary.applyFunction(functionToApply, ...)
+
+	local tensorArray = {...}
+
+	local allDimensionSizeArrays = {}
+
+	for _, tensor in ipairs(tensorArray) do
+
+		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+
+		table.insert(allDimensionSizeArrays, dimensionSizeArray)
+
+	end
+
+	local firstDimensionSizeArray = allDimensionSizeArrays[1]
+
+	for i = 2, #tensorArray, 1 do
+
+		local dimensionSizeArray = allDimensionSizeArrays[i]
+
+		if (#firstDimensionSizeArray ~= #dimensionSizeArray) then error("Tensor ".. (i - 1) .. " and " .. i .. " does not have the same number of dimensions.") end
+
+		for s, size in ipairs(firstDimensionSizeArray) do
+
+			if (size ~= dimensionSizeArray[s]) then error("Tensor " .. (i - 1) .. " and " .. i .. " does not contain equal dimension values at dimension " .. s .. ".") end
+
+		end
+
+	end
+
+	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensorArray[1])
+
+	local resultTensor = applyFunction(functionToApply, dimensionSizeArray, ...)
+
+	return AqwamTensorLibrary.new(AqwamTensorLibrary)
 
 end
 
