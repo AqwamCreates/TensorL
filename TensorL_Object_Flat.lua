@@ -743,9 +743,9 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 end
 
-function AqwamTensorLibrary.applyFunction(functionToApply, ...)
+function AqwamTensorLibrary:applyFunction(functionToApply)
 
-	return applyFunctionOnMultipleTensors(functionToApply, ...)
+	return applyFunctionOnMultipleTensors(functionToApply, self)
 
 end
 
