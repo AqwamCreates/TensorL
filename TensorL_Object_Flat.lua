@@ -536,24 +536,22 @@ end
 local function applyFunctionUsingOneTensor(functionToApply, tensor)
 
 	local newData = {}
-
-	for i = 1, #tensor, 1 do
-
-		local data = tensor[i]
+	
+	for _, subData in ipairs(tensor.data) do 
 
 		local newSubData = {}
 
-		for j, subData in ipairs(data) do 
+		for _, subSubData in ipairs(subData) do 
 
 			local newSubSubData = {}
 
-			for k, value in ipairs(subData) do table.insert(newSubSubData, functionToApply(value)) end
+			for _, value in ipairs(subSubData) do table.insert(newSubSubData, functionToApply(value)) end
 
-			newSubData[j] = newSubSubData
+			table.insert(newSubData, newSubSubData)
 
 		end
 
-		newData[i] = newSubData
+		table.insert(newData, newSubData)
 
 	end
 
@@ -564,27 +562,25 @@ end
 local function applyFunctionUsingTwoTensorsOfSameModes(functionToApply, tensor1, tensor2)
 	
 	local newData = {}
-
-	for i = 1, #tensor1, 1 do
-
-		local data1 = tensor1[i]
-
-		local data2 = tensor2[i]
+	
+	for i, subData1 in ipairs(tensor1.data) do 
+		
+		local subData2 = tensor2[i]
 
 		local newSubData = {}
 
-		for j, subData1 in ipairs(data1) do 
+		for j, subSubData1 in ipairs(subData1) do 
+			
+			local subSubData2 = subData2[j]
 
 			local newSubSubData = {}
 
-			local subData2 = data2[j]
+			for k, value in ipairs(subSubData1) do table.insert(newSubSubData, functionToApply(value, subSubData2[k])) end
 
-			for k, value in ipairs(subData1) do table.insert(newSubSubData, functionToApply(value, subData2[k])) end
-			
 			table.insert(newSubData, newSubSubData)
 
 		end
-		
+
 		table.insert(newData, newSubData)
 
 	end
@@ -643,17 +639,15 @@ local function applyFunctionWhenTheFirstValueIsAScalar(functionToApply, scalar, 
 
 	local newData = {}
 
-	for i = 1, #tensor, 1 do
-
-		local data = tensor[i]
+	for _, subData in ipairs(tensor.data) do 
 
 		local newSubData = {}
 
-		for _, subData in ipairs(data) do 
+		for _, subSubData in ipairs(subData) do 
 
 			local newSubSubData = {}
 
-			for _, value in ipairs(subData) do table.insert(newSubSubData, functionToApply(scalar, value)) end
+			for _, value in ipairs(subSubData) do table.insert(newSubSubData, functionToApply(scalar, value)) end
 
 			table.insert(newSubData, newSubSubData)
 
@@ -670,23 +664,21 @@ end
 local function applyFunctionWhenTheSecondValueIsAScalar(functionToApply, tensor, scalar)
 
 	local newData = {}
-
-	for i = 1, #tensor, 1 do
-
-		local data = tensor[i]
-
+	
+	for _, subData in ipairs(tensor.data) do 
+		
 		local newSubData = {}
 
-		for _, subData in ipairs(data) do 
-
+		for _, subSubData in ipairs(subData) do 
+			
 			local newSubSubData = {}
 
-			for _, value in ipairs(subData) do table.insert(newSubSubData, functionToApply(value, scalar)) end
+			for _, value in ipairs(subSubData) do table.insert(newSubSubData, functionToApply(value, scalar)) end
 			
 			table.insert(newSubData, newSubSubData)
 
 		end
-
+		
 		table.insert(newData, newSubData)
 
 	end
@@ -939,18 +931,16 @@ function AqwamTensorLibrary:transpose(dimensionArray)
 	
 end
 
-local function sumFromAllDimensions(functionToApply, tensor)
+local function sumFromAllDimensionsFromData(data)
 
 	local totalValue = 0
+	
+	for _, subData in ipairs(data) do 
 
-	for i = 1, #tensor, 1 do
-
-		local data = tensor[i]
-
-		for _, subData in ipairs(data) do 
-
-			for _, value in ipairs(subData) do totalValue = totalValue + value end
-
+		for _, subSubData in ipairs(subData) do 
+			
+			for _, value in ipairs(subSubData) do totalValue = totalValue + value end
+			
 		end
 
 	end
@@ -959,12 +949,11 @@ local function sumFromAllDimensions(functionToApply, tensor)
 
 end
 
-
 function AqwamTensorLibrary:sum(dimension)
 	
 	local data = self.data
 
-	if (not dimension) then return sumFromAllDimensions(data) end
+	if (not dimension) then return sumFromAllDimensionsFromData(data) end
 
 	if (type(dimension) ~= "number") then error("The dimension must be a number.") end
 	
