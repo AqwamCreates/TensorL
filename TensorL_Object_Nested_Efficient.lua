@@ -337,6 +337,22 @@ local function broadcast(tensor1, tensor2, deepCopyOriginalTensor)
 		end
 
 	end
+	
+	if (type(tensor1) ~= "table") then 
+
+		tensor1 = {tensor1} 
+
+		dimensionSizeArray1[1] = 1
+
+	end
+
+	if (type(tensor2) ~= "table") then 
+
+		tensor2 = {tensor2} 
+
+		dimensionSizeArray2[1] = 1
+
+	end
 
 	local numberOfDimensions1 = #dimensionSizeArray1 
 
@@ -1501,14 +1517,6 @@ end
 function AqwamTensorLibrary:rawCopy()
 
 	return deepCopyTable(self.tensor)
-
-end
-
-function AqwamTensorLibrary:applyFunction(functionToApply)
-
-	local resultTensor = applyFunctionOnMultipleTensors(functionToApply, self)
-
-	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
@@ -2834,6 +2842,62 @@ function AqwamTensorLibrary:isSameTensor(other)
 	local dimensionSizeArray = booleanTensor:getDimensionSizeArray()
 
 	return containNoFalseBooleanInTensor(booleanTensor, dimensionSizeArray, #dimensionSizeArray, 1)
+
+end
+
+local function applyFunction(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension, ...)
+
+	local tensorArray = {...}
+
+	local resultTensor = {}
+
+	local dimensionSize = dimensionSizeArray[currentDimension]
+
+	if (currentDimension < numberOfDimensions) then
+
+		for i = 1, dimensionSize, 1 do 
+
+			local subTensorArray = {}
+
+			for _, tensor in ipairs(tensorArray) do table.insert(subTensorArray, tensor[i]) end
+
+			resultTensor[i] = applyFunction(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension + 1,  table.unpack(subTensorArray)) 
+
+		end
+
+	else
+
+		for i = 1, dimensionSize, 1 do 
+
+			local subTensorArray = {}
+
+			for _, tensor in ipairs(tensorArray) do table.insert(subTensorArray, tensor[i]) end
+
+			resultTensor[i] = functionToApply(table.unpack(subTensorArray)) 
+
+		end
+
+	end
+
+	return resultTensor
+
+end
+
+function AqwamTensorLibrary:applyFunction(functionToApply, ...)
+
+	local tensorArray = {...}
+
+	for i = 1, (#tensorArray - 1), 1 do
+
+		tensorArray[i], tensorArray[i + 1] = broadcast(tensorArray[i], tensorArray[i + 1], false)
+
+	end
+
+	local dimensionSizeArray = tensorArray[1]:getDimensionSizeArray()
+
+	local resultTensor = applyFunction(functionToApply, dimensionSizeArray, #dimensionSizeArray, 1, ...)
+
+	return AqwamTensorLibrary.new(AqwamTensorLibrary)
 
 end
 
