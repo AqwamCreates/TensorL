@@ -751,61 +751,141 @@ end
 
 function AqwamTensorLibrary:__add(other)
 
-	return applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, self, other)
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, self, other)
+
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
 function AqwamTensorLibrary:add(...)
 
-	return applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, self, ...)
+	local functionToApply = function(a, b) return (a + b) end
+
+	local resultTensor
+
+	if (self.dimensionSizeArray) then
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, self, ...)
+
+	else
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, ...)
+
+	end
+
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
 function AqwamTensorLibrary:__sub(other)
 
-	return applyFunctionOnMultipleTensors(function(a, b) return (a - b) end, self, other)
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a - b) end, self, other)
+
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
 function AqwamTensorLibrary:subtract(...)
 
-	return applyFunctionOnMultipleTensors(function(a, b) return (a - b) end, self, ...)
+	local functionToApply = function(a, b) return (a - b) end
+
+	local resultTensor
+
+	if (self.dimensionSizeArray) then
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, self, ...)
+
+	else
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, ...)
+
+	end
+
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
 function AqwamTensorLibrary:__mul(other)
 
-	return applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, self, other)
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, self, other)
+
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
 function AqwamTensorLibrary:multiply(...)
 
-	return applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, self, ...)
+	local functionToApply = function(a, b) return (a * b) end
+
+	local resultTensor
+
+	if (self.dimensionSizeArray) then
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, self, ...)
+
+	else
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, ...)
+
+	end
+
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
 function AqwamTensorLibrary:__div(other)
 
-	return applyFunctionOnMultipleTensors(function(a, b) return (a / b) end, self, other)
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a / b) end, self, other)
+
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
 function AqwamTensorLibrary:divide(...)
 
-	return applyFunctionOnMultipleTensors(function(a, b) return (a / b) end, self, ...)
+	local functionToApply = function(a, b) return (a / b) end
+
+	local resultTensor
+
+	if (self.dimensionSizeArray) then
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, self, ...)
+
+	else
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, ...)
+
+	end
+
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
 function AqwamTensorLibrary:__unm()
 
-	return applyFunctionOnMultipleTensors(function(a) return (-a) end, self)
+	local resultTensor = applyFunctionOnMultipleTensors(function(a) return (-a) end, self)
+
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
-function AqwamTensorLibrary:unaryMinus()
+function AqwamTensorLibrary:unaryMinus(...)
 
-	return applyFunctionOnMultipleTensors(function(a) return (-a) end, self)
+	local functionToApply = function(a) return (-a) end
+
+	local resultTensor
+
+	if (self.dimensionSizeArray) then
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, self, ...)
+
+	else
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, ...)
+
+	end
+
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
