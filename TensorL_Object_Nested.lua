@@ -1596,6 +1596,14 @@ function AqwamTensorLibrary:rawCopy()
 
 end
 
+function AqwamTensorLibrary:applyFunction(functionToApply)
+	
+	local resultTensor = applyFunctionOnMultipleTensors(functionToApply, self)
+
+	return AqwamTensorLibrary.new(resultTensor)
+
+end
+
 function AqwamTensorLibrary:__add(other)
 
 	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, self, other)
