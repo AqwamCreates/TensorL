@@ -2991,8 +2991,6 @@ function AqwamTensorLibrary:applyFunction(functionToApply, ...)
 
 	local tensorArray = {...}
 
-	local tensorArray = {}
-
 	for i = 1, #tensorArray, 1 do
 
 		tensorArray[i], tensorArray[i + 1] = AqwamTensorLibrary:broadcast(tensorArray[i], tensorArray[i + 1])
