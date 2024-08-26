@@ -952,8 +952,10 @@ function AqwamTensorLibrary:sum(dimension)
 	local newDimensionSizeArray = table.clone(dimensionSizeArray)
 
 	newDimensionSizeArray[dimension] = 1
+	
+	local mode = self.mode
 
-	local getLinearIndex = getLinearIndexFunctionList[self.mode]
+	local getLinearIndex = getLinearIndexFunctionList[mode]
 
 	local currentDimensionIndexArray = table.create(numberOfDimensions, 1)
 
@@ -981,7 +983,7 @@ function AqwamTensorLibrary:sum(dimension)
 
 	until checkIfDimensionIndexArrayAreEqual(currentDimensionIndexArray, dimensionSizeArray)
 
-	return AqwamTensorLibrary.construct(newData, newDimensionSizeArray, self.mode)
+	return AqwamTensorLibrary.construct(newData, newDimensionSizeArray, mode)
 	
 end
 
