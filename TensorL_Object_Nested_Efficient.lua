@@ -148,13 +148,11 @@ local function getDimensionSizeArray(tensor)
 
 end
 
-function AqwamTensorLibrary:getDimensionSizeArray()
-
-	local dimensionSizeArray = {}
-
-	getDimensionSizeArrayRecursive(self, dimensionSizeArray)
-
-	return dimensionSizeArray
+function AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	
+	if (not self.tensor) then return tensor:getDimensionSizeArray() end
+	
+	return getDimensionSizeArray(self)
 
 end
 
