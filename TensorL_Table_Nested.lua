@@ -30,13 +30,13 @@
 
 local AqwamTensorLibrary = {}
 
-local function checkIfItHasSameDimensionSizeArray(dimensionSizeArray, targetDimensionSizeArray)
+local function checkIfDimensionIndexArrayAreEqual(dimensionSizeArray1, dimensionSizeArray2)
 
-	if (#dimensionSizeArray ~= #targetDimensionSizeArray) then return false end
+	if (#dimensionSizeArray1 ~= #dimensionSizeArray2) then return false end
 
-	for i, size in ipairs(dimensionSizeArray) do
+	for i, index in ipairs(dimensionSizeArray1) do
 
-		if (size ~= targetDimensionSizeArray[i]) then return false end
+		if (index ~= dimensionSizeArray2[i]) then return false end
 
 	end
 
@@ -190,7 +190,7 @@ local function broadcast(tensor1, tensor2, deepCopyOriginalTensor)
 
 	local dimensionSizeArray2 = AqwamTensorLibrary:getDimensionSizeArray(tensor2)
 
-	if checkIfItHasSameDimensionSizeArray(dimensionSizeArray1, dimensionSizeArray2) then 
+	if checkIfDimensionIndexArrayAreEqual(dimensionSizeArray1, dimensionSizeArray2) then 
 
 		if (deepCopyOriginalTensor) then
 
@@ -862,7 +862,7 @@ function AqwamTensorLibrary:expand(tensor, targetDimensionSizeArray)
 
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
-	if checkIfItHasSameDimensionSizeArray(dimensionSizeArray, targetDimensionSizeArray) then return deepCopyTable(tensor) end -- Do not remove this code even if the code below is related or function similar to this code. You will spend so much time fixing it if you forget that you have removed it.
+	if checkIfDimensionIndexArrayAreEqual(dimensionSizeArray, targetDimensionSizeArray) then return deepCopyTable(tensor) end -- Do not remove this code even if the code below is related or function similar to this code. You will spend so much time fixing it if you forget that you have removed it.
 
 	return expand(tensor, dimensionSizeArray, targetDimensionSizeArray)
 
