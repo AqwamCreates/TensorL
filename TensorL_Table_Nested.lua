@@ -185,6 +185,10 @@ local function onBroadcastError(dimensionSizeArray1, dimensionSizeArray2)
 end
 
 local function broadcast(tensor1, tensor2, deepCopyOriginalTensor)
+	
+	if (type(tensor1) ~= "table") then tensor1 = {tensor1} end
+
+	if (type(tensor2) ~= "table") then tensor2 = {tensor2} end
 
 	local dimensionSizeArray1 = AqwamTensorLibrary:getDimensionSizeArray(tensor1)
 
@@ -3099,29 +3103,9 @@ function AqwamTensorLibrary:applyFunction(functionToApply, ...)
 
 	local tensorArray = {...}
 
-	local allDimensionSizeArrays = {}
+	for i = 1, (#tensorArray - 1), 1 do
 
-	for _, tensor in ipairs(tensorArray) do
-
-		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-
-		table.insert(allDimensionSizeArrays, dimensionSizeArray)
-
-	end
-
-	local firstDimensionSizeArray = allDimensionSizeArrays[1]
-
-	for i = 2, #tensorArray, 1 do
-
-		local dimensionSizeArray = allDimensionSizeArrays[i]
-
-		if (#firstDimensionSizeArray ~= #dimensionSizeArray) then error("Tensor ".. (i - 1) .. " and " .. i .. " does not have the same number of dimensions.") end
-
-		for s, size in ipairs(firstDimensionSizeArray) do
-
-			if (size ~= dimensionSizeArray[s]) then error("Tensor " .. (i - 1) .. " and " .. i .. " does not contain equal dimension values at dimension " .. s .. ".") end
-
-		end
+		tensorArray[i], tensorArray[i + 1] = AqwamTensorLibrary:broadcast(tensorArray[i], tensorArray[i + 1])
 
 	end
 
