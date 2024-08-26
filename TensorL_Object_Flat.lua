@@ -755,7 +755,7 @@ function AqwamTensorLibrary:__add(other)
 
 	local data, dimensionSizeArray = applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, self, other)
 
-	return AqwamTensorLibrary.construct(data, dimensionSizeArray)
+	return AqwamTensorLibrary.construct(data, dimensionSizeArray, self.mode)
 
 end
 
@@ -763,7 +763,7 @@ function AqwamTensorLibrary:add(...)
 
 	local data, dimensionSizeArray = applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, self, ...)
 
-	return AqwamTensorLibrary.construct(data, dimensionSizeArray)
+	return AqwamTensorLibrary.construct(data, dimensionSizeArray, self.mode)
 
 end
 
@@ -771,7 +771,7 @@ function AqwamTensorLibrary:__sub(other)
 
 	local data, dimensionSizeArray = applyFunctionOnMultipleTensors(function(a, b) return (a - b) end, self, other)
 
-	return AqwamTensorLibrary.construct(data, dimensionSizeArray)
+	return AqwamTensorLibrary.construct(data, dimensionSizeArray, self.mode)
 
 end
 
@@ -779,7 +779,7 @@ function AqwamTensorLibrary:subtract(...)
 
 	local data, dimensionSizeArray = applyFunctionOnMultipleTensors(function(a, b) return (a - b) end, self, ...)
 
-	return AqwamTensorLibrary.construct(data, dimensionSizeArray)
+	return AqwamTensorLibrary.construct(data, dimensionSizeArray, self.mode)
 
 end
 
@@ -787,7 +787,7 @@ function AqwamTensorLibrary:__mul(other)
 
 	local data, dimensionSizeArray = applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, self, other)
 
-	return AqwamTensorLibrary.construct(data, dimensionSizeArray)
+	return AqwamTensorLibrary.construct(data, dimensionSizeArray, self.mode)
 
 end
 
@@ -795,7 +795,7 @@ function AqwamTensorLibrary:multiply(...)
 
 	local data, dimensionSizeArray = applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, self, ...)
 
-	return AqwamTensorLibrary.construct(data, dimensionSizeArray)
+	return AqwamTensorLibrary.construct(data, dimensionSizeArray, self.mode)
 
 end
 
@@ -803,7 +803,7 @@ function AqwamTensorLibrary:__div(other)
 
 	local data, dimensionSizeArray = applyFunctionOnMultipleTensors(function(a, b) return (a / b) end, self, other)
 
-	return AqwamTensorLibrary.construct(data, dimensionSizeArray)
+	return AqwamTensorLibrary.construct(data, dimensionSizeArray, self.mode)
 
 end
 
@@ -811,7 +811,7 @@ function AqwamTensorLibrary:divide(...)
 
 	local data, dimensionSizeArray = applyFunctionOnMultipleTensors(function(a, b) return (a / b) end, self, ...)
 
-	return AqwamTensorLibrary.construct(data, dimensionSizeArray)
+	return AqwamTensorLibrary.construct(data, dimensionSizeArray, self.mode)
 
 end
 
@@ -819,7 +819,7 @@ function AqwamTensorLibrary:__unm()
 
 	local data, dimensionSizeArray = applyFunctionOnMultipleTensors(function(a) return (-a) end, self)
 
-	return AqwamTensorLibrary.construct(data, dimensionSizeArray)
+	return AqwamTensorLibrary.construct(data, dimensionSizeArray, self.mode)
 
 end
 
@@ -827,7 +827,7 @@ function AqwamTensorLibrary:unaryMinus()
 
 	local data, dimensionSizeArray = applyFunctionOnMultipleTensors(function(a) return (-a) end, self)
 
-	return AqwamTensorLibrary.construct(data, dimensionSizeArray)
+	return AqwamTensorLibrary.construct(data, dimensionSizeArray, self.mode)
 
 end
 
@@ -935,7 +935,7 @@ function AqwamTensorLibrary:transpose(dimensionArray)
 		
 	until checkIfDimensionIndexArrayAreEqual(currentDimensionIndexArray, dimensionSizeArray)
 	
-	return AqwamTensorLibrary.construct(newData, newDimensionSizeArray)
+	return AqwamTensorLibrary.construct(newData, newDimensionSizeArray, self.mode)
 	
 end
 
@@ -1006,7 +1006,7 @@ function AqwamTensorLibrary:sum(dimension)
 
 	until checkIfDimensionIndexArrayAreEqual(currentDimensionIndexArray, dimensionSizeArray)
 
-	return AqwamTensorLibrary.construct(newData, newDimensionSizeArray)
+	return AqwamTensorLibrary.construct(newData, newDimensionSizeArray, self.mode)
 	
 end
 
