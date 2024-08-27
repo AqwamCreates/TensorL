@@ -1049,7 +1049,63 @@ local function dotProduct(tensor1, tensor2, index)
 	
 	if (dimensionSizeArray1[numberOfDimensions1] ~= dimensionSizeArray2[numberOfDimensions2 - 1]) then error("Unable to perform the dot product. The size of second last dimension of tensor " .. (index - 1) .. " does not equal to the size of the last dimension of tensor " .. index .. ".") end
 	
-	return AqwamTensorLibrary.construct(newData, newDimensionSizeArray, mode)
+	local mode1 = tensor1.mode
+
+	local newDimensionSizeArray = table.clone(dimensionSizeArray1)
+
+	local numberOfDimensions = #newDimensionSizeArray
+	
+	local numberOfDimensionsSubtractedByOne = numberOfDimensions - 1
+
+	newDimensionSizeArray[numberOfDimensions] = dimensionSizeArray2[numberOfDimensionsSubtractedByOne]
+	
+	local finalDimensionSize = dimensionSizeArray2[numberOfDimensions]
+
+	local getLinearIndex1 = getLinearIndexFunctionList[mode1]
+
+	local getLinearIndex2 = getLinearIndexFunctionList[tensor2.mode]
+
+	local currentDimensionIndexArray = table.create(numberOfDimensions, 1)
+
+	local newData = createEmptyDataFromDimensionSizeArray(newDimensionSizeArray)
+
+	repeat
+
+		local currentTensor1DimensionIndexArray = table.clone(currentDimensionIndexArray)
+		
+		local currentTensor2DimensionIndexArray = table.clone(currentDimensionIndexArray)
+		
+		local sumValue = 0
+
+		for i = 1, finalDimensionSize, 1 do -- Tensor 1 last dimension has the same size to tensor 2 second last dimension. They're also summed together.
+			
+			currentTensor2DimensionIndexArray[numberOfDimensions] = i
+
+			currentTensor2DimensionIndexArray[numberOfDimensionsSubtractedByOne] = currentDimensionIndexArray[numberOfDimensions]
+
+			local linearIndex1 = getLinearIndex1(currentTensor1DimensionIndexArray)
+
+			local linearIndex2 = getLinearIndex2(currentTensor2DimensionIndexArray)
+
+			local dataIndex1, subDataIndex1, subSubDataIndex1 = getDataIndex(linearIndex1)
+
+			local dataIndex2, subDataIndex2, subSubDataIndex2 = getDataIndex(linearIndex2)
+
+			sumValue = sumValue + (tensor1[dataIndex1][subDataIndex1][subSubDataIndex1] * tensor2[dataIndex2][subDataIndex2][subSubDataIndex2])
+
+		end
+		
+		local currentLinearIndex = getLinearIndex1(currentDimensionIndexArray)
+		
+		local currentDataIndex, currentSubDataIndex, currentSubSubDataIndex = getDataIndex(currentLinearIndex)
+		
+		newData[currentDataIndex][currentSubDataIndex][currentSubSubDataIndex] = sumValue
+
+		currentDimensionIndexArray = incrementDimensionIndexArray(dimensionSizeArray1, currentDimensionIndexArray)
+
+	until checkIfDimensionIndexArrayAreEqual(currentDimensionIndexArray, newDimensionSizeArray)
+
+	return AqwamTensorLibrary.construct(newData, newDimensionSizeArray, mode1)
 	
 end
 
