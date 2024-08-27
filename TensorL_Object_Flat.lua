@@ -833,8 +833,6 @@ function AqwamTensorLibrary:divide(...)
 
 	local functionToApply = function(a, b) return (a / b) end
 
-	local resultTensor
-
 	if (self.dimensionSizeArray) then
 
 		return applyFunctionOnMultipleTensors(functionToApply, self, ...)
