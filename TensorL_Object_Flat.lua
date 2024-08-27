@@ -4,27 +4,9 @@ local defaultMode = "Row"
 
 local AqwamTensorLibrary = {}
 
-local function checkIfDimensionIndexArrayAreEqual(dimensionIndexArray1, dimensionIndexArray2)
-
-	if (#dimensionIndexArray1 ~= #dimensionIndexArray2) then return false end
-
-	for i, index in ipairs(dimensionIndexArray1) do
-
-		if (index ~= dimensionIndexArray2[i]) then return false end
-
-	end
-
-	return true
-
-end
-
 local function checkIfDimensionIndexArrayExceedsDimensionSizeArray(dimensionIndexArray, dimensionSizeArray)
 
-	for i, index in ipairs(dimensionIndexArray) do
-
-		if (index > dimensionSizeArray[i]) then return true end
-
-	end
+	if (#dimensionIndexArray > #dimensionSizeArray) then return true end
 
 	return false
 
@@ -526,6 +508,20 @@ local function incrementDimensionIndexArray(dimensionSizeArray, dimensionIndexAr
 		if (dimensionIndexArray[i] <= dimensionSizeArray[i]) then break end
 
 		dimensionIndexArray[i] = 1
+
+		local numberOfDimensions = #dimensionSizeArray
+
+		if (i ~= numberOfDimensions) then break end
+
+		if (i > numberOfDimensions) then 
+
+			dimensionIndexArray[numberOfDimensions + 1] = dimensionIndexArray[numberOfDimensions + 1] + 1
+
+		else
+
+			table.insert(dimensionIndexArray, 1, 1)
+
+		end
 
 	end
 
@@ -1087,10 +1083,10 @@ local function dotProduct(tensor1, tensor2, index)
 
 		for i = 1, finalDimensionSize, 1 do -- Tensor 1 last dimension has the same size to tensor 2 second last dimension. They're also summed together.
 			
-			currentTensor1DimensionIndexArray[numberOfDimensions] = i
+			currentTensor2DimensionIndexArray[numberOfDimensions] = i
 
-			currentTensor2DimensionIndexArray[numberOfDimensionsSubtractedByOne] = i
-			
+			currentTensor2DimensionIndexArray[numberOfDimensionsSubtractedByOne] = currentDimensionIndexArray[numberOfDimensions]
+
 			local linearIndex1 = getLinearIndex1(currentTensor1DimensionIndexArray, dimensionSizeArray1)
 
 			local linearIndex2 = getLinearIndex2(currentTensor2DimensionIndexArray, dimensionSizeArray2)
