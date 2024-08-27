@@ -751,9 +751,7 @@ end
 
 function AqwamTensorLibrary:__add(other)
 
-	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, self, other)
-
-	return AqwamTensorLibrary.new(resultTensor)
+	return applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, self, other)
 
 end
 
@@ -797,17 +795,13 @@ end
 
 function AqwamTensorLibrary:__mul(other)
 
-	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, self, other)
-
-	return AqwamTensorLibrary.new(resultTensor)
+	return applyFunctionOnMultipleTensors(function(a, b) return (a * b) end, self, other)
 
 end
 
 function AqwamTensorLibrary:multiply(...)
 
 	local functionToApply = function(a, b) return (a * b) end
-
-	local resultTensor
 
 	if (self.dimensionSizeArray) then
 
@@ -823,9 +817,7 @@ end
 
 function AqwamTensorLibrary:__div(other)
 
-	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a / b) end, self, other)
-
-	return AqwamTensorLibrary.new(resultTensor)
+	return applyFunctionOnMultipleTensors(function(a, b) return (a / b) end, self, other)
 
 end
 
