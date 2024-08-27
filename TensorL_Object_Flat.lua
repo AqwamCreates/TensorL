@@ -178,7 +178,7 @@ local function createEmptyDataFromDimensionSizeArray(dimensionSizeArray)
 	
 	for i = totalSize, 1, 1 do
 		
-		if ((totalSize % math.pow(squaredMaximumTableLength)) == 0) then
+		if ((totalSize % squaredMaximumTableLength) == 0) then
 			
 			subDataIndex = subDataIndex + 1
 			
@@ -1034,6 +1034,40 @@ function AqwamTensorLibrary:sum(dimension)
 	until checkIfDimensionIndexArrayAreEqual(currentDimensionIndexArray, dimensionSizeArray)
 
 	return AqwamTensorLibrary.construct(newData, newDimensionSizeArray, mode)
+	
+end
+
+local function dotProduct(tensor1, tensor2, index)
+	
+	local dimensionSizeArray1 =  tensor1:getDimensionSizeArray()
+
+	local dimensionSizeArray2 =  tensor2:getDimensionSizeArray()
+	
+	local numberOfDimensions1 = #dimensionSizeArray1
+
+	local numberOfDimensions2 = #dimensionSizeArray2
+	
+	if (dimensionSizeArray1[numberOfDimensions1] ~= dimensionSizeArray2[numberOfDimensions2 - 1]) then error("Unable to perform the dot product. The size of second last dimension of tensor " .. (index - 1) .. " does not equal to the size of the last dimension of tensor " .. index .. ".") end
+	
+	return AqwamTensorLibrary.construct(newData, newDimensionSizeArray, mode)
+	
+end
+
+function AqwamTensorLibrary:dotProduct(...)
+	
+	local tensorArray = {...}
+
+	if (self.dimensionSizeArray) then table.insert(tensorArray, 1, self) end
+	
+	local tensor = tensorArray[1]
+	
+	for i = 2, (#tensorArray - 1), 1 do
+		
+		tensor = dotProduct(tensor, tensorArray[i], i)
+		
+	end
+	
+	return tensor
 	
 end
 
