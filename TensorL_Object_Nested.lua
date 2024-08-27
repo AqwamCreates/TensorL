@@ -30,19 +30,20 @@
 
 local AqwamTensorLibrary = {}
 
-local function checkIfDimensionIndexArrayAreEqual(dimensionSizeArray1, dimensionSizeArray2)
+local function checkIfDimensionIndexArrayAreEqual(dimensionIndexArray1, dimensionIndexArray2)
 
-	if (#dimensionSizeArray1 ~= #dimensionSizeArray2) then return false end
+	if (#dimensionIndexArray1 ~= #dimensionIndexArray2) then return false end
 
-	for i, index in ipairs(dimensionSizeArray1) do
+	for i, index in ipairs(dimensionIndexArray1) do
 
-		if (index ~= dimensionSizeArray2[i]) then return false end
+		if (index ~= dimensionIndexArray2[i]) then return false end
 
 	end
 
 	return true
 
 end
+
 
 local function checkIfValueIsOutOfBounds(value, minimumValue, maximumValue)
 
