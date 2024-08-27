@@ -4,17 +4,29 @@ local defaultMode = "Row"
 
 local AqwamTensorLibrary = {}
 
-local function checkIfDimensionIndexArrayAreEqual(dimensionSizeArray1, dimensionSizeArray2)
+local function checkIfDimensionIndexArrayAreEqual(dimensionIndexArray1, dimensionIndexArray2)
 
-	if (#dimensionSizeArray1 ~= #dimensionSizeArray2) then return false end
+	if (#dimensionIndexArray1 ~= #dimensionIndexArray2) then return false end
 
-	for i, index in ipairs(dimensionSizeArray1) do
+	for i, index in ipairs(dimensionIndexArray1) do
 
-		if (index ~= dimensionSizeArray2[i]) then return false end
+		if (index ~= dimensionIndexArray2[i]) then return false end
 
 	end
 
 	return true
+
+end
+
+local function checkIfDimensionIndexArrayExceedsDimensionSizeArray(dimensionIndexArray, dimensionSizeArray)
+
+	for i, index in ipairs(dimensionIndexArray) do
+
+		if (index > dimensionSizeArray[i]) then return true end
+
+	end
+
+	return false
 
 end
 
@@ -613,7 +625,7 @@ local function applyFunctionUsingTwoTensorsOfDifferentModes(functionToApply, ten
 
 		currentDimensionIndexArray = incrementDimensionIndexArray(dimensionSizeArray, currentDimensionIndexArray)
 		
-	until checkIfDimensionIndexArrayAreEqual(currentDimensionIndexArray, dimensionSizeArray)
+	until checkIfDimensionIndexArrayExceedsDimensionSizeArray(currentDimensionIndexArray, dimensionSizeArray)
 
 	return AqwamTensorLibrary.construct(newData, deepCopyTable(tensor1.dimensionSizeArray), deepCopyTable(tensor1.mode))
 	
@@ -961,7 +973,7 @@ function AqwamTensorLibrary:transpose(dimensionArray)
 
 		currentDimensionIndexArray = incrementDimensionIndexArray(dimensionSizeArray, currentDimensionIndexArray)
 		
-	until checkIfDimensionIndexArrayAreEqual(currentDimensionIndexArray, dimensionSizeArray)
+	until checkIfDimensionIndexArrayExceedsDimensionSizeArray(currentDimensionIndexArray, dimensionSizeArray)
 	
 	return AqwamTensorLibrary.construct(newData, newDimensionSizeArray, self.mode)
 	
@@ -1031,7 +1043,7 @@ function AqwamTensorLibrary:sum(dimension)
 
 		currentDimensionIndexArray = incrementDimensionIndexArray(dimensionSizeArray, currentDimensionIndexArray)
 
-	until checkIfDimensionIndexArrayAreEqual(currentDimensionIndexArray, dimensionSizeArray)
+	until checkIfDimensionIndexArrayExceedsDimensionSizeArray(currentDimensionIndexArray, dimensionSizeArray)
 
 	return AqwamTensorLibrary.construct(newData, newDimensionSizeArray, mode)
 	
@@ -1042,24 +1054,20 @@ local function dotProduct(tensor1, tensor2, index)
 	local dimensionSizeArray1 =  tensor1:getDimensionSizeArray()
 
 	local dimensionSizeArray2 =  tensor2:getDimensionSizeArray()
-	
-	local numberOfDimensions1 = #dimensionSizeArray1
 
-	local numberOfDimensions2 = #dimensionSizeArray2
+	local numberOfDimensions = #dimensionSizeArray1
+
+	local numberOfDimensionsSubtractedByOne = numberOfDimensions - 1
 	
-	if (dimensionSizeArray1[numberOfDimensions1] ~= dimensionSizeArray2[numberOfDimensions2 - 1]) then error("Unable to perform the dot product. The size of second last dimension of tensor " .. (index - 1) .. " does not equal to the size of the last dimension of tensor " .. index .. ".") end
+	if (dimensionSizeArray1[numberOfDimensions] ~= dimensionSizeArray2[numberOfDimensionsSubtractedByOne]) then error("Unable to perform the dot product. The size of second last dimension of tensor " .. (index - 1) .. " does not equal to the size of the last dimension of tensor " .. index .. ".") end
 	
 	local mode1 = tensor1.mode
 
 	local newDimensionSizeArray = table.clone(dimensionSizeArray1)
 
-	local numberOfDimensions = #newDimensionSizeArray
+	newDimensionSizeArray[numberOfDimensions] = dimensionSizeArray2[numberOfDimensions]
 	
-	local numberOfDimensionsSubtractedByOne = numberOfDimensions - 1
-
-	newDimensionSizeArray[numberOfDimensions] = dimensionSizeArray2[numberOfDimensionsSubtractedByOne]
-	
-	local finalDimensionSize = dimensionSizeArray2[numberOfDimensions]
+	local finalDimensionSize = dimensionSizeArray1[numberOfDimensions]
 
 	local getLinearIndex1 = getLinearIndexFunctionList[mode1]
 
@@ -1079,13 +1087,13 @@ local function dotProduct(tensor1, tensor2, index)
 
 		for i = 1, finalDimensionSize, 1 do -- Tensor 1 last dimension has the same size to tensor 2 second last dimension. They're also summed together.
 			
-			currentTensor2DimensionIndexArray[numberOfDimensions] = i
+			currentTensor1DimensionIndexArray[numberOfDimensions] = i
 
-			currentTensor2DimensionIndexArray[numberOfDimensionsSubtractedByOne] = currentDimensionIndexArray[numberOfDimensions]
+			currentTensor2DimensionIndexArray[numberOfDimensionsSubtractedByOne] = i
+			
+			local linearIndex1 = getLinearIndex1(currentTensor1DimensionIndexArray, dimensionSizeArray1)
 
-			local linearIndex1 = getLinearIndex1(currentTensor1DimensionIndexArray)
-
-			local linearIndex2 = getLinearIndex2(currentTensor2DimensionIndexArray)
+			local linearIndex2 = getLinearIndex2(currentTensor2DimensionIndexArray, dimensionSizeArray2)
 
 			local dataIndex1, subDataIndex1, subSubDataIndex1 = getDataIndex(linearIndex1)
 
@@ -1095,15 +1103,15 @@ local function dotProduct(tensor1, tensor2, index)
 
 		end
 		
-		local currentLinearIndex = getLinearIndex1(currentDimensionIndexArray)
+		local currentLinearIndex = getLinearIndex1(currentDimensionIndexArray, newDimensionSizeArray)
 		
 		local currentDataIndex, currentSubDataIndex, currentSubSubDataIndex = getDataIndex(currentLinearIndex)
 		
 		newData[currentDataIndex][currentSubDataIndex][currentSubSubDataIndex] = sumValue
 
-		currentDimensionIndexArray = incrementDimensionIndexArray(dimensionSizeArray1, currentDimensionIndexArray)
+		currentDimensionIndexArray = incrementDimensionIndexArray(newDimensionSizeArray, currentDimensionIndexArray)
 
-	until checkIfDimensionIndexArrayAreEqual(currentDimensionIndexArray, newDimensionSizeArray)
+	until checkIfDimensionIndexArrayExceedsDimensionSizeArray(currentDimensionIndexArray, newDimensionSizeArray)
 
 	return AqwamTensorLibrary.construct(newData, newDimensionSizeArray, mode1)
 	
@@ -1117,7 +1125,7 @@ function AqwamTensorLibrary:dotProduct(...)
 	
 	local tensor = tensorArray[1]
 	
-	for i = 2, (#tensorArray - 1), 1 do
+	for i = 2, #tensorArray, 1 do
 		
 		tensor = dotProduct(tensor, tensorArray[i], i)
 		
