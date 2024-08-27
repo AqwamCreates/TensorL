@@ -44,7 +44,6 @@ local function checkIfDimensionIndexArrayAreEqual(dimensionIndexArray1, dimensio
 
 end
 
-
 local function checkIfValueIsOutOfBounds(value, minimumValue, maximumValue)
 
 	return (value < minimumValue) or (value > maximumValue)
