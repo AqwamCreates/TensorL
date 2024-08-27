@@ -1095,7 +1095,7 @@ local function dotProduct(tensor1, tensor2, index)
 
 			local dataIndex2, subDataIndex2, subSubDataIndex2 = getDataIndex(linearIndex2)
 
-			sumValue = (tensor1[dataIndex1][subDataIndex1][subSubDataIndex1] * tensor2[dataIndex2][subDataIndex2][subSubDataIndex2])
+			sumValue = sumValue + (tensor1[dataIndex1][subDataIndex1][subSubDataIndex1] * tensor2[dataIndex2][subDataIndex2][subSubDataIndex2])
 
 		end
 		
