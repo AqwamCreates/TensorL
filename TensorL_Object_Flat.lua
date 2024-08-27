@@ -1055,6 +1055,12 @@ local function dotProduct(tensor1, tensor2, index)
 	
 	if (dimensionSizeArray1[numberOfDimensions] ~= dimensionSizeArray2[numberOfDimensionsSubtractedByOne]) then error("Unable to perform the dot product. The size of second last dimension of tensor " .. (index - 1) .. " does not equal to the size of the last dimension of tensor " .. index .. ".") end
 	
+	for i = 1, (numberOfDimensions - 2)  do
+		
+		if (dimensionSizeArray1[i] ~= dimensionSizeArray2[i]) then error("Unable to perform the dot product. The size of dimension " .. i .. " of tensor " .. (index - 1) .. " does not equal to the size of dimension " .. i .. " of tensor " .. index .. ".") end
+		
+	end
+	
 	local mode1 = tensor1.mode
 
 	local newDimensionSizeArray = table.clone(dimensionSizeArray1)
