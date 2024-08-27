@@ -1083,9 +1083,9 @@ local function dotProduct(tensor1, tensor2, index)
 
 		for i = 1, finalDimensionSize, 1 do -- Tensor 1 last dimension has the same size to tensor 2 second last dimension. They're also summed together.
 			
-			currentTensor2DimensionIndexArray[numberOfDimensions] = i
+			currentTensor1DimensionIndexArray[numberOfDimensions] = i
 
-			currentTensor2DimensionIndexArray[numberOfDimensionsSubtractedByOne] = currentDimensionIndexArray[numberOfDimensions]
+			currentTensor2DimensionIndexArray[numberOfDimensionsSubtractedByOne] = i
 
 			local linearIndex1 = getLinearIndex1(currentTensor1DimensionIndexArray, dimensionSizeArray1)
 
