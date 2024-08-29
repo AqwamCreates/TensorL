@@ -866,7 +866,7 @@ local function expandDimensionSize(tensor, dimensionSizeArray, targetDimensionSi
 
 	elseif (not hasSameDimensionSize) and (not canDimensionBeExpanded) then
 
-		error("Unable to expandDimensionSize.")
+		error("Unable to expand.")
 
 	end
 
