@@ -259,7 +259,7 @@ local function broadcast(tensor1, tensor2, deepCopyOriginalTensor)
 	for i = 1, numberOfDimensionDifferences, 1 do table.insert(dimensionSizeToAddArray, dimensionSizeArrayWithHighestNumberOfDimensions[i]) end -- Get the dimension sizes of the left part of dimension size array.
 
 	local expandedTensor = AqwamTensorLibrary:expandNumberOfDimension(tensorWithLowestNumberOfDimensions, dimensionSizeToAddArray)
-
+	
 	expandedTensor = AqwamTensorLibrary:expandDimensionSize(expandedTensor, dimensionSizeArrayWithHighestNumberOfDimensions)
 
 	if (tensorNumberWithLowestNumberOfDimensions == 1) then
@@ -797,12 +797,10 @@ local function expandDimensionSize(tensor, dimensionSizeArray, numberOfDimension
 		resultTensor = deepCopyTable(tensor)  -- If the "(numberOfDimensions > 1)" from the first "if" statement does not run, it will return the original tensor. So we need to deep copy it.
 
 	end
+	
+	local dimensionSize = #resultTensor -- Need to call this again because we may have modified the tensor below it that leads to the change of the dimension size array.
 
-	local updatedDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(resultTensor) -- Need to call this again because we may have modified the tensor below it, thus changing the dimension size array.
-
-	local dimensionSize = updatedDimensionSizeArray[1]
-
-	local targetDimensionSize = targetDimensionSizeArray[1]
+	local targetDimensionSize = targetDimensionSizeArray[currentDimension]
 
 	local hasSameDimensionSize = (dimensionSize == targetDimensionSize)
 
@@ -815,7 +813,7 @@ local function expandDimensionSize(tensor, dimensionSizeArray, numberOfDimension
 		for i = 1, targetDimensionSize, 1 do resultTensor[i] = deepCopyTable(subTensor) end
 
 	elseif (not hasSameDimensionSize) and (not canDimensionBeExpanded) then
-
+		
 		error("Unable to expand.")
 
 	end
