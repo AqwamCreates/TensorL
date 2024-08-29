@@ -1261,7 +1261,7 @@ end
 
 --]]
 
-function AqwamTensorLibrary:expand(targetDimensionSizeArray)
+function AqwamTensorLibrary:expandDimensionSize(targetDimensionSizeArray)
 
 	local data = self.data
 
