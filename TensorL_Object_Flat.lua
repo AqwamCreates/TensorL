@@ -1287,9 +1287,9 @@ function AqwamTensorLibrary:expand(targetDimensionSizeArray)
 	
 	local oldSubTargetDimensionSizeArray = table.clone(dimensionSizeArray)
 	
-	local oldData = data
-
 	local newData
+	
+	local oldData = data
 	
 	for dimension = #dimensionSizeArray, 1, -1 do
 		
