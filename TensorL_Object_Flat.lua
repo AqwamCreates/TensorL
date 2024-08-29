@@ -171,6 +171,8 @@ local function createEmptyDataFromDimensionSizeArray(dimensionSizeArray)
 	local subDataDataIndex = 1
 	
 	local data = {}
+	
+	--[[
 
 	data[subDataIndex] = {}
 
@@ -197,6 +199,20 @@ local function createEmptyDataFromDimensionSizeArray(dimensionSizeArray)
 		end
 		
 	end
+	
+	--]]
+	
+	local numberOfSubData = math.floor(totalSize / squaredMaximumTableLength)
+	
+	local numberOfSubSubData = math.ceil((totalSize - (numberOfSubData * squaredMaximumTableLength)) / maximumTableLength)
+	
+	for i = 1, (numberOfSubData - 1), 1 do table.insert(data, {{}}) end
+	
+	local subData = {}
+	
+	for i = 1, numberOfSubSubData, 1 do table.insert(subData, {}) end
+	
+	table.insert(data, subData)
 	
 	return data
 	
