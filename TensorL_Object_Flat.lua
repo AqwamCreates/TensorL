@@ -1277,19 +1277,19 @@ function AqwamTensorLibrary:expandDimensionSize(targetDimensionSizeArray)
 
 	end
 	
-	local getLinearIndex = getLinearIndexFunctionList[mode]
+	local newData
+
+	local oldData = data
+	
+	local newSubTargetDimensionSizeArray
+
+	local oldSubTargetDimensionSizeArray = table.clone(dimensionSizeArray)
 
 	local currentDimensionIndexArray = table.create(#dimensionSizeArray, 1)
 
 	local dimensionIndexArrayToEndLoop = table.create(#dimensionSizeArray, 1)
-	
-	local newSubTargetDimensionSizeArray
-	
-	local oldSubTargetDimensionSizeArray = table.clone(dimensionSizeArray)
-	
-	local newData
-	
-	local oldData = data
+
+	local getLinearIndex = getLinearIndexFunctionList[mode]
 	
 	for dimension = #dimensionSizeArray, 1, -1 do
 		
