@@ -2,7 +2,7 @@
 
 	--------------------------------------------------------------------
 
-	Version 0.6.0
+	Version 0.7.0
 
 	Aqwam's Tensor Library (TensorL)
 
@@ -1059,12 +1059,16 @@ function AqwamTensorLibrary:createIdentityTensor(dimensionSizeArray)
 	
 	local resultTensor = createTensor(truncatedDimensionSizeArray, truncatedNumberOfDimensions, 1, 0)
 	
-	for i = 1, truncatedNumberOfDimensions, 1 do
-		
-		local dimensionIndexArray = table.create(truncatedNumberOfDimensions, i)
-		
-		AqwamTensorLibrary:setValue(resultTensor, 1, dimensionIndexArray)
-		
+	for i, dimensionSize in ipairs(truncatedDimensionSizeArray) do
+
+		if (dimensionSize >= i) then
+
+			local dimensionIndexArray = table.create(truncatedNumberOfDimensions, i)
+
+			AqwamTensorLibrary:setValue(resultTensor, 1, dimensionIndexArray)
+
+		end
+
 	end
 
 	for i = 1, numberOfDimensionsOfSize1, 1 do resultTensor = {resultTensor} end
