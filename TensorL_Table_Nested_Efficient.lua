@@ -815,8 +815,6 @@ local function expandDimensionSize(tensor, dimensionSizeArray, numberOfDimension
 		for i = 1, targetDimensionSize, 1 do resultTensor[i] = deepCopyTable(subTensor) end
 
 	elseif (not hasSameDimensionSize) and (not canDimensionBeExpanded) then
-		
-		print(targetDimensionSize)
 
 		error("Unable to expand.")
 
