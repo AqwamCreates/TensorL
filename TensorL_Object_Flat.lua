@@ -599,6 +599,10 @@ local function applyFunctionUsingTwoTensorsOfDifferentModes(functionToApply, ten
 	
 	local getLinearIndex2 = getLinearIndexFunctionList[tensor2.mode] 
 	
+	local tensor1Data = tensor1.data
+	
+	local tensor2Data = tensor2.data
+	
 	local newData = createEmptyDataFromDimensionSizeArray(dimensionSizeArray)
 	
 	repeat
@@ -611,7 +615,7 @@ local function applyFunctionUsingTwoTensorsOfDifferentModes(functionToApply, ten
 
 		local dataIndex2, subDataIndex2, subSubDataIndex2 = getDataIndex(linearIndex2)
 
-		newData[dataIndex1][subDataIndex1][subSubDataIndex1] = functionToApply(tensor1[dataIndex1][subDataIndex1][subSubDataIndex1], tensor1[dataIndex2][dataIndex2][dataIndex2])
+		newData[dataIndex1][subDataIndex1][subSubDataIndex1] = functionToApply(tensor1Data[dataIndex1][subDataIndex1][subSubDataIndex1], tensor2Data[dataIndex2][dataIndex2][dataIndex2])
 
 		currentDimensionIndexArray = incrementDimensionIndexArray(dimensionSizeArray, currentDimensionIndexArray)
 		
@@ -1178,6 +1182,8 @@ function AqwamTensorLibrary:switchMode()
 end
 
 function AqwamTensorLibrary:expand(targetDimensionSizeArray)
+	
+	local data = self.mode
 	
 	local dimensionSizeArray = self.dimensionSizeArray
 	
