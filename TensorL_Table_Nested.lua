@@ -2170,13 +2170,15 @@ end
 
 local function sumAlongOneDimension(tensor, dimensionSizeArray, targetDimension, currentDimension)
 
-	local resultTensor = {}
+	local resultTensor
 
 	if (currentDimension == targetDimension) then
 
-		resultTensor[1] = subTensorSumAlongFirstDimension(tensor, dimensionSizeArray) -- This is needed to ensure that the number of dimensions stays the same.
+		resultTensor = subTensorSumAlongFirstDimension(tensor, dimensionSizeArray) -- This is needed to ensure that the number of dimensions stays the same.
 
 	else
+		
+		resultTensor = {}
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
