@@ -815,6 +815,8 @@ local function expandDimensionSize(tensor, dimensionSizeArray, numberOfDimension
 		for i = 1, targetDimensionSize, 1 do resultTensor[i] = deepCopyTable(subTensor) end
 
 	elseif (not hasSameDimensionSize) and (not canDimensionBeExpanded) then
+		
+		print(targetDimensionSize)
 
 		error("Unable to expand.")
 
@@ -2086,13 +2088,15 @@ end
 
 local function sumAlongOneDimension(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, targetDimension)
 
-	local resultTensor = {}
+	local resultTensor
 
 	if (currentDimension == targetDimension) then
 
-		resultTensor[1] = subTensorSumAlongFirstDimension(tensor, dimensionSizeArray) -- This is needed to ensure that the number of dimensions stays the same.
+		resultTensor = subTensorSumAlongFirstDimension(tensor, dimensionSizeArray) -- This is needed to ensure that the number of dimensions stays the same.
 
 	else
+		
+		resultTensor = {}
 
 		for i = 1, dimensionSizeArray[currentDimension], 1 do resultTensor[i] = sumAlongOneDimension(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetDimension) end
 
