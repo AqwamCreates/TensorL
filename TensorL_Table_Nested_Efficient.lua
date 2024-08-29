@@ -1053,7 +1053,19 @@ function AqwamTensorLibrary:createIdentityTensor(dimensionSizeArray)
 
 	local truncatedDimensionSizeArray, numberOfDimensionsOfSize1 = truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
 
-	local resultTensor = createIdentityTensor(truncatedDimensionSizeArray, #truncatedDimensionSizeArray, 1, {})
+	-- local resultTensor = createIdentityTensor(truncatedDimensionSizeArray, #truncatedDimensionSizeArray, 1, {})
+	
+	local truncatedNumberOfDimensions = #truncatedDimensionSizeArray
+	
+	local resultTensor = createTensor(truncatedDimensionSizeArray, truncatedNumberOfDimensions, 1, 0)
+	
+	for i = 1, truncatedNumberOfDimensions, 1 do
+		
+		local dimensionIndexArray = table.create(truncatedNumberOfDimensions, i)
+		
+		AqwamTensorLibrary:setValue(resultTensor, 1, dimensionIndexArray)
+		
+	end
 
 	for i = 1, numberOfDimensionsOfSize1, 1 do resultTensor = {resultTensor} end
 
