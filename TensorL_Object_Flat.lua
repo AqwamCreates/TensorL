@@ -1137,6 +1137,66 @@ function AqwamTensorLibrary:dotProduct(...)
 	
 end
 
+function AqwamTensorLibrary:switchMode()
+	
+	local data = self.data
+	
+	local dimensionSizeArray = self.dimensionSizeArray
+
+	local currentMode = self.mode
+	
+	local targetMode = ((currentMode == "Row") and "Column") or "Row"
+	
+	local currentDimensionIndexArray = table.create(#dimensionSizeArray, 1)
+
+	local dimensionIndexArrayToEndLoop = table.create(#dimensionSizeArray, 1)
+
+	local getCurrentLinearIndex = getLinearIndexFunctionList[currentMode]
+	
+	local getTargetLinearIndex = getLinearIndexFunctionList[targetMode]
+
+	local newData = createEmptyDataFromDimensionSizeArray(dimensionSizeArray)
+
+	repeat
+
+		local currentLinearIndex = getCurrentLinearIndex(currentDimensionIndexArray)
+
+		local targetLinearIndex = getTargetLinearIndex(currentDimensionIndexArray)
+
+		local currentDataIndex, currentSubDataIndex, currentSubSubDataIndex = getDataIndex(currentLinearIndex)
+
+		local targetDataIndex, targetSubDataIndex, targetSubSubDataIndex = getDataIndex(targetLinearIndex)
+
+		newData[targetDataIndex][targetSubDataIndex][targetSubSubDataIndex] = data[currentDataIndex][currentSubDataIndex][currentSubSubDataIndex]
+
+		currentDimensionIndexArray = incrementDimensionIndexArray(dimensionSizeArray, currentDimensionIndexArray)
+
+	until checkIfDimensionIndexArrayAreEqual(currentDimensionIndexArray, dimensionIndexArrayToEndLoop)
+	
+	return AqwamTensorLibrary.construct(newData, deepCopyTable(dimensionSizeArray), targetMode)
+	
+end
+
+function AqwamTensorLibrary:expand(targetDimensionSizeArray)
+	
+	local dimensionSizeArray = self.dimensionSizeArray
+	
+	local mode = self.mode
+	
+	if (#dimensionSizeArray ~= #targetDimensionSizeArray) then error() end
+	
+	for i, size in ipairs(dimensionSizeArray) do
+		
+		if (size ~= targetDimensionSizeArray[i]) and (size ~= 1) then error() end
+		
+	end
+	
+	local newData = createEmptyDataFromDimensionSizeArray(targetDimensionSizeArray)
+	
+	return AqwamTensorLibrary.construct(newData, deepCopyTable(targetDimensionSizeArray), mode)
+	
+end
+
 function AqwamTensorLibrary:destroy()
 
 	self.data = nil
