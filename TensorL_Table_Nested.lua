@@ -848,9 +848,7 @@ local function expandDimensionSize(tensor, dimensionSizeArray, targetDimensionSi
 
 	end
 
-	local updatedDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(resultTensor) -- Need to call this again because we may have modified the tensor below it, thus changing the dimension size array.
-
-	local dimensionSize = updatedDimensionSizeArray[1]
+	local dimensionSize = #resultTensor -- Need to call this again because we may have modified the tensor below it that leads to the change of the dimension size array.
 
 	local targetDimensionSize = targetDimensionSizeArray[1]
 
