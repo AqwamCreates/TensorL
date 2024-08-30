@@ -675,7 +675,7 @@ function AqwamTensorLibrary:expandNumberOfDimension(dimensionSizeToAddArray)
 
 	until checkIfDimensionIndexArraysAreEqual(targetDimensionIndexArray, targetDimensionIndexArrayToEndLoop)
 	
-	--[[
+	--[[ They're the same. Don't delete it. Just in case.
 	
 	local getLinearIndex = getLinearIndexFunctionList[mode]
 	
