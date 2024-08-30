@@ -2581,7 +2581,7 @@ local function reshapeFromFlattenedTensor(tensor, dimensionSizeArray, dimensionI
 
 end
 
-local function incrementDimensionIndexArray(dimensionSizeArray, dimensionIndexArray)
+local function incrementDimensionIndexArray(dimensionIndexArray, dimensionSizeArray)
 
 	for i = #dimensionIndexArray, 1, -1 do
 
@@ -2615,7 +2615,7 @@ local function reshape(tensor, dimensionSizeArray, targetTensor, targetDimension
 
 			targetTensor:setValue(tensor[i], currentTargetDimensionIndexArray)
 
-			currentTargetDimensionIndexArray = incrementDimensionIndexArray(targetDimensionSizeArray, currentTargetDimensionIndexArray)
+			currentTargetDimensionIndexArray = incrementDimensionIndexArray(currentTargetDimensionIndexArray, targetDimensionSizeArray)
 
 		end
 
