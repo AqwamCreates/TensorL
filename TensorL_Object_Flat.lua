@@ -539,13 +539,13 @@ function AqwamTensorLibrary:expandDimensionSize(targetDimensionSizeArray)
 
 	local data = self.data
 
-	local dimensionSizeArray = self.dimensionSizeArray
+	local currentDimensionSizeArray = self.dimensionSizeArray
 
 	local mode = self.mode
 
-	if (#dimensionSizeArray ~= #targetDimensionSizeArray) then error("The number of dimensions does not match.") end
+	if (#currentDimensionSizeArray ~= #targetDimensionSizeArray) then error("The number of dimensions does not match.") end
 
-	for i, size in ipairs(dimensionSizeArray) do
+	for i, size in ipairs(currentDimensionSizeArray) do
 
 		if (size ~= targetDimensionSizeArray[i]) and (size ~= 1) then error("Unable to expand.") end
 
@@ -557,15 +557,15 @@ function AqwamTensorLibrary:expandDimensionSize(targetDimensionSizeArray)
 
 	local newSubTargetDimensionSizeArray
 
-	local oldSubTargetDimensionSizeArray = table.clone(dimensionSizeArray)
+	local oldSubTargetDimensionSizeArray = table.clone(currentDimensionSizeArray)
 
-	local currentDimensionIndexArray = table.create(#dimensionSizeArray, 1)
+	local currentDimensionIndexArray = table.create(#currentDimensionSizeArray, 1)
 
-	local dimensionIndexArrayToEndLoop = table.create(#dimensionSizeArray, 1)
+	local dimensionIndexArrayToEndLoop = table.create(#currentDimensionSizeArray, 1)
 
 	local getLinearIndex = getLinearIndexFunctionList[mode]
 
-	for dimension = #dimensionSizeArray, 1, -1 do
+	for dimension = #currentDimensionSizeArray, 1, -1 do
 
 		local newDimensionSize = targetDimensionSizeArray[dimension]
 
@@ -639,7 +639,7 @@ function AqwamTensorLibrary:expandNumberOfDimension(dimensionSizeToAddArray)
 
 	local data = self.data
 
-	local dimensionSizeArray = self.dimensionSizeArray
+	local currentDimensionSizeArray = self.dimensionSizeArray
 
 	local mode = self.mode
 
@@ -647,15 +647,15 @@ function AqwamTensorLibrary:expandNumberOfDimension(dimensionSizeToAddArray)
 
 	for i, dimensionSize in ipairs(dimensionSizeToAddArray) do table.insert(targetDimensionSizeArray, dimensionSize) end
 
-	for i, dimensionSize in ipairs(dimensionSizeArray) do table.insert(targetDimensionSizeArray, dimensionSize) end
+	for i, dimensionSize in ipairs(currentDimensionSizeArray) do table.insert(targetDimensionSizeArray, dimensionSize) end
 
 	local targetDimensionIndexArray = table.create(#targetDimensionSizeArray, 1)
 
 	local newDimensionIndexArrayToEndLoop = table.create(#targetDimensionSizeArray, 1)
 
-	local currentDimensionIndexArray = table.create(#dimensionSizeArray, 1)
+	local currentDimensionIndexArray = table.create(#currentDimensionSizeArray, 1)
 
-	local oldDimensionIndexArrayToEndLoop = table.create(#dimensionSizeArray, 1)
+	local oldDimensionIndexArrayToEndLoop = table.create(#currentDimensionSizeArray, 1)
 
 	local getLinearIndex = getLinearIndexFunctionList[mode]
 
@@ -665,7 +665,7 @@ function AqwamTensorLibrary:expandNumberOfDimension(dimensionSizeToAddArray)
 
 		local targetLinearIndex = getLinearIndex(targetDimensionIndexArray, targetDimensionIndexArray)
 
-		local currentLinearIndex = getLinearIndex(currentDimensionIndexArray, dimensionSizeArray)
+		local currentLinearIndex = getLinearIndex(currentDimensionIndexArray, currentDimensionSizeArray)
 
 		local targetDataIndex, targetSubDataIndex, targetSubSubDataIndex = getDataIndex(targetLinearIndex)
 
@@ -675,7 +675,7 @@ function AqwamTensorLibrary:expandNumberOfDimension(dimensionSizeToAddArray)
 
 		targetDimensionIndexArray = incrementDimensionIndexArray(targetDimensionSizeArray, targetDimensionIndexArray)
 
-		currentDimensionIndexArray = incrementDimensionIndexArray(dimensionSizeArray, currentDimensionIndexArray)
+		currentDimensionIndexArray = incrementDimensionIndexArray(currentDimensionSizeArray, currentDimensionIndexArray)
 
 	until checkIfDimensionIndexArraysAreEqual(targetDimensionIndexArray, newDimensionIndexArrayToEndLoop)
 
@@ -936,11 +936,11 @@ end
 
 local function applyFunctionUsingTwoTensorsOfDifferentModes(functionToApply, tensor1, tensor2)
 	
-	local dimensionSizeArray = tensor1.dimensionSizeArray
+	local currentDimensionSizeArray = tensor1.dimensionSizeArray
 	
-	local currentDimensionIndexArray = table.create(#dimensionSizeArray, 1)
+	local currentDimensionIndexArray = table.create(#currentDimensionSizeArray, 1)
 	
-	local dimensionIndexArrayToEndLoop = table.create(#dimensionSizeArray, 1)
+	local dimensionIndexArrayToEndLoop = table.create(#currentDimensionSizeArray, 1)
 	
 	local getLinearIndex1 = getLinearIndexFunctionList[tensor1.mode]
 	
@@ -950,7 +950,7 @@ local function applyFunctionUsingTwoTensorsOfDifferentModes(functionToApply, ten
 	
 	local tensor2Data = tensor2.data
 	
-	local targetData = createEmptyDataFromDimensionSizeArray(dimensionSizeArray)
+	local targetData = createEmptyDataFromDimensionSizeArray(currentDimensionSizeArray)
 	
 	repeat
 		
@@ -964,7 +964,7 @@ local function applyFunctionUsingTwoTensorsOfDifferentModes(functionToApply, ten
 
 		targetData[dataIndex1][subDataIndex1][subSubDataIndex1] = functionToApply(tensor1Data[dataIndex1][subDataIndex1][subSubDataIndex1], tensor2Data[dataIndex2][dataIndex2][dataIndex2])
 
-		currentDimensionIndexArray = incrementDimensionIndexArray(dimensionSizeArray, currentDimensionIndexArray)
+		currentDimensionIndexArray = incrementDimensionIndexArray(currentDimensionSizeArray, currentDimensionIndexArray)
 		
 	until checkIfDimensionIndexArraysAreEqual(currentDimensionIndexArray, dimensionIndexArrayToEndLoop)
 
@@ -1260,7 +1260,7 @@ end
 
 function AqwamTensorLibrary:transpose(dimensionArray)
 	
-	local dimensionSizeArray = self.dimensionSizeArray
+	local currentDimensionSizeArray = self.dimensionSizeArray
 	
 	if (#dimensionArray ~= 2) then error("Dimension array must contain 2 dimensions.") end
 
@@ -1268,7 +1268,7 @@ function AqwamTensorLibrary:transpose(dimensionArray)
 
 	local dimension2 = dimensionArray[2]
 
-	local numberOfDimensions = #dimensionSizeArray
+	local numberOfDimensions = #currentDimensionSizeArray
 
 	if (dimension1 <= 0) then error("The first dimension must be greater than zero.") end
 
@@ -1280,17 +1280,17 @@ function AqwamTensorLibrary:transpose(dimensionArray)
 
 	if (dimension1 == dimension2) then error("The first dimension is equal to the second dimension.") end
 
-	local targetDimensionSizeArray = table.clone(dimensionSizeArray)
+	local targetDimensionSizeArray = table.clone(currentDimensionSizeArray)
 
-	targetDimensionSizeArray[dimension1] = dimensionSizeArray[dimension2]
+	targetDimensionSizeArray[dimension1] = currentDimensionSizeArray[dimension2]
 
-	targetDimensionSizeArray[dimension2] = dimensionSizeArray[dimension1]
+	targetDimensionSizeArray[dimension2] = currentDimensionSizeArray[dimension1]
 	
 	local getLinearIndex = getLinearIndexFunctionList[self.mode]
 	
 	local currentDimensionIndexArray = table.create(numberOfDimensions, 1)
 	
-	local dimensionIndexArrayToEndLoop = table.create(#dimensionSizeArray, 1)
+	local dimensionIndexArrayToEndLoop = table.create(#currentDimensionSizeArray, 1)
 	
 	local data = self.data
 	
@@ -1304,7 +1304,7 @@ function AqwamTensorLibrary:transpose(dimensionArray)
 
 		targetDimensionIndexArray[dimension2] = currentDimensionIndexArray[dimension1]
 		
-		local currentLinearIndex = getLinearIndex(currentDimensionIndexArray, dimensionSizeArray)
+		local currentLinearIndex = getLinearIndex(currentDimensionIndexArray, currentDimensionSizeArray)
 
 		local targetLinearIndex = getLinearIndex(targetDimensionIndexArray, targetDimensionSizeArray)
 		
@@ -1314,7 +1314,7 @@ function AqwamTensorLibrary:transpose(dimensionArray)
 
 		targetData[targetDataIndex][targetSubDataIndex][targetSubSubDataIndex] = data[currentDataIndex][currentSubDataIndex][currentSubSubDataIndex]
 
-		currentDimensionIndexArray = incrementDimensionIndexArray(dimensionSizeArray, currentDimensionIndexArray)
+		currentDimensionIndexArray = incrementDimensionIndexArray(currentDimensionSizeArray, currentDimensionIndexArray)
 		
 	until checkIfDimensionIndexArraysAreEqual(currentDimensionIndexArray, dimensionIndexArrayToEndLoop)
 	
@@ -1348,13 +1348,13 @@ function AqwamTensorLibrary:sum(dimension)
 
 	if (type(dimension) ~= "number") then error("The dimension must be a number.") end
 	
-	local dimensionSizeArray = self.dimensionSizeArray
+	local currentDimensionSizeArray = self.dimensionSizeArray
 
-	local numberOfDimensions = #dimensionSizeArray
+	local numberOfDimensions = #currentDimensionSizeArray
 
 	throwErrorIfDimensionIsOutOfBounds(dimension, 1, numberOfDimensions)
 	
-	local targetDimensionSizeArray = table.clone(dimensionSizeArray)
+	local targetDimensionSizeArray = table.clone(currentDimensionSizeArray)
 
 	targetDimensionSizeArray[dimension] = 1
 	
@@ -1364,7 +1364,7 @@ function AqwamTensorLibrary:sum(dimension)
 
 	local currentDimensionIndexArray = table.create(numberOfDimensions, 1)
 	
-	local dimensionIndexArrayToEndLoop = table.create(#dimensionSizeArray, 1)
+	local dimensionIndexArrayToEndLoop = table.create(#currentDimensionSizeArray, 1)
 
 	local targetData = createEmptyDataFromDimensionSizeArray(targetDimensionSizeArray)
 	
@@ -1374,7 +1374,7 @@ function AqwamTensorLibrary:sum(dimension)
 
 		targetDimensionIndexArray[dimension] = 1
 
-		local currentLinearIndex = getLinearIndex(currentDimensionIndexArray, dimensionSizeArray)
+		local currentLinearIndex = getLinearIndex(currentDimensionIndexArray, currentDimensionSizeArray)
 
 		local targetLinearIndex = getLinearIndex(targetDimensionIndexArray, targetDimensionSizeArray)
 
@@ -1386,7 +1386,7 @@ function AqwamTensorLibrary:sum(dimension)
 
 		targetData[targetDataIndex][targetSubDataIndex][targetSubSubDataIndex] = newDataValue + data[currentDataIndex][currentSubDataIndex][currentSubSubDataIndex]
 
-		currentDimensionIndexArray = incrementDimensionIndexArray(dimensionSizeArray, currentDimensionIndexArray)
+		currentDimensionIndexArray = incrementDimensionIndexArray(currentDimensionSizeArray, currentDimensionIndexArray)
 
 	until checkIfDimensionIndexArraysAreEqual(currentDimensionIndexArray, dimensionIndexArrayToEndLoop)
 
@@ -1414,9 +1414,9 @@ local function dotProduct(tensor1, tensor2, index)
 	
 	local mode1 = tensor1.mode
 
-	local newDimensionSizeArray = table.clone(dimensionSizeArray1)
+	local targetDimensionSizeArray = table.clone(dimensionSizeArray1)
 
-	newDimensionSizeArray[numberOfDimensions] = dimensionSizeArray2[numberOfDimensions]
+	targetDimensionSizeArray[numberOfDimensions] = dimensionSizeArray2[numberOfDimensions]
 	
 	local finalDimensionSize = dimensionSizeArray1[numberOfDimensions]
 
@@ -1428,7 +1428,7 @@ local function dotProduct(tensor1, tensor2, index)
 	
 	local dimensionIndexArrayToEndLoop = table.create(numberOfDimensions, 1)
 
-	local targetData = createEmptyDataFromDimensionSizeArray(newDimensionSizeArray)
+	local targetData = createEmptyDataFromDimensionSizeArray(targetDimensionSizeArray)
 
 	repeat
 
@@ -1456,17 +1456,17 @@ local function dotProduct(tensor1, tensor2, index)
 
 		end
 		
-		local currentLinearIndex = getLinearIndex1(currentDimensionIndexArray, newDimensionSizeArray)
+		local currentLinearIndex = getLinearIndex1(currentDimensionIndexArray, targetDimensionSizeArray)
 		
 		local currentDataIndex, currentSubDataIndex, currentSubSubDataIndex = getDataIndex(currentLinearIndex)
 		
 		targetData[currentDataIndex][currentSubDataIndex][currentSubSubDataIndex] = sumValue
 
-		currentDimensionIndexArray = incrementDimensionIndexArray(newDimensionSizeArray, currentDimensionIndexArray)
+		currentDimensionIndexArray = incrementDimensionIndexArray(targetDimensionSizeArray, currentDimensionIndexArray)
 
 	until checkIfDimensionIndexArraysAreEqual(currentDimensionIndexArray, dimensionIndexArrayToEndLoop)
 
-	return AqwamTensorLibrary.construct(targetData, newDimensionSizeArray, mode1)
+	return AqwamTensorLibrary.construct(targetData, targetDimensionSizeArray, mode1)
 	
 end
 
@@ -1492,27 +1492,27 @@ function AqwamTensorLibrary:switchMode()
 	
 	local data = self.data
 	
-	local dimensionSizeArray = self.dimensionSizeArray
+	local currentDimensionSizeArray = self.dimensionSizeArray
 
 	local currentMode = self.mode
 	
 	local targetMode = ((currentMode == "Row") and "Column") or "Row"
 	
-	local currentDimensionIndexArray = table.create(#dimensionSizeArray, 1)
+	local currentDimensionIndexArray = table.create(#currentDimensionSizeArray, 1)
 
-	local dimensionIndexArrayToEndLoop = table.create(#dimensionSizeArray, 1)
+	local dimensionIndexArrayToEndLoop = table.create(#currentDimensionSizeArray, 1)
 
 	local getCurrentLinearIndex = getLinearIndexFunctionList[currentMode]
 	
 	local getTargetLinearIndex = getLinearIndexFunctionList[targetMode]
 
-	local targetData = createEmptyDataFromDimensionSizeArray(dimensionSizeArray)
+	local targetData = createEmptyDataFromDimensionSizeArray(currentDimensionSizeArray)
 
 	repeat
 
-		local currentLinearIndex = getCurrentLinearIndex(currentDimensionIndexArray, dimensionSizeArray)
+		local currentLinearIndex = getCurrentLinearIndex(currentDimensionIndexArray, currentDimensionSizeArray)
 
-		local targetLinearIndex = getTargetLinearIndex(currentDimensionIndexArray, dimensionSizeArray)
+		local targetLinearIndex = getTargetLinearIndex(currentDimensionIndexArray, currentDimensionSizeArray)
 
 		local currentDataIndex, currentSubDataIndex, currentSubSubDataIndex = getDataIndex(currentLinearIndex)
 
@@ -1520,11 +1520,11 @@ function AqwamTensorLibrary:switchMode()
 
 		targetData[targetDataIndex][targetSubDataIndex][targetSubSubDataIndex] = data[currentDataIndex][currentSubDataIndex][currentSubSubDataIndex]
 
-		currentDimensionIndexArray = incrementDimensionIndexArray(dimensionSizeArray, currentDimensionIndexArray)
+		currentDimensionIndexArray = incrementDimensionIndexArray(currentDimensionSizeArray, currentDimensionIndexArray)
 
 	until checkIfDimensionIndexArraysAreEqual(currentDimensionIndexArray, dimensionIndexArrayToEndLoop)
 	
-	return AqwamTensorLibrary.construct(targetData, deepCopyTable(dimensionSizeArray), targetMode)
+	return AqwamTensorLibrary.construct(targetData, deepCopyTable(currentDimensionSizeArray), targetMode)
 	
 end
 
