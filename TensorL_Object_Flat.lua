@@ -206,7 +206,7 @@ local function createEmptyDataFromDimensionSizeArray(dimensionSizeArray)
 	
 	local numberOfSubSubData = math.ceil((totalSize - (numberOfSubData * squaredMaximumTableLength)) / maximumTableLength)
 	
-	for i = 1, (numberOfSubData - 1), 1 do table.insert(data, {{}}) end
+	for i = 1, (numberOfSubData - 1), 1 do table.insert(data, table.create(maximumTableLength, table.create(maximumTableLength, true))) end
 	
 	local subData = {}
 	
