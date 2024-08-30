@@ -721,7 +721,7 @@ function AqwamTensorLibrary:expandNumberOfDimension(dimensionSizeToAddArray)
 	
 	--]]
 	
-	return AqwamTensorLibrary.construct(targetData, deepCopyTable(targetDimensionSizeArray), mode)
+	return AqwamTensorLibrary.construct(targetData, targetDimensionSizeArray, mode)
 
 end
 
