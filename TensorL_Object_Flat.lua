@@ -507,7 +507,7 @@ local getLinearIndexFunctionList = {
 
 }
 
-local function incrementDimensionIndexArray(dimensionSizeArray, dimensionIndexArray)
+local function incrementDimensionIndexArray(dimensionIndexArray, dimensionSizeArray)
 
 	for i = #dimensionIndexArray, 1, -1 do
 
@@ -619,7 +619,7 @@ function AqwamTensorLibrary:expandDimensionSize(targetDimensionSizeArray)
 
 			end
 
-			currentDimensionIndexArray = incrementDimensionIndexArray(oldSubTargetDimensionSizeArray, currentDimensionIndexArray)
+			currentDimensionIndexArray = incrementDimensionIndexArray(currentDimensionIndexArray, oldSubTargetDimensionSizeArray)
 
 		until checkIfDimensionIndexArraysAreEqual(currentDimensionIndexArray, dimensionIndexArrayToEndLoop)
 
@@ -669,9 +669,9 @@ function AqwamTensorLibrary:expandNumberOfDimension(dimensionSizeToAddArray)
 
 		targetData[targetDataIndex][targetSubDataIndex][targetSubSubDataIndex] = currentData[currentDataIndex][currentSubDataIndex][currentSubSubDataIndex]
 
-		targetDimensionIndexArray = incrementDimensionIndexArray(targetDimensionSizeArray, targetDimensionIndexArray)
+		targetDimensionIndexArray = incrementDimensionIndexArray(targetDimensionIndexArray, targetDimensionSizeArray)
 
-		currentDimensionIndexArray = incrementDimensionIndexArray(currentDimensionSizeArray, currentDimensionIndexArray)
+		currentDimensionIndexArray = incrementDimensionIndexArray(currentDimensionIndexArray, currentDimensionSizeArray)
 
 	until checkIfDimensionIndexArraysAreEqual(targetDimensionIndexArray, targetDimensionIndexArrayToEndLoop)
 	
@@ -1006,7 +1006,7 @@ local function applyFunctionUsingTwoTensorsOfDifferentModes(functionToApply, ten
 
 		targetData[dataIndex1][subDataIndex1][subSubDataIndex1] = functionToApply(tensor1Data[dataIndex1][subDataIndex1][subSubDataIndex1], tensor2Data[dataIndex2][dataIndex2][dataIndex2])
 
-		currentDimensionIndexArray = incrementDimensionIndexArray(currentDimensionSizeArray, currentDimensionIndexArray)
+		currentDimensionIndexArray = incrementDimensionIndexArray(currentDimensionIndexArray, currentDimensionSizeArray)
 		
 	until checkIfDimensionIndexArraysAreEqual(currentDimensionIndexArray, dimensionIndexArrayToEndLoop)
 
@@ -1356,7 +1356,7 @@ function AqwamTensorLibrary:transpose(dimensionArray)
 
 		targetData[targetDataIndex][targetSubDataIndex][targetSubSubDataIndex] = currentData[currentDataIndex][currentSubDataIndex][currentSubSubDataIndex]
 
-		currentDimensionIndexArray = incrementDimensionIndexArray(currentDimensionSizeArray, currentDimensionIndexArray)
+		currentDimensionIndexArray = incrementDimensionIndexArray(currentDimensionIndexArray, currentDimensionSizeArray)
 		
 	until checkIfDimensionIndexArraysAreEqual(currentDimensionIndexArray, dimensionIndexArrayToEndLoop)
 	
@@ -1428,7 +1428,7 @@ function AqwamTensorLibrary:sum(dimension)
 
 		targetData[targetDataIndex][targetSubDataIndex][targetSubSubDataIndex] = newDataValue + currentData[currentDataIndex][currentSubDataIndex][currentSubSubDataIndex]
 
-		currentDimensionIndexArray = incrementDimensionIndexArray(currentDimensionSizeArray, currentDimensionIndexArray)
+		currentDimensionIndexArray = incrementDimensionIndexArray(currentDimensionIndexArray, currentDimensionSizeArray)
 
 	until checkIfDimensionIndexArraysAreEqual(currentDimensionIndexArray, dimensionIndexArrayToEndLoop)
 
@@ -1504,7 +1504,7 @@ local function dotProduct(tensor1, tensor2, index)
 		
 		targetData[currentDataIndex][currentSubDataIndex][currentSubSubDataIndex] = sumValue
 
-		currentDimensionIndexArray = incrementDimensionIndexArray(targetDimensionSizeArray, currentDimensionIndexArray)
+		currentDimensionIndexArray = incrementDimensionIndexArray(currentDimensionIndexArray, targetDimensionSizeArray)
 
 	until checkIfDimensionIndexArraysAreEqual(currentDimensionIndexArray, dimensionIndexArrayToEndLoop)
 
@@ -1562,11 +1562,31 @@ function AqwamTensorLibrary:switchMode()
 
 		targetData[targetDataIndex][targetSubDataIndex][targetSubSubDataIndex] = currentData[currentDataIndex][currentSubDataIndex][currentSubSubDataIndex]
 
-		currentDimensionIndexArray = incrementDimensionIndexArray(currentDimensionSizeArray, currentDimensionIndexArray)
+		currentDimensionIndexArray = incrementDimensionIndexArray(currentDimensionIndexArray, currentDimensionSizeArray)
 
 	until checkIfDimensionIndexArraysAreEqual(currentDimensionIndexArray, dimensionIndexArrayToEndLoop)
 	
-	return AqwamTensorLibrary.construct(targetData, deepCopyTable(currentDimensionSizeArray), targetMode)
+	return AqwamTensorLibrary.construct(targetData, currentDimensionSizeArray, targetMode)
+	
+end
+
+function AqwamTensorLibrary:permute(targetDimensionArray)
+	
+	local currentDimensionSizeArray = self.dimensionSizeArray
+	
+	if (#currentDimensionSizeArray ~= #targetDimensionArray) then error("The number of dimensions does not match.") end
+	
+	local targetDimensionSizeArray = {}
+	
+	for i, dimension in ipairs(targetDimensionArray) do targetDimensionSizeArray[i] = currentDimensionSizeArray[dimension] end
+	
+	return AqwamTensorLibrary.construct(self.data, targetDimensionSizeArray, self.mode)
+	
+end
+
+function AqwamTensorLibrary:copy()
+	
+	return AqwamTensorLibrary.construct(deepCopyTable(self.data), deepCopyTable(self.dimensionSizeArray), deepCopyTable(self.mode))
 	
 end
 
