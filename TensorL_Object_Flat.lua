@@ -926,19 +926,19 @@ local function applyFunctionUsingOneTensor(functionToApply, tensor)
 	
 	for _, subData in ipairs(tensor.data) do 
 
-		local newSubData = {}
+		local newTargetSubData = {}
 
 		for _, subSubData in ipairs(subData) do 
 
-			local newSubSubData = {}
+			local newTargetSubSubData = {}
 
-			for _, value in ipairs(subSubData) do table.insert(newSubSubData, functionToApply(value)) end
+			for _, value in ipairs(subSubData) do table.insert(newTargetSubSubData, functionToApply(value)) end
 
-			table.insert(newSubData, newSubSubData)
+			table.insert(newTargetSubData, newTargetSubSubData)
 
 		end
 
-		table.insert(targetData, newSubData)
+		table.insert(targetData, newTargetSubData)
 
 	end
 
@@ -954,21 +954,21 @@ local function applyFunctionUsingTwoTensorsOfSameModes(functionToApply, tensor1,
 		
 		local subData2 = tensor2[i]
 
-		local newSubData = {}
+		local newTargetSubData = {}
 
 		for j, subSubData1 in ipairs(subData1) do 
 			
 			local subSubData2 = subData2[j]
 
-			local newSubSubData = {}
+			local newTargetSubSubData = {}
 
-			for k, value in ipairs(subSubData1) do table.insert(newSubSubData, functionToApply(value, subSubData2[k])) end
+			for k, value in ipairs(subSubData1) do table.insert(newTargetSubSubData, functionToApply(value, subSubData2[k])) end
 
-			table.insert(newSubData, newSubSubData)
+			table.insert(newTargetSubData, newTargetSubSubData)
 
 		end
 
-		table.insert(targetData, newSubData)
+		table.insert(targetData, newTargetSubData)
 
 	end
 	
@@ -1036,7 +1036,7 @@ local function applyFunctionWhenTheFirstValueIsAScalar(functionToApply, scalar, 
 
 	for _, subData in ipairs(tensor.data) do 
 
-		local newSubData = {}
+		local newTargetSubData = {}
 
 		for _, subSubData in ipairs(subData) do 
 
@@ -1044,11 +1044,11 @@ local function applyFunctionWhenTheFirstValueIsAScalar(functionToApply, scalar, 
 
 			for _, value in ipairs(subSubData) do table.insert(newSubSubData, functionToApply(scalar, value)) end
 
-			table.insert(newSubData, newSubSubData)
+			table.insert(newTargetSubData, newSubSubData)
 
 		end
 
-		table.insert(newData, newSubData)
+		table.insert(newData, newTargetSubData)
 
 	end
 	
@@ -1062,19 +1062,19 @@ local function applyFunctionWhenTheSecondValueIsAScalar(functionToApply, tensor,
 	
 	for _, subData in ipairs(tensor.data) do 
 		
-		local newSubData = {}
+		local newTargetSubData = {}
 
 		for _, subSubData in ipairs(subData) do 
 			
-			local newSubSubData = {}
+			local newTargetSubSubData = {}
 
-			for _, value in ipairs(subSubData) do table.insert(newSubSubData, functionToApply(value, scalar)) end
+			for _, value in ipairs(subSubData) do table.insert(newTargetSubSubData, functionToApply(value, scalar)) end
 			
-			table.insert(newSubData, newSubSubData)
+			table.insert(newTargetSubData, newTargetSubSubData)
 
 		end
 		
-		table.insert(newData, newSubData)
+		table.insert(newData, newTargetSubData)
 
 	end
 	
@@ -1115,7 +1115,7 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 		if (isFirstValueATensor) and (isSecondValueATensor) then
 
 			tensor, otherTensor = broadcast(tensor, otherTensor, false)
-
+			
 			tensor = applyFunctionUsingTwoTensors(functionToApply, tensor, otherTensor, i)
 
 		elseif (not isFirstValueATensor) and (isSecondValueATensor) then
