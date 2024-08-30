@@ -710,8 +710,6 @@ function AqwamTensorLibrary:expandNumberOfDimension(dimensionSizeToAddArray)
 			targetDimensionIndexArray = incrementDimensionIndexArray(targetDimensionSizeArray, targetDimensionIndexArray)
 
 			currentDimensionIndexArray = incrementDimensionIndexArray(currentDimensionSizeArray, currentDimensionIndexArray)
-			
-			print(targetDimensionIndexArray)
 
 		until checkIfDimensionIndexArraysAreEqual(targetDimensionIndexArray, targetDimensionIndexArrayToEndLoop)
 		
