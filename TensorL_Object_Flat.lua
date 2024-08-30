@@ -659,7 +659,7 @@ function AqwamTensorLibrary:expandNumberOfDimension(dimensionSizeToAddArray)
 
 	repeat
 
-		local targetLinearIndex = getLinearIndex(targetDimensionIndexArray, targetDimensionIndexArray)
+		local targetLinearIndex = getLinearIndex(targetDimensionIndexArray, targetDimensionSizeArray)
 
 		local currentLinearIndex = getLinearIndex(currentDimensionIndexArray, currentDimensionSizeArray)
 
@@ -697,7 +697,7 @@ function AqwamTensorLibrary:expandNumberOfDimension(dimensionSizeToAddArray)
 		
 		repeat
 
-			local targetLinearIndex = getLinearIndex(targetDimensionIndexArray, targetDimensionIndexArray)
+			local targetLinearIndex = getLinearIndex(targetDimensionIndexArray, targetDimensionSizeArray)
 
 			local currentLinearIndex = getLinearIndex(currentDimensionIndexArray, currentDimensionSizeArray)
 
@@ -720,7 +720,7 @@ function AqwamTensorLibrary:expandNumberOfDimension(dimensionSizeToAddArray)
 	end
 	
 	--]]
-
+	
 	return AqwamTensorLibrary.construct(targetData, deepCopyTable(targetDimensionSizeArray), mode)
 
 end
