@@ -1482,15 +1482,15 @@ function AqwamTensorLibrary:hardcodedTranspose(dimensionArray)
 
 end
 
-local function transpose(tensor, dimensionSizeArray, dimensionIndexArray, targetTensor, targetTensorDimensionSizeArray, dimension1, dimension2)
+local function transpose(tensor, dimensionSizeArray, currentDimensionIndexArray, targetTensor, targetTensorDimensionSizeArray, dimension1, dimension2)
 
-	if (#dimensionSizeArray >= 1) then
+	if (#dimensionSizeArray >= 2) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
 		for i = 1, dimensionSizeArray[1], 1 do
 
-			local copiedCurrentDimensionIndexArray = table.clone(dimensionIndexArray)
+			local copiedCurrentDimensionIndexArray = table.clone(currentDimensionIndexArray)
 
 			table.insert(copiedCurrentDimensionIndexArray, i)
 
@@ -1500,15 +1500,23 @@ local function transpose(tensor, dimensionSizeArray, dimensionIndexArray, target
 
 	else
 
-		local currentDimensionIndex1 = dimensionIndexArray[dimension1]
+		for i = 1, dimensionSizeArray[1], 1 do
 
-		local currentDimensionIndex2 = dimensionIndexArray[dimension2]
+			local targetDimensionIndexArray = table.clone(currentDimensionIndexArray)
 
-		dimensionIndexArray[dimension1] = currentDimensionIndex2
+			table.insert(targetDimensionIndexArray, i)
 
-		dimensionIndexArray[dimension2] = currentDimensionIndex1
+			local targetDimensionIndex1 = targetDimensionIndexArray[dimension1]
 
-		setValue(targetTensor, targetTensorDimensionSizeArray, tensor, dimensionIndexArray)
+			local targetDimensionIndex2 = targetDimensionIndexArray[dimension2]
+
+			targetDimensionIndexArray[dimension1] = targetDimensionIndex2
+
+			targetDimensionIndexArray[dimension2] = targetDimensionIndex1
+
+			AqwamTensorLibrary:setValue(targetTensor, tensor[i], targetDimensionIndexArray)
+
+		end
 
 	end
 
@@ -3137,6 +3145,66 @@ function AqwamTensorLibrary:applyFunction(functionToApply, ...)
 	local resultTensor = applyFunction(functionToApply, dimensionSizeArray, table.unpack(tensorArray))
 
 	return AqwamTensorLibrary.new(resultTensor)
+
+end
+
+local function permute(tensor, dimensionSizeArray, currentDimensionIndexArray, targetTensor, targetDimensionSizeArray, targetDimensionArray)
+
+	if (#dimensionSizeArray >= 1) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do
+
+			local copiedCurrentDimensionIndexArray = table.clone(currentDimensionIndexArray)
+
+			table.insert(copiedCurrentDimensionIndexArray, i)
+
+			permute(tensor[i], remainingDimensionSizeArray, copiedCurrentDimensionIndexArray, targetTensor, targetDimensionSizeArray, targetDimensionArray)
+
+		end
+
+	else
+
+		local targetDimensionIndexArray = {}
+
+		for i, dimension in ipairs(targetDimensionArray) do targetDimensionIndexArray[i] = currentDimensionIndexArray[dimension] end
+
+		setValue(targetTensor, targetDimensionSizeArray, tensor, targetDimensionIndexArray)
+
+	end	
+
+end
+
+function AqwamTensorLibrary:permute(targetDimensionArray)
+
+	local dimensionSizeArray = self:getDimensionSizeArray()
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	if (numberOfDimensions ~= #targetDimensionArray) then error("The number of dimensions does not match.") end
+
+	local collectedTargetDimensionArray = {}
+
+	for i, dimension in ipairs(targetDimensionArray) do
+
+		if (dimension > numberOfDimensions) then error("Value of " .. dimension .. " in the target dimension array exceeds the number of dimensions.") end
+
+		if (table.find(collectedTargetDimensionArray, dimension)) then error("Value of " .. dimension .. " in the target dimension array has been added more than once.") end
+
+		table.insert(collectedTargetDimensionArray, dimension)
+
+	end
+
+	local targetDimensionSizeArray = {}
+
+	for i, dimension in ipairs(targetDimensionArray) do targetDimensionSizeArray[i] = dimensionSizeArray[dimension] end
+
+	local permutedTensor = createTensor(targetDimensionSizeArray, true)
+
+	permute(self, dimensionSizeArray, {}, permutedTensor, targetDimensionSizeArray, targetDimensionArray)
+
+	return permutedTensor
 
 end
 
