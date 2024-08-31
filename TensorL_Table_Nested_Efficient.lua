@@ -3124,7 +3124,7 @@ local function permute(tensor, dimensionSizeArray, numberOfDimensions, currentDi
 
 			currentDimensionIndexArray[currentDimension] = i
 
-			transpose(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, currentDimensionIndexArray, targetTensor, dimensionArray)
+			permute(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, currentDimensionIndexArray, targetTensor, dimensionArray)
 
 		end
 
@@ -3174,9 +3174,9 @@ function AqwamTensorLibrary:permute(tensor, dimensionArray)
 
 	for i, dimension in ipairs(dimensionArray) do permutedDimensionSizeArray[i] = dimensionSizeArray[dimension] end
 
-	local permutedTensor = createTensor(permutedDimensionSizeArray, true)
+	local permutedTensor = AqwamTensorLibrary:createTensor(permutedDimensionSizeArray, true)
 
-	transpose(tensor, dimensionSizeArray, numberOfDimensions, 1, {}, permutedTensor, dimensionArray)
+	permute(tensor, dimensionSizeArray, numberOfDimensions, 1, {}, permutedTensor, dimensionArray)
 
 	return permutedTensor
 
