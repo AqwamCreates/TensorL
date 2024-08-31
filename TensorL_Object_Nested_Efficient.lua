@@ -1396,7 +1396,7 @@ end
 
 local function transpose(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, currentDimensionIndexArray, targetTensor, targetTensorDimensionSizeArray, dimension1, dimension2)
 
-	if (currentDimension <= numberOfDimensions) then
+	if (currentDimension < numberOfDimensions) then
 
 		for i = 1, dimensionSizeArray[currentDimension], 1 do
 
@@ -1407,18 +1407,24 @@ local function transpose(tensor, dimensionSizeArray, numberOfDimensions, current
 		end
 
 	else
+		
+		for i, value in ipairs(tensor) do
 
-		local targetDimensionIndexArray = table.clone(currentDimensionIndexArray)
+			local targetDimensionIndexArray = table.clone(currentDimensionIndexArray)
 
-		local currentDimensionIndex1 = targetDimensionIndexArray[dimension1]
+			table.insert(targetDimensionIndexArray, i)
 
-		local currentDimensionIndex2 = targetDimensionIndexArray[dimension2]
+			local targetDimensionIndex1 = targetDimensionIndexArray[dimension1]
 
-		targetDimensionIndexArray[dimension1] = currentDimensionIndex2
+			local targetDimensionIndex2 = targetDimensionIndexArray[dimension2]
 
-		targetDimensionIndexArray[dimension2] = currentDimensionIndex1
+			targetDimensionIndexArray[dimension1] = targetDimensionIndex2
 
-		setValue(targetTensor, targetTensorDimensionSizeArray, tensor, currentDimensionIndexArray)
+			targetDimensionIndexArray[dimension2] = targetDimensionIndex1
+
+			setValue(targetTensor, targetTensorDimensionSizeArray, tensor, currentDimensionIndexArray)
+			
+		end
 
 	end	
 
