@@ -28,6 +28,18 @@
 
 --]]
 
+--------------------------------------------------------------------
+
+local table = table -- Let me squeeze a little bit more performance here by making these global variables to local variables.
+
+local math = math
+
+local string = string
+
+local type = type
+
+--------------------------------------------------------------------
+
 local AqwamTensorLibrary = {}
 
 local function checkIfDimensionIndexArraysAreEqual(dimensionIndexArray1, dimensionIndexArray2)
