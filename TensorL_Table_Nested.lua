@@ -1607,7 +1607,7 @@ end
 
 local function transpose(tensor, dimensionSizeArray, currentDimensionIndexArray, targetTensor, dimension1, dimension2)
 
-	if (#dimensionSizeArray >= 1) then
+	if (#dimensionSizeArray >= 2) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -1622,16 +1622,24 @@ local function transpose(tensor, dimensionSizeArray, currentDimensionIndexArray,
 		end
 
 	else
+		
+		for i, value in ipairs(tensor) do
 
-		local currentDimensionIndex1 = currentDimensionIndexArray[dimension1]
+			local targetDimensionIndexArray = table.clone(currentDimensionIndexArray)
 
-		local currentDimensionIndex2 = currentDimensionIndexArray[dimension2]
+			table.insert(targetDimensionIndexArray, i)
 
-		currentDimensionIndexArray[dimension1] = currentDimensionIndex2
+			local targetDimensionIndex1 = targetDimensionIndexArray[dimension1]
 
-		currentDimensionIndexArray[dimension2] = currentDimensionIndex1
+			local targetDimensionIndex2 = targetDimensionIndexArray[dimension2]
 
-		AqwamTensorLibrary:setValue(targetTensor, tensor, currentDimensionIndexArray)
+			targetDimensionIndexArray[dimension1] = targetDimensionIndex2
+
+			targetDimensionIndexArray[dimension2] = targetDimensionIndex1
+
+			AqwamTensorLibrary:setValue(targetTensor, value, targetDimensionIndexArray)
+
+		end
 
 	end	
 
