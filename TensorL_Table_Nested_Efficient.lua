@@ -3116,4 +3116,70 @@ function AqwamTensorLibrary:copy(tensor)
 
 end
 
+local function permute(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, currentDimensionIndexArray, targetTensor, dimensionArray)
+
+	if (currentDimension < numberOfDimensions) then
+
+		for i = 1, dimensionSizeArray[currentDimension], 1 do
+
+			currentDimensionIndexArray[currentDimension] = i
+
+			transpose(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, currentDimensionIndexArray, targetTensor, dimensionArray)
+
+		end
+
+	else
+
+		for i, value in ipairs(tensor) do
+
+			local currentDimensionIndexArray = table.clone(currentDimensionIndexArray)
+
+			table.insert(currentDimensionIndexArray, i)
+
+			local targetDimensionIndexArray = {}
+
+			for i, dimension in ipairs(dimensionArray) do targetDimensionIndexArray[i] = currentDimensionIndexArray[dimension] end
+
+			AqwamTensorLibrary:setValue(targetTensor, value, targetDimensionIndexArray)
+
+		end
+
+	end	
+
+end
+
+function AqwamTensorLibrary:permute(tensor, dimensionArray)
+	
+	if (type(dimensionArray) ~= "table") then error("The dimension array must be an array.") end
+
+	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	if (numberOfDimensions ~= #dimensionArray) then error("The number of dimensions does not match.") end
+
+	local collectedTargetDimensionArray = {}
+
+	for i, dimension in ipairs(dimensionArray) do
+
+		if (dimension > numberOfDimensions) then error("Value of " .. dimension .. " in the target dimension array exceeds the number of dimensions.") end
+
+		if (table.find(collectedTargetDimensionArray, dimension)) then error("Value of " .. dimension .. " in the target dimension array has been added more than once.") end
+
+		table.insert(collectedTargetDimensionArray, dimension)
+
+	end
+
+	local permutedDimensionSizeArray = {}
+
+	for i, dimension in ipairs(dimensionArray) do permutedDimensionSizeArray[i] = dimensionSizeArray[dimension] end
+
+	local permutedTensor = createTensor(permutedDimensionSizeArray, true)
+
+	transpose(tensor, dimensionSizeArray, numberOfDimensions, 1, {}, permutedTensor, dimensionArray)
+
+	return permutedTensor
+
+end
+
 return AqwamTensorLibrary
