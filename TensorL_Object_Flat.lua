@@ -1578,13 +1578,17 @@ function AqwamTensorLibrary:permute(targetDimensionArray)
 
 	local mode = self.mode
 	
-	if (#currentDimensionSizeArray ~= #targetDimensionArray) then error("The number of dimensions does not match.") end
+	local numberOfDimensions = #currentDimensionSizeArray
+	
+	if (numberOfDimensions ~= #targetDimensionArray) then error("The number of dimensions does not match.") end
 	
 	local collectedTargetDimensionArray = {}
 	
 	for i, dimension in ipairs(targetDimensionArray) do
 		
-		if (table.find(collectedTargetDimensionArray, dimension)) then error("Dimension " .. dimension .. " has been added more than once.") end
+		if (dimension > numberOfDimensions) then error("Value of " .. dimension .. " in the target dimension array exceeds the number of dimensions.") end
+		
+		if (table.find(collectedTargetDimensionArray, dimension)) then error("Value of " .. dimension .. " in the target dimension array has been added more than once.") end
 		
 		table.insert(collectedTargetDimensionArray, dimension)
 		
