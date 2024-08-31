@@ -3150,7 +3150,7 @@ end
 
 local function permute(tensor, dimensionSizeArray, currentDimensionIndexArray, targetTensor, targetDimensionSizeArray, targetDimensionArray)
 
-	if (#dimensionSizeArray >= 1) then
+	if (#dimensionSizeArray >= 2) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -3165,12 +3165,20 @@ local function permute(tensor, dimensionSizeArray, currentDimensionIndexArray, t
 		end
 
 	else
+		
+		for i, value in ipairs(tensor) do
 
-		local targetDimensionIndexArray = {}
+			local currentDimensionIndexArray = table.clone(currentDimensionIndexArray)
 
-		for i, dimension in ipairs(targetDimensionArray) do targetDimensionIndexArray[i] = currentDimensionIndexArray[dimension] end
+			table.insert(currentDimensionIndexArray, i)
 
-		setValue(targetTensor, targetDimensionSizeArray, tensor, targetDimensionIndexArray)
+			local targetDimensionIndexArray = {}
+
+			for i, dimension in ipairs(targetDimensionArray) do targetDimensionIndexArray[i] = currentDimensionIndexArray[dimension] end
+
+			setValue(targetTensor, targetDimensionSizeArray, tensor, targetDimensionIndexArray)
+
+		end
 
 	end	
 
