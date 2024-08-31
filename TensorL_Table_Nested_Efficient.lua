@@ -2285,7 +2285,7 @@ function AqwamTensorLibrary:sum(tensor, dimension)
 	
 	local subDimensionSizeArray = {}
 
-	for i = dimension, #dimensionSizeArray, 1 do table.insert(subDimensionSizeArray, dimensionSizeArray[i]) end
+	for i = dimension, numberOfDimensions, 1 do table.insert(subDimensionSizeArray, dimensionSizeArray[i]) end
 
 	local sumTensor = sumAlongOneDimension(tensor, dimensionSizeArray, subDimensionSizeArray, numberOfDimensions, 1, dimension)
 
