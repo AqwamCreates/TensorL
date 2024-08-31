@@ -3148,7 +3148,7 @@ function AqwamTensorLibrary:applyFunction(functionToApply, ...)
 
 end
 
-local function permute(tensor, dimensionSizeArray, currentDimensionIndexArray, targetTensor, targetDimensionSizeArray, targetDimensionArray)
+local function permute(tensor, dimensionSizeArray, currentDimensionIndexArray, targetTensor, targetDimensionSizeArray, dimensionArray)
 
 	if (#dimensionSizeArray >= 2) then
 
@@ -3160,7 +3160,7 @@ local function permute(tensor, dimensionSizeArray, currentDimensionIndexArray, t
 
 			table.insert(copiedCurrentDimensionIndexArray, i)
 
-			permute(tensor[i], remainingDimensionSizeArray, copiedCurrentDimensionIndexArray, targetTensor, targetDimensionSizeArray, targetDimensionArray)
+			permute(tensor[i], remainingDimensionSizeArray, copiedCurrentDimensionIndexArray, targetTensor, targetDimensionSizeArray, dimensionArray)
 
 		end
 
@@ -3174,7 +3174,7 @@ local function permute(tensor, dimensionSizeArray, currentDimensionIndexArray, t
 
 			local targetDimensionIndexArray = {}
 
-			for i, dimension in ipairs(targetDimensionArray) do targetDimensionIndexArray[i] = currentDimensionIndexArray[dimension] end
+			for i, dimension in ipairs(dimensionArray) do targetDimensionIndexArray[i] = currentDimensionIndexArray[dimension] end
 
 			setValue(targetTensor, targetDimensionSizeArray, tensor, targetDimensionIndexArray)
 
@@ -3184,17 +3184,17 @@ local function permute(tensor, dimensionSizeArray, currentDimensionIndexArray, t
 
 end
 
-function AqwamTensorLibrary:permute(targetDimensionArray)
+function AqwamTensorLibrary:permute(dimensionArray)
 
 	local dimensionSizeArray = self:getDimensionSizeArray()
 
 	local numberOfDimensions = #dimensionSizeArray
 
-	if (numberOfDimensions ~= #targetDimensionArray) then error("The number of dimensions does not match.") end
+	if (numberOfDimensions ~= #dimensionArray) then error("The number of dimensions does not match.") end
 
 	local collectedTargetDimensionArray = {}
 
-	for i, dimension in ipairs(targetDimensionArray) do
+	for i, dimension in ipairs(dimensionArray) do
 
 		if (dimension > numberOfDimensions) then error("Value of " .. dimension .. " in the target dimension array exceeds the number of dimensions.") end
 
@@ -3206,11 +3206,11 @@ function AqwamTensorLibrary:permute(targetDimensionArray)
 
 	local permutedDimensionSizeArray = {}
 
-	for i, dimension in ipairs(targetDimensionArray) do permutedDimensionSizeArray[i] = dimensionSizeArray[dimension] end
+	for i, dimension in ipairs(dimensionArray) do permutedDimensionSizeArray[i] = dimensionSizeArray[dimension] end
 
 	local permutedTensor = createTensor(permutedDimensionSizeArray, true)
 
-	permute(self, dimensionSizeArray, {}, permutedTensor, permutedDimensionSizeArray, targetDimensionArray)
+	permute(self, dimensionSizeArray, {}, permutedTensor, permutedDimensionSizeArray, dimensionArray)
 
 	return permutedTensor
 
