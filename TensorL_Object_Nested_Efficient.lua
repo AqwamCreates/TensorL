@@ -3048,9 +3048,9 @@ function AqwamTensorLibrary:permute(dimensionArray)
 
 	for i, dimension in ipairs(dimensionArray) do
 
-		if (dimension > numberOfDimensions) then error("Value of " .. dimension .. " in the target dimension array exceeds the number of dimensions.") end
+		if (dimension > numberOfDimensions) then error("Value of " .. dimension .. " in the dimension array exceeds the number of dimensions.") end
 
-		if (table.find(collectedTargetDimensionArray, dimension)) then error("Value of " .. dimension .. " in the target dimension array has been added more than once.") end
+		if (table.find(collectedTargetDimensionArray, dimension)) then error("Value of " .. dimension .. " in the dimension array has been added more than once.") end
 
 		table.insert(collectedTargetDimensionArray, dimension)
 
