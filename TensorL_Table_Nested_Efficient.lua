@@ -2103,19 +2103,19 @@ local function subTensorSumAlongFirstDimension(tensor, dimensionSizeArray)
 
 end
 
-local function sumAlongOneDimension(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, targetDimension)
+local function sumAlongOneDimension(tensor, dimensionSizeArray, subDimensionSizeArray, numberOfDimensions, currentDimension, targetDimension)
 
 	local resultTensor
 
 	if (currentDimension == targetDimension) then
 
-		resultTensor = subTensorSumAlongFirstDimension(tensor, dimensionSizeArray) -- This is needed to ensure that the number of dimensions stays the same.
+		resultTensor = subTensorSumAlongFirstDimension(tensor, subDimensionSizeArray) -- This is needed to ensure that the number of dimensions stays the same.
 
 	else
 		
 		resultTensor = {}
 
-		for i = 1, dimensionSizeArray[currentDimension], 1 do resultTensor[i] = sumAlongOneDimension(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetDimension) end
+		for i = 1, dimensionSizeArray[currentDimension], 1 do resultTensor[i] = sumAlongOneDimension(tensor[i], dimensionSizeArray, subDimensionSizeArray, numberOfDimensions, currentDimension + 1, targetDimension) end
 
 	end
 
@@ -2282,8 +2282,12 @@ function AqwamTensorLibrary:sum(tensor, dimension)
 	if (type(dimension) ~= "number") then error("The dimension must be a number.") end
 
 	throwErrorIfDimensionIsOutOfBounds(dimension, 1, numberOfDimensions)
+	
+	local subDimensionSizeArray = {}
 
-	local sumTensor = sumAlongOneDimension(tensor, dimensionSizeArray, numberOfDimensions, 1, dimension)
+	for i = dimension, #dimensionSizeArray, 1 do table.insert(subDimensionSizeArray, dimensionSizeArray[i]) end
+
+	local sumTensor = sumAlongOneDimension(tensor, dimensionSizeArray, subDimensionSizeArray, numberOfDimensions, 1, dimension)
 
 	return sumTensor
 
