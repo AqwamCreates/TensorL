@@ -2043,17 +2043,17 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 
 end
 
-local function sumFromAllDimensions(tensor, dimensionSizeArray, numberOfDimensions, currentDimension)
+local function sumFromAllDimensions(tensor, numberOfDimensions, currentDimension)
 
 	local result = 0
 
 	if (currentDimension < numberOfDimensions) then
-
-		for i = 1, dimensionSizeArray[currentDimension], 1 do result = result + sumFromAllDimensions(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1) end
+		
+		for i, subTensor in ipairs(tensor) do result = result + sumFromAllDimensions(subTensor, numberOfDimensions, currentDimension + 1) end
 
 	else
-
-		for i = 1, dimensionSizeArray[currentDimension], 1 do result = result + tensor[i] end
+		
+		for i, value in ipairs(tensor) do result = result + value end
 
 	end
 
@@ -2061,16 +2061,16 @@ local function sumFromAllDimensions(tensor, dimensionSizeArray, numberOfDimensio
 
 end
 
-local function recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, targetTensor, targetDimensionIndexArray)
+local function recursiveSubTensorSumAlongFirstDimension(tensor, numberOfDimensions, currentDimension, targetTensor, targetDimensionIndexArray)
 
 	if (currentDimension < numberOfDimensions) then
-
-		for i = 1, dimensionSizeArray[currentDimension], 1 do
-
+		
+		for i, subTensor in ipairs(tensor) do
+			
 			targetDimensionIndexArray[currentDimension] = i
 
-			recursiveSubTensorSumAlongFirstDimension(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetTensor, targetDimensionIndexArray)
-
+			recursiveSubTensorSumAlongFirstDimension(subTensor, numberOfDimensions, currentDimension + 1, targetTensor, targetDimensionIndexArray)
+			
 		end
 
 	else
@@ -2078,9 +2078,9 @@ local function recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArr
 		local copiedTargetDimensionIndexArray = table.clone(targetDimensionIndexArray)
 
 		copiedTargetDimensionIndexArray[1] = 1 -- The target dimension only have a size of 1 for summing.
-
-		for i = 1, dimensionSizeArray[currentDimension], 1 do
-
+		
+		for i, subTensor in ipairs(tensor) do
+			
 			copiedTargetDimensionIndexArray[currentDimension] = i
 
 			local targetTensorValue = AqwamTensorLibrary:getValue(targetTensor, copiedTargetDimensionIndexArray)
@@ -2088,7 +2088,7 @@ local function recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArr
 			local value = targetTensorValue + tensor[i]
 
 			AqwamTensorLibrary:setValue(targetTensor, value, copiedTargetDimensionIndexArray)
-
+			
 		end
 
 	end
@@ -2103,25 +2103,25 @@ local function subTensorSumAlongFirstDimension(tensor, dimensionSizeArray)
 
 	local sumTensor = createTensor(sumDimensionalSizeArray, #sumDimensionalSizeArray, 1, 0)
 
-	recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArray, #dimensionSizeArray, 1, sumTensor, {})
+	recursiveSubTensorSumAlongFirstDimension(tensor, #dimensionSizeArray, 1, sumTensor, {})
 
 	return sumTensor
 
 end
 
-local function sumAlongOneDimension(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, targetDimension)
+local function sumAlongOneDimension(tensor, subDimensionSizeArray, numberOfDimensions, currentDimension, targetDimension)
 
 	local resultTensor
 
 	if (currentDimension == targetDimension) then
 
-		resultTensor = subTensorSumAlongFirstDimension(tensor, dimensionSizeArray) -- This is needed to ensure that the number of dimensions stays the same.
+		resultTensor = subTensorSumAlongFirstDimension(tensor, subDimensionSizeArray) -- This is needed to ensure that the number of dimensions stays the same.
 
 	else
 		
 		resultTensor = {}
 		
-		for i, subTensor in ipairs(tensor) do resultTensor[i] = sumAlongOneDimension(subTensor, dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetDimension) end
+		for i, subTensor in ipairs(tensor) do resultTensor[i] = sumAlongOneDimension(subTensor, subDimensionSizeArray, numberOfDimensions, currentDimension + 1, targetDimension) end
 
 	end
 
@@ -2283,13 +2283,17 @@ function AqwamTensorLibrary:sum(tensor, dimension)
 
 	local numberOfDimensions = #dimensionSizeArray
 
-	if (not dimension) then return sumFromAllDimensions(tensor, dimensionSizeArray, numberOfDimensions, 1) end
+	if (not dimension) then return sumFromAllDimensions(tensor, numberOfDimensions, 1) end
 
 	if (type(dimension) ~= "number") then error("The dimension must be a number.") end
 
 	throwErrorIfDimensionIsOutOfBounds(dimension, 1, numberOfDimensions)
+	
+	local subDimensionSizeArray = {}
 
-	local sumTensor = sumAlongOneDimension(tensor, dimensionSizeArray, numberOfDimensions, 1, dimension)
+	for i = dimension, numberOfDimensions, 1 do table.insert(subDimensionSizeArray, dimensionSizeArray[i]) end
+
+	local sumTensor = sumAlongOneDimension(tensor, subDimensionSizeArray, numberOfDimensions, 1, dimension)
 
 	return sumTensor
 
