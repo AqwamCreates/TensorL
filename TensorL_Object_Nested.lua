@@ -1477,11 +1477,11 @@ local function transpose(tensor, dimensionSizeArray, currentDimensionIndexArray,
 
 		for i = 1, dimensionSizeArray[1], 1 do
 
-			local copiedCurrentTargetDimensionIndexArray = table.clone(currentDimensionIndexArray)
+			local copiedCurrentDimensionIndexArray = table.clone(currentDimensionIndexArray)
 
-			table.insert(copiedCurrentTargetDimensionIndexArray, i)
+			table.insert(copiedCurrentDimensionIndexArray, i)
 
-			transpose(tensor[i], remainingDimensionSizeArray, copiedCurrentTargetDimensionIndexArray, targetTensor, targetTensorDimensionSizeArray, dimension1, dimension2)
+			transpose(tensor[i], remainingDimensionSizeArray, copiedCurrentDimensionIndexArray, targetTensor, targetTensorDimensionSizeArray, dimension1, dimension2)
 
 		end
 
