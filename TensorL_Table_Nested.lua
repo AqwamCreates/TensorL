@@ -1123,12 +1123,25 @@ function AqwamTensorLibrary:createIdentityTensor(dimensionSizeArray)
 
 	local resultTensor = createTensor(truncatedDimensionSizeArray, 0)
 	
-	for i, dimensionSize in ipairs(truncatedDimensionSizeArray) do
+	for i = 1, truncatedNumberOfDimensions, 1 do
 		
-		if (dimensionSize >= i) then
+		local canSetValueToOne = true
+		
+		for _, dimensionSize in ipairs(truncatedDimensionSizeArray) do
+			
+			if (dimensionSize < i) then
+				
+				canSetValueToOne = false
+				break
+				
+			end
+			
+		end
+		
+		if (canSetValueToOne) then
 			
 			local dimensionIndexArray = table.create(truncatedNumberOfDimensions, i)
-
+			
 			AqwamTensorLibrary:setValue(resultTensor, 1, dimensionIndexArray)
 			
 		end
@@ -3229,7 +3242,7 @@ function AqwamTensorLibrary:getValue(tensor, dimensionIndexArray)
 
 end
 
-local function permute(tensor, dimensionSizeArray, currentTargetDimensionIndexArray, targetTensor, dimensionArray)
+local function permute(tensor, dimensionSizeArray, currentDimensionIndexArray, targetTensor, targetDimensionArray)
 
 	if (#dimensionSizeArray >= 1) then
 
@@ -3237,25 +3250,21 @@ local function permute(tensor, dimensionSizeArray, currentTargetDimensionIndexAr
 
 		for i = 1, dimensionSizeArray[1], 1 do
 
-			local copiedCurrentTargetDimensionIndexArray = table.clone(currentTargetDimensionIndexArray)
+			local copiedCurrentTargetDimensionIndexArray = table.clone(currentDimensionIndexArray)
 
 			table.insert(copiedCurrentTargetDimensionIndexArray, i)
 
-			permute(tensor[i], remainingDimensionSizeArray, copiedCurrentTargetDimensionIndexArray, targetTensor, dimensionArray)
+			permute(tensor[i], remainingDimensionSizeArray, copiedCurrentTargetDimensionIndexArray, targetTensor, targetDimensionArray)
 
 		end
 
 	else
+		
+		local targetDimensionIndexArray = {}
 
-		local currentDimensionIndex1 = currentTargetDimensionIndexArray[dimension1]
+		for i, dimension in ipairs(targetDimensionArray) do targetDimensionIndexArray[i] = currentDimensionIndexArray[dimension] end
 
-		local currentDimensionIndex2 = currentTargetDimensionIndexArray[dimension2]
-
-		currentTargetDimensionIndexArray[dimension1] = currentDimensionIndex2
-
-		currentTargetDimensionIndexArray[dimension2] = currentDimensionIndex1
-
-		AqwamTensorLibrary:setValue(targetTensor, tensor, currentTargetDimensionIndexArray)
+		AqwamTensorLibrary:setValue(targetTensor, tensor, targetDimensionIndexArray)
 
 	end	
 
@@ -3285,11 +3294,11 @@ function AqwamTensorLibrary:permute(tensor, targetDimensionArray)
 
 	for i, dimension in ipairs(targetDimensionArray) do targetDimensionSizeArray[i] = dimensionSizeArray[dimension] end
 
-	local transposedTensor = AqwamTensorLibrary:createTensor(targetDimensionSizeArray, true)
+	local permutedTensor = AqwamTensorLibrary:createTensor(targetDimensionSizeArray, true)
 
-	transpose(tensor, dimensionSizeArray, {}, transposedTensor, dimension1, dimension2)
+	permute(tensor, dimensionSizeArray, {}, permutedTensor, targetDimensionArray)
 
-	return transposedTensor
+	return permutedTensor
 
 end
 
