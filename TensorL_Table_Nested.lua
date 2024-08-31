@@ -2,7 +2,7 @@
 
 	--------------------------------------------------------------------
 
-	Version 0.7.0
+	Version 0.8.0
 
 	Aqwam's Tensor Library (TensorL)
 
@@ -3252,7 +3252,7 @@ end
 
 local function permute(tensor, dimensionSizeArray, currentDimensionIndexArray, targetTensor, targetDimensionArray)
 
-	if (#dimensionSizeArray >= 1) then
+	if (#dimensionSizeArray >= 2) then
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
 
@@ -3268,12 +3268,20 @@ local function permute(tensor, dimensionSizeArray, currentDimensionIndexArray, t
 
 	else
 		
-		local targetDimensionIndexArray = {}
+		for i, value in ipairs(tensor) do
 
-		for i, dimension in ipairs(targetDimensionArray) do targetDimensionIndexArray[i] = currentDimensionIndexArray[dimension] end
+			local currentDimensionIndexArray = table.clone(currentDimensionIndexArray)
 
-		AqwamTensorLibrary:setValue(targetTensor, tensor, targetDimensionIndexArray)
+			table.insert(currentDimensionIndexArray, i)
 
+			local targetDimensionIndexArray = {}
+
+			for i, dimension in ipairs(targetDimensionArray) do targetDimensionIndexArray[i] = currentDimensionIndexArray[dimension] end
+
+			AqwamTensorLibrary:setValue(targetTensor, value, targetDimensionIndexArray)
+
+		end
+		
 	end	
 
 end
