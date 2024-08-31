@@ -2193,9 +2193,7 @@ local function generateTensorString(tensor, dimensionSizeArray, numberOfDimensio
 
 			text = text .. generateTensorString(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, textSpacingArray)
 
-			if (i == dimensionSize) then continue end
-
-			text = text .. "\n"
+			if (i < dimensionSize) then text = text .. "\n" end
 
 		end
 
@@ -2217,9 +2215,7 @@ local function generateTensorString(tensor, dimensionSizeArray, numberOfDimensio
 
 			text = text .. string.rep(" ", padding) .. cellText
 
-			if (i == dimensionSize) then continue end
-
-			text = text .. " "
+			if (i < dimensionSize) then text = text .. " }" end
 
 		end
 
@@ -2261,10 +2257,8 @@ local function generateTensorWithCommaString(tensor, dimensionSizeArray, numberO
 
 			text = text .. generateTensorWithCommaString(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, textSpacingArray)
 
-			if (i == dimensionSize) then continue end
-
-			text = text .. "\n"
-
+			if (i < dimensionSize) then text = text .. "\n" end
+			
 		end
 
 		text = text .. " }"
@@ -2285,9 +2279,7 @@ local function generateTensorWithCommaString(tensor, dimensionSizeArray, numberO
 
 			text = text .. string.rep(" ", padding) .. cellText
 
-			if (i == dimensionSize) then continue end
-
-			text = text .. ", "
+			if (i < dimensionSize) then text = text .. ", " end
 
 		end
 
@@ -2329,9 +2321,7 @@ local function generatePortableTensorString(tensor, dimensionSizeArray, numberOf
 
 			text = text .. generatePortableTensorString(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, textSpacingArray)
 
-			if (i == dimensionSize) then continue end
-
-			text = text .. "\n"
+			if (i < dimensionSize) then text = text .. "\n" end
 
 		end
 
@@ -2355,9 +2345,7 @@ local function generatePortableTensorString(tensor, dimensionSizeArray, numberOf
 
 			text = text .. string.rep(" ", padding) .. cellText
 
-			if (i == dimensionSize) then continue end
-
-			text = text .. ", "
+			if (i < dimensionSize) then text = text .. ", " end
 
 		end
 
