@@ -2079,13 +2079,11 @@ local function recursiveSubTensorSumAlongFirstDimension(tensor, numberOfDimensio
 
 		copiedTargetDimensionIndexArray[1] = 1 -- The target dimension only have a size of 1 for summing.
 		
-		for i, subTensor in ipairs(tensor) do
+		for i, value in ipairs(tensor) do
 			
 			copiedTargetDimensionIndexArray[currentDimension] = i
 
 			local targetTensorValue = AqwamTensorLibrary:getValue(targetTensor, copiedTargetDimensionIndexArray)
-
-			local value = targetTensorValue + tensor[i]
 
 			AqwamTensorLibrary:setValue(targetTensor, value, copiedTargetDimensionIndexArray)
 			
