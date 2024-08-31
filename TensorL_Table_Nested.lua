@@ -3306,11 +3306,11 @@ function AqwamTensorLibrary:permute(tensor, targetDimensionArray)
 
 	end
 	
-	local targetDimensionSizeArray = {}
+	local permutedDimensionSizeArray = {}
 
-	for i, dimension in ipairs(targetDimensionArray) do targetDimensionSizeArray[i] = dimensionSizeArray[dimension] end
+	for i, dimension in ipairs(targetDimensionArray) do permutedDimensionSizeArray[i] = dimensionSizeArray[dimension] end
 
-	local permutedTensor = createTensor(targetDimensionSizeArray, true)
+	local permutedTensor = createTensor(permutedDimensionSizeArray, true)
 
 	permute(tensor, dimensionSizeArray, {}, permutedTensor, targetDimensionArray)
 
