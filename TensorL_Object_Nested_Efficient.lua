@@ -1408,8 +1408,8 @@ local function transpose(tensor, dimensionSizeArray, numberOfDimensions, current
 
 	else
 		
-		for i, value in ipairs(tensor) do
-
+		for i = 1, dimensionSizeArray[currentDimension], 1 do
+			
 			local targetDimensionIndexArray = table.clone(currentDimensionIndexArray)
 
 			table.insert(targetDimensionIndexArray, i)
@@ -1422,7 +1422,7 @@ local function transpose(tensor, dimensionSizeArray, numberOfDimensions, current
 
 			targetDimensionIndexArray[dimension2] = targetDimensionIndex1
 
-			setValue(targetTensor, targetTensorDimensionSizeArray, tensor, targetDimensionIndexArray)
+			setValue(targetTensor, targetTensorDimensionSizeArray, tensor[i], targetDimensionIndexArray)
 			
 		end
 
@@ -3015,19 +3015,19 @@ local function permute(tensor, dimensionSizeArray, numberOfDimensions, currentDi
 		end
 
 	else
-
-		for i, value in ipairs(tensor) do
-
+		
+		for i = 1, dimensionSizeArray[currentDimension], 1 do
+			
 			local currentDimensionIndexArray = table.clone(currentDimensionIndexArray)
 
 			table.insert(currentDimensionIndexArray, i)
 
 			local targetDimensionIndexArray = {}
 
-			for i, dimension in ipairs(dimensionArray) do targetDimensionIndexArray[i] = currentDimensionIndexArray[dimension] end
+			for j = 1, numberOfDimensions, 1 do targetDimensionIndexArray[j] = currentDimensionIndexArray[dimensionArray[j]] end
 
-			setValue(targetTensor, targetDimensionSizeArray, numberOfDimensions, 1, value, targetDimensionIndexArray)
-
+			setValue(targetTensor, targetDimensionSizeArray, numberOfDimensions, 1, tensor[i], targetDimensionIndexArray)
+			
 		end
 
 	end	
