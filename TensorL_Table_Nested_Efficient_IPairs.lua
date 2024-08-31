@@ -2722,47 +2722,19 @@ local function extract(tensor, dimensionSizeArray, numberOfDimensions, currentDi
 
 	local targetDimensionIndex = targetDimensionIndexArray[currentDimension]
 
-	if (currentDimension < numberOfDimensions) and (originDimensionIndex <= targetDimensionIndex) then
+	if (currentDimension < numberOfDimensions) then
 
-		for i = originDimensionIndex, targetDimensionIndex, 1 do 
-
-			local extractedSubTensor = extract(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, originDimensionIndexArray, targetDimensionIndexArray) 
-
-			table.insert(extractedTensor, extractedSubTensor)
-
-		end
-
-	elseif (currentDimension < numberOfDimensions) and (originDimensionIndex > targetDimensionIndex) then
-
-		for i = targetDimensionIndex, #tensor, 1 do 
+		for i = originDimensionIndex, targetDimensionIndex do 
 
 			local extractedSubTensor = extract(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, originDimensionIndexArray, targetDimensionIndexArray) 
 
 			table.insert(extractedTensor, extractedSubTensor)
 
 		end
-
-		for i = 1, originDimensionIndex, 1 do 
-
-			local extractedSubTensor = extract(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, originDimensionIndexArray, targetDimensionIndexArray) 
-
-			table.insert(extractedTensor, extractedSubTensor)
-
-		end
-
-	elseif (currentDimension == numberOfDimensions) and (originDimensionIndex <= targetDimensionIndex) then
-
-		for i = originDimensionIndex, targetDimensionIndex, 1 do table.insert(extractedTensor, tensor[i]) end
-
-	elseif (currentDimension == numberOfDimensions) and (originDimensionIndex > targetDimensionIndex) then
-
-		for i = targetDimensionIndex, #tensor, 1 do table.insert(extractedTensor, tensor[i]) end
-
-		for i = 1, originDimensionIndex, 1 do table.insert(extractedTensor, tensor[i]) end
 
 	else
 
-		error("An unknown error has occured while extracting the tensor.")
+		for i = originDimensionIndex, targetDimensionIndex do table.insert(extractedTensor, tensor[i]) end
 
 	end
 
