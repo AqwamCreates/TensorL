@@ -1780,7 +1780,7 @@ end
 
 function AqwamTensorLibrary:extract(originDimensionIndexArray, targetDimensionIndexArray)
 
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(self)
+	local dimensionSizeArray = self:getDimensionSizeArray()
 
 	local numberOfDimensions = #dimensionSizeArray
 
