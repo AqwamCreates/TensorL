@@ -1582,8 +1582,6 @@ function AqwamTensorLibrary:transpose(tensor, dimensionArray)
 
 	if (dimension1 == dimension2) then error("The first dimension is equal to the second dimension.") end
 
-	
-
 	local transposedDimensionSizeArray = table.clone(dimensionSizeArray)
 
 	local dimensionSize1 = dimensionSizeArray[dimension1]
