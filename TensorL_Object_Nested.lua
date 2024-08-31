@@ -1040,13 +1040,26 @@ function AqwamTensorLibrary.createIdentityTensor(dimensionSizeArray)
 
 	local resultTensor = createTensor(truncatedDimensionSizeArray, 0)
 	
-	for i, dimensionSize in ipairs(truncatedDimensionSizeArray) do
+	for i = 1, truncatedNumberOfDimensions, 1 do
 
-		if (dimensionSize >= i) then
+		local canSetValueToOne = true
+
+		for _, dimensionSize in ipairs(truncatedDimensionSizeArray) do
+
+			if (dimensionSize < i) then
+
+				canSetValueToOne = false
+				break
+
+			end
+
+		end
+
+		if (canSetValueToOne) then
 
 			local dimensionIndexArray = table.create(truncatedNumberOfDimensions, i)
 
-			setValue(resultTensor, truncatedNumberOfDimensions, 1, dimensionIndexArray)
+			AqwamTensorLibrary:setValue(resultTensor, 1, dimensionIndexArray)
 
 		end
 
@@ -1469,7 +1482,7 @@ function AqwamTensorLibrary:hardcodedTranspose(dimensionArray)
 
 end
 
-local function transpose(tensor, dimensionSizeArray, currentDimensionIndexArray, targetTensor, targetTensorDimensionSizeArray, dimension1, dimension2)
+local function transpose(tensor, dimensionSizeArray, dimensionIndexArray, targetTensor, targetTensorDimensionSizeArray, dimension1, dimension2)
 
 	if (#dimensionSizeArray >= 1) then
 
@@ -1477,7 +1490,7 @@ local function transpose(tensor, dimensionSizeArray, currentDimensionIndexArray,
 
 		for i = 1, dimensionSizeArray[1], 1 do
 
-			local copiedCurrentDimensionIndexArray = table.clone(currentDimensionIndexArray)
+			local copiedCurrentDimensionIndexArray = table.clone(dimensionIndexArray)
 
 			table.insert(copiedCurrentDimensionIndexArray, i)
 
@@ -1487,15 +1500,15 @@ local function transpose(tensor, dimensionSizeArray, currentDimensionIndexArray,
 
 	else
 
-		local currentDimensionIndex1 = currentDimensionIndexArray[dimension1]
+		local currentDimensionIndex1 = dimensionIndexArray[dimension1]
 
-		local currentDimensionIndex2 = currentDimensionIndexArray[dimension2]
+		local currentDimensionIndex2 = dimensionIndexArray[dimension2]
 
-		currentDimensionIndexArray[dimension1] = currentDimensionIndex2
+		dimensionIndexArray[dimension1] = currentDimensionIndex2
 
-		currentDimensionIndexArray[dimension2] = currentDimensionIndex1
+		dimensionIndexArray[dimension2] = currentDimensionIndex1
 
-		setValue(targetTensor, targetTensorDimensionSizeArray, tensor, currentDimensionIndexArray)
+		setValue(targetTensor, targetTensorDimensionSizeArray, tensor, dimensionIndexArray)
 
 	end
 
