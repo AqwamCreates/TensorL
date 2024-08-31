@@ -3125,8 +3125,8 @@ local function permute(tensor, numberOfDimensions, currentDimension, currentDime
 			table.insert(currentDimensionIndexArray, i)
 
 			local targetDimensionIndexArray = {}
-
-			for j = 1, numberOfDimensions, 1 do targetDimensionIndexArray[j] = currentDimensionIndexArray[dimensionArray[j]] end
+			
+			for j, dimension in ipairs(dimensionArray) do targetDimensionIndexArray[j] = currentDimensionIndexArray[dimension] end
 
 			AqwamTensorLibrary:setValue(targetTensor, value, targetDimensionIndexArray)
 			
