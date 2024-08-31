@@ -1592,7 +1592,7 @@ function AqwamTensorLibrary:hardcodedTranspose(tensor, dimensionArray)
 
 end
 
-local function transpose(tensor, dimensionSizeArray, currentTargetDimensionIndexArray, targetTensor, dimension1, dimension2)
+local function transpose(tensor, dimensionSizeArray, currentDimensionIndexArray, targetTensor, dimension1, dimension2)
 
 	if (#dimensionSizeArray >= 1) then
 
@@ -1600,25 +1600,25 @@ local function transpose(tensor, dimensionSizeArray, currentTargetDimensionIndex
 
 		for i = 1, dimensionSizeArray[1], 1 do
 
-			local copiedCurrentTargetDimensionIndexArray = table.clone(currentTargetDimensionIndexArray)
+			local copiedCurrentDimensionIndexArray = table.clone(currentDimensionIndexArray)
 
-			table.insert(copiedCurrentTargetDimensionIndexArray, i)
+			table.insert(copiedCurrentDimensionIndexArray, i)
 
-			transpose(tensor[i], remainingDimensionSizeArray, copiedCurrentTargetDimensionIndexArray, targetTensor, dimension1, dimension2)
+			transpose(tensor[i], remainingDimensionSizeArray, copiedCurrentDimensionIndexArray, targetTensor, dimension1, dimension2)
 
 		end
 
 	else
 
-		local currentDimensionIndex1 = currentTargetDimensionIndexArray[dimension1]
+		local currentDimensionIndex1 = currentDimensionIndexArray[dimension1]
 
-		local currentDimensionIndex2 = currentTargetDimensionIndexArray[dimension2]
+		local currentDimensionIndex2 = currentDimensionIndexArray[dimension2]
 
-		currentTargetDimensionIndexArray[dimension1] = currentDimensionIndex2
+		currentDimensionIndexArray[dimension1] = currentDimensionIndex2
 
-		currentTargetDimensionIndexArray[dimension2] = currentDimensionIndex1
+		currentDimensionIndexArray[dimension2] = currentDimensionIndex1
 
-		AqwamTensorLibrary:setValue(targetTensor, tensor, currentTargetDimensionIndexArray)
+		AqwamTensorLibrary:setValue(targetTensor, tensor, currentDimensionIndexArray)
 
 	end	
 
@@ -3261,43 +3261,31 @@ local function permute(tensor, dimensionSizeArray, currentTargetDimensionIndexAr
 
 end
 
-function AqwamTensorLibrary:permute(tensor, dimensionArray)
-
-	local numberOfDimensions = AqwamTensorLibrary:getNumberOfDimensions(tensor)
-
-	if (numberOfDimensions == 0) then return tensor end
-
-	if (type(dimensionArray) ~= "table") then error("The dimension array must be an array.") end
-
-	if (#dimensionArray ~= 2) then error("Dimension array must contain 2 dimensions.") end
-
-	local dimension1 = dimensionArray[1]
-
-	local dimension2 = dimensionArray[2]
-
-	if (dimension1 <= 0) then error("The first dimension must be greater than zero.") end
-
-	if (dimension2 <= 0) then error("The second dimension must be greater than zero.") end
-
-	if (dimension1 > numberOfDimensions) then error("The first dimension exceeds the tensor's number of dimensions") end
-
-	if (dimension2 > numberOfDimensions) then error("The second dimension exceeds the tensor's number of dimensions") end
-
-	if (dimension1 == dimension2) then error("The first dimension is equal to the second dimension.") end
-
+function AqwamTensorLibrary:permute(tensor, targetDimensionArray)
+	
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
-	local transposedDimensionSizeArray = table.clone(dimensionSizeArray)
+	local numberOfDimensions = #dimensionSizeArray
 
-	local dimensionSize1 = dimensionSizeArray[dimension1]
+	if (numberOfDimensions ~= #targetDimensionArray) then error("The number of dimensions does not match.") end
 
-	local dimensionSize2 = dimensionSizeArray[dimension2]
+	local collectedTargetDimensionArray = {}
 
-	transposedDimensionSizeArray[dimension1] = dimensionSize2
+	for i, dimension in ipairs(targetDimensionArray) do
 
-	transposedDimensionSizeArray[dimension2] = dimensionSize1
+		if (dimension > numberOfDimensions) then error("Value of " .. dimension .. " in the target dimension array exceeds the number of dimensions.") end
 
-	local transposedTensor = AqwamTensorLibrary:createTensor(transposedDimensionSizeArray, true)
+		if (table.find(collectedTargetDimensionArray, dimension)) then error("Value of " .. dimension .. " in the target dimension array has been added more than once.") end
+
+		table.insert(collectedTargetDimensionArray, dimension)
+
+	end
+	
+	local targetDimensionSizeArray = {}
+
+	for i, dimension in ipairs(targetDimensionArray) do targetDimensionSizeArray[i] = dimensionSizeArray[dimension] end
+
+	local transposedTensor = AqwamTensorLibrary:createTensor(targetDimensionSizeArray, true)
 
 	transpose(tensor, dimensionSizeArray, {}, transposedTensor, dimension1, dimension2)
 
