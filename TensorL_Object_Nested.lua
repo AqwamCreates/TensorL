@@ -1863,13 +1863,9 @@ local function extract(tensor, dimensionSizeArray, originDimensionIndexArray, ta
 
 		end
 
-	elseif (numberOfDimensions == 1) then
-
-		for i = originDimensionIndex, targetDimensionIndex do table.insert(extractedTensor, tensor[i]) end
-
 	else
 
-		error("An unknown error has occured while extracting the tensor.")
+		for i = originDimensionIndex, targetDimensionIndex do table.insert(extractedTensor, tensor[i]) end
 
 	end
 
