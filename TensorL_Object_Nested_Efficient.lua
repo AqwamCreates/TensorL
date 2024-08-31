@@ -1412,14 +1412,18 @@ local function transpose(tensor, dimensionSizeArray, numberOfDimensions, current
 end
 
 function AqwamTensorLibrary:transpose(dimensionArray)
+	
+	if (type(dimensionArray) ~= "table") then error("The dimension array must be an array.") end
 
 	if (#dimensionArray ~= 2) then error("Dimension array must contain 2 dimensions.") end
+	
+	local dimensionSizeArray = self:getDimensionSizeArray()
+
+	local numberOfDimensions = #dimensionSizeArray
 
 	local dimension1 = dimensionArray[1]
 
 	local dimension2 = dimensionArray[2]
-
-	local numberOfDimensions = self:getNumberOfDimensions()
 
 	if (dimension1 <= 0) then error("The first dimension must be greater than zero.") end
 
@@ -1430,8 +1434,6 @@ function AqwamTensorLibrary:transpose(dimensionArray)
 	if (dimension2 > numberOfDimensions) then error("The second dimension exceeds the tensor's number of dimensions") end
 
 	if (dimension1 == dimension2) then error("The first dimension is equal to the second dimension.") end
-
-	local dimensionSizeArray = self:getDimensionSizeArray()
 
 	local transposedDimensionSizeArray = table.clone(dimensionSizeArray)
 
