@@ -958,13 +958,26 @@ function AqwamTensorLibrary.createIdentityTensor(dimensionSizeArray)
 
 	local resultTensor = createTensor(truncatedDimensionSizeArray, truncatedNumberOfDimensions, 1, 0)
 	
-	for i, dimensionSize in ipairs(truncatedDimensionSizeArray) do
+	for i = 1, truncatedNumberOfDimensions, 1 do
 
-		if (dimensionSize >= i) then
+		local canSetValueToOne = true
+
+		for _, dimensionSize in ipairs(truncatedDimensionSizeArray) do
+
+			if (dimensionSize < i) then
+
+				canSetValueToOne = false
+				break
+
+			end
+
+		end
+
+		if (canSetValueToOne) then
 
 			local dimensionIndexArray = table.create(truncatedNumberOfDimensions, i)
 
-			setValue(resultTensor, truncatedDimensionSizeArray, truncatedNumberOfDimensions, 1, 1, dimensionIndexArray)
+			AqwamTensorLibrary:setValue(resultTensor, 1, dimensionIndexArray)
 
 		end
 
