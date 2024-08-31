@@ -840,13 +840,13 @@ local function expandNumberOfDimension(tensor, dimensionSizeToAddArray, numberOf
 
 		resultTensor = {}
 
-		for i = 1, dimensionSizeToAddArray[1], 1 do resultTensor[i] = expandNumberOfDimension(tensor, dimensionSizeToAddArray, numberOfDimensionsToAdd, currentDimension + 1) end
+		for i = 1, dimensionSizeToAddArray[currentDimension], 1 do resultTensor[i] = expandNumberOfDimension(tensor, dimensionSizeToAddArray, numberOfDimensionsToAdd, currentDimension + 1) end
 
 	elseif (currentDimension == numberOfDimensionsToAdd) then
 
 		resultTensor = {}
 
-		for i = 1, dimensionSizeToAddArray[1], 1 do resultTensor[i] = deepCopyTable(tensor) end
+		for i = 1, dimensionSizeToAddArray[currentDimension], 1 do resultTensor[i] = deepCopyTable(tensor) end
 
 	else
 
