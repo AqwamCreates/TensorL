@@ -1500,7 +1500,7 @@ local function transpose(tensor, dimensionSizeArray, currentDimensionIndexArray,
 
 	else
 		
-		for i, value in ipairs(tensor) do
+		for i = 1, dimensionSizeArray[1], 1 do
 			
 			local targetDimensionIndexArray = table.clone(currentDimensionIndexArray)
 
@@ -1514,7 +1514,7 @@ local function transpose(tensor, dimensionSizeArray, currentDimensionIndexArray,
 
 			targetDimensionIndexArray[dimension2] = targetDimensionIndex1
 
-			AqwamTensorLibrary:setValue(targetTensor, value, targetDimensionIndexArray)
+			AqwamTensorLibrary:setValue(targetTensor, tensor[i], targetDimensionIndexArray)
 			
 		end
 
@@ -3166,18 +3166,18 @@ local function permute(tensor, dimensionSizeArray, currentDimensionIndexArray, t
 
 	else
 		
-		for i, value in ipairs(tensor) do
-
+		for i = 1, dimensionSizeArray[1], 1 do
+			
 			local currentDimensionIndexArray = table.clone(currentDimensionIndexArray)
 
 			table.insert(currentDimensionIndexArray, i)
 
 			local targetDimensionIndexArray = {}
 
-			for i, dimension in ipairs(dimensionArray) do targetDimensionIndexArray[i] = currentDimensionIndexArray[dimension] end
+			for j, dimension in ipairs(dimensionArray) do targetDimensionIndexArray[j] = currentDimensionIndexArray[dimension] end
 
-			setValue(targetTensor, targetDimensionSizeArray, tensor, targetDimensionIndexArray)
-
+			setValue(targetTensor, targetDimensionSizeArray, tensor[i], targetDimensionIndexArray)
+			
 		end
 
 	end	
