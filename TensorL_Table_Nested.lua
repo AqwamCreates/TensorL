@@ -1673,7 +1673,7 @@ function AqwamTensorLibrary:transpose(tensor, dimensionArray)
 
 	transposedDimensionSizeArray[dimension2] = dimensionSize1
 
-	local transposedTensor = AqwamTensorLibrary:createTensor(transposedDimensionSizeArray, true)
+	local transposedTensor = createTensor(transposedDimensionSizeArray, true)
 
 	transpose(tensor, dimensionSizeArray, {}, transposedTensor, dimension1, dimension2)
 
@@ -2744,7 +2744,7 @@ function AqwamTensorLibrary:inefficientReshape(tensor, dimensionSizeArray) -- Th
 
 	if (numberOfDimensions ~= 1) then
 
-		resultTensor = AqwamTensorLibrary:createTensor(dimensionSizeArray, true)
+		resultTensor = createTensor(dimensionSizeArray, true)
 
 		local currentTargetDimensionIndexArray = table.create(#dimensionSizeArray, 1)
 
@@ -3294,7 +3294,7 @@ function AqwamTensorLibrary:permute(tensor, targetDimensionArray)
 
 	for i, dimension in ipairs(targetDimensionArray) do targetDimensionSizeArray[i] = dimensionSizeArray[dimension] end
 
-	local permutedTensor = AqwamTensorLibrary:createTensor(targetDimensionSizeArray, true)
+	local permutedTensor = createTensor(targetDimensionSizeArray, true)
 
 	permute(tensor, dimensionSizeArray, {}, permutedTensor, targetDimensionArray)
 
