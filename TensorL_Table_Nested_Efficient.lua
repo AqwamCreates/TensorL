@@ -2,7 +2,7 @@
 
 	--------------------------------------------------------------------
 
-	Version 0.7.0
+	Version 0.8.0
 
 	Aqwam's Tensor Library (TensorL)
 
@@ -1528,21 +1528,21 @@ function AqwamTensorLibrary:hardcodedTranspose(tensor, dimensionArray)
 
 end
 
-local function transpose(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, currentTargetDimensionIndexArray, targetTensor, dimension1, dimension2)
+local function transpose(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, currentDimensionIndexArray, targetTensor, dimension1, dimension2)
 
 	if (currentDimension <= numberOfDimensions) then
 
 		for i = 1, dimensionSizeArray[currentDimension], 1 do
 
-			currentTargetDimensionIndexArray[currentDimension] = i
+			currentDimensionIndexArray[currentDimension] = i
 
-			transpose(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, currentTargetDimensionIndexArray, targetTensor, dimension1, dimension2)
+			transpose(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, currentDimensionIndexArray, targetTensor, dimension1, dimension2)
 
 		end
 
 	else
 
-		local targetDimensionIndexArray = table.clone(currentTargetDimensionIndexArray)
+		local targetDimensionIndexArray = table.clone(currentDimensionIndexArray)
 
 		local currentDimensionIndex1 = targetDimensionIndexArray[dimension1]
 
