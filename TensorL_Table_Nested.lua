@@ -528,9 +528,7 @@ local function generateTensorString(tensor, dimensionSizeArray, textSpacingArray
 
 			text = text .. generateTensorString(tensor[i], remainingDimensionSizeArray, textSpacingArray, dimensionDepth + 1)
 
-			if (i == dimensionSize) then continue end
-
-			text = text .. "\n"
+			if (i < dimensionSize) then text = text .. "\n" end
 
 		end
 
@@ -552,9 +550,7 @@ local function generateTensorString(tensor, dimensionSizeArray, textSpacingArray
 
 			text = text .. string.rep(" ", padding) .. cellText
 
-			if (i == dimensionSize) then continue end
-
-			text = text .. " "
+			if (i < dimensionSize) then text = text .. " " end
 
 		end
 
@@ -598,9 +594,7 @@ local function generateTensorWithCommaString(tensor, dimensionSizeArray, textSpa
 
 			text = text .. generateTensorWithCommaString(tensor[i], remainingDimensionSizeArray, textSpacingArray, dimensionDepth + 1)
 
-			if (i == dimensionSize) then continue end
-
-			text = text .. "\n"
+			if (i < dimensionSize) then text = text .. "\n" end
 
 		end
 
@@ -622,9 +616,7 @@ local function generateTensorWithCommaString(tensor, dimensionSizeArray, textSpa
 
 			text = text .. string.rep(" ", padding) .. cellText
 
-			if (i == dimensionSize) then continue end
-
-			text = text .. ", "
+			if (i < dimensionSize) then text = text .. ", " end
 
 		end
 
@@ -668,9 +660,7 @@ local function generatePortableTensorString(tensor, dimensionSizeArray, textSpac
 
 			text = text .. generatePortableTensorString(tensor[i], remainingDimensionSizeArray, textSpacingArray, dimensionDepth + 1)
 
-			if (i == dimensionSize) then continue end
-
-			text = text .. "\n"
+			if (i < dimensionSize) then text = text .. "\n" end
 
 		end
 
@@ -694,9 +684,7 @@ local function generatePortableTensorString(tensor, dimensionSizeArray, textSpac
 
 			text = text .. string.rep(" ", padding) .. cellText
 
-			if (i == dimensionSize) then continue end
-
-			text = text .. ", "
+			if (i < dimensionSize) then text = text .. ", " end
 
 		end
 
