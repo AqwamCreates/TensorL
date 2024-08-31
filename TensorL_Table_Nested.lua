@@ -3250,11 +3250,11 @@ local function permute(tensor, dimensionSizeArray, currentDimensionIndexArray, t
 
 		for i = 1, dimensionSizeArray[1], 1 do
 
-			local copiedCurrentTargetDimensionIndexArray = table.clone(currentDimensionIndexArray)
+			local copiedCurrentDimensionIndexArray = table.clone(currentDimensionIndexArray)
 
-			table.insert(copiedCurrentTargetDimensionIndexArray, i)
+			table.insert(copiedCurrentDimensionIndexArray, i)
 
-			permute(tensor[i], remainingDimensionSizeArray, copiedCurrentTargetDimensionIndexArray, targetTensor, targetDimensionArray)
+			permute(tensor[i], remainingDimensionSizeArray, copiedCurrentDimensionIndexArray, targetTensor, targetDimensionArray)
 
 		end
 
