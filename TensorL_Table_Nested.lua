@@ -3038,7 +3038,7 @@ function AqwamTensorLibrary:isSameTensor(tensor1, tensor2)
 
 	local booleanTensor = AqwamTensorLibrary:isEqualTo(tensor1, tensor2)
 
-	return containNoFalseBooleanInTensor(booleanTensor)
+	return containNoFalseBooleanInTensor(booleanTensor, tensor1DimensionSizeArray)
 
 end
 
