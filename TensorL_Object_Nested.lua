@@ -1514,7 +1514,7 @@ local function transpose(tensor, dimensionSizeArray, currentDimensionIndexArray,
 
 			targetDimensionIndexArray[dimension2] = targetDimensionIndex1
 
-			AqwamTensorLibrary:setValue(targetTensor, tensor[i], targetDimensionIndexArray)
+			setValue(targetTensor, targetTensorDimensionSizeArray, tensor[i], targetDimensionIndexArray)
 			
 		end
 
