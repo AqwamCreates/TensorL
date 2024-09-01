@@ -176,7 +176,7 @@ local function expandDimensionSize(tensor, dimensionSizeArray, numberOfDimension
 
 	local dimensionSize = #resultTensor -- Need to call this again because we may have modified the tensor below it that leads to the change of the dimension size array.
 
-	local targetDimensionSize = targetDimensionSizeArray[1]
+	local targetDimensionSize = targetDimensionSizeArray[currentDimension]
 
 	local hasSameDimensionSize = (dimensionSize == targetDimensionSize)
 
@@ -276,7 +276,7 @@ function AqwamTensorLibrary:expandDimensionSize(targetDimensionSizeArray)
 
 	if checkIfDimensionIndexArraysAreEqual(dimensionSizeArray, targetDimensionSizeArray) then return deepCopyTable(self) end -- Do not remove this code even if the code below is related or function similar to this code. You will spend so much time fixing it if you forget that you have removed it.
 
-	local resultTensor = expandDimensionSize(self.tensor, dimensionSizeArray, targetDimensionSizeArray) -- This function contains a deepCopyTable function(), which will deep copy the tensor object as opposed to tensor value if .tensor is not used instead.
+	local resultTensor = expandDimensionSize(self.tensor, dimensionSizeArray, #dimensionSizeArray, 1, targetDimensionSizeArray) -- This function contains a deepCopyTable function(), which will deep copy the tensor object as opposed to tensor value if .tensor is not used instead.
 
 	return AqwamTensorLibrary.new(resultTensor)
 
@@ -310,7 +310,7 @@ end
 
 function AqwamTensorLibrary:expandNumberOfDimension(dimensionSizeToAddArray)
 
-	local resultTensor = expandNumberOfDimension(self.tensor, dimensionSizeToAddArray) -- This function contains a deepCopyTable function(), which will deep copy the tensor object as opposed to tensor value if .tensor is not used instead.
+	local resultTensor = expandNumberOfDimension(self.tensor, dimensionSizeToAddArray, #dimensionSizeToAddArray, 1) -- This function contains a deepCopyTable function(), which will deep copy the tensor object as opposed to tensor value if .tensor is not used instead.
 
 	return AqwamTensorLibrary.new(resultTensor)
 
@@ -661,6 +661,8 @@ local function recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArr
 		local copiedTargetDimensionIndexArray = table.clone(targetDimensionIndexArray)
 
 		copiedTargetDimensionIndexArray[1] = 1 -- The target dimension only have a size of 1 for summing.
+		
+		print(tensor)
 
 		for i = 1, dimensionSizeArray[currentDimension], 1 do
 
@@ -698,7 +700,7 @@ local function sumAlongOneDimension(tensor, dimensionSizeArray, subDimensionSize
 
 	if (currentDimension == targetDimension) then
 
-		resultTensor = subTensorSumAlongFirstDimension(tensor, dimensionSizeArray) -- This is needed to ensure that the number of dimensions stays the same.
+		resultTensor = subTensorSumAlongFirstDimension(tensor, subDimensionSizeArray) -- This is needed to ensure that the number of dimensions stays the same.
 
 	else
 		
@@ -1426,7 +1428,7 @@ local function transpose(tensor, dimensionSizeArray, numberOfDimensions, current
 
 			targetDimensionIndexArray[dimension2] = targetDimensionIndex1
 
-			setValue(targetTensor, targetTensorDimensionSizeArray, tensor[i], targetDimensionIndexArray)
+			setValue(targetTensor, targetTensorDimensionSizeArray, #targetTensorDimensionSizeArray, 1, tensor[i], targetDimensionIndexArray)
 			
 		end
 
@@ -1468,7 +1470,7 @@ function AqwamTensorLibrary:transpose(dimensionArray)
 
 	transposedDimensionSizeArray[dimension2] = dimensionSize1
 
-	local transposedTensor = createTensor(transposedDimensionSizeArray, true)
+	local transposedTensor = createTensor(transposedDimensionSizeArray, #transposedDimensionSizeArray, 1, true)
 
 	transpose(self, dimensionSizeArray, numberOfDimensions, 1, {}, transposedTensor, transposedDimensionSizeArray, dimension1, dimension2)
 
@@ -2191,7 +2193,7 @@ local function generateTensorString(tensor, dimensionSizeArray, numberOfDimensio
 
 			text = text .. string.rep(" ", padding) .. cellText
 
-			if (i < dimensionSize) then text = text .. " }" end
+			if (i < dimensionSize) then text = text .. " " end
 
 		end
 
@@ -2546,7 +2548,7 @@ function AqwamTensorLibrary:reshape(dimensionSizeArray) -- This one requires low
 
 		flattenedTensor = {}
 
-		flattenTensor(self, dimensionSizeArray, numberOfDimensions, 1, flattenedTensor)
+		flattenTensor(self, tensorDimensionSizeArray, numberOfDimensions, 1, flattenedTensor)
 
 	else
 
