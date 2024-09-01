@@ -1485,6 +1485,7 @@ function AqwamTensorLibrary:__eq(other)
 	return containNoFalseBooleanInTensor(booleanTensor, tensorDimensionSizeArray, #tensorDimensionSizeArray, 1)
 
 end
+
 function AqwamTensorLibrary:isEqualTo(...)
 
 	local functionToApply = function(a, b) return (a == b) end
