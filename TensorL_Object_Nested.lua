@@ -170,9 +170,9 @@ function AqwamTensorLibrary:getDimensionSizeArray()
 
 end
 
-local function expandDimensionSize(tensor, dimensionSizeArray, targetDimensionSizeArray)
+local function expandDimensionSizes(tensor, dimensionSizeArray, targetDimensionSizeArray)
 
-	-- Does not do the same thing with inefficient expandDimensionSize function. This one expandDimensionSize at the lowest dimension first and then the parent dimension will make copy of this.
+	-- Does not do the same thing with inefficient expandDimensionSizes function. This one expandDimensionSizes at the lowest dimension first and then the parent dimension will make copy of this.
 
 	local resultTensor
 
@@ -186,7 +186,7 @@ local function expandDimensionSize(tensor, dimensionSizeArray, targetDimensionSi
 
 		local remainingTargetDimensionSizeArray = removeFirstValueFromArray(targetDimensionSizeArray)
 
-		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = expandDimensionSize(tensor[i], remainingDimensionSizeArray, remainingTargetDimensionSizeArray) end
+		for i = 1, dimensionSizeArray[1], 1 do resultTensor[i] = expandDimensionSizes(tensor[i], remainingDimensionSizeArray, remainingTargetDimensionSizeArray) end
 
 	else
 
@@ -290,19 +290,19 @@ local function onBroadcastError(dimensionSizeArray1, dimensionSizeArray2)
 
 end
 
-function AqwamTensorLibrary:expandDimensionSize(targetDimensionSizeArray)
+function AqwamTensorLibrary:expandDimensionSizes(targetDimensionSizeArray)
 
 	local dimensionSizeArray = self:getDimensionSizeArray()
 
 	if checkIfDimensionIndexArraysAreEqual(dimensionSizeArray, targetDimensionSizeArray) then return deepCopyTable(self) end -- Do not remove this code even if the code below is related or function similar to this code. You will spend so much time fixing it if you forget that you have removed it.
 
-	local resultTensor = expandDimensionSize(self.tensor, dimensionSizeArray, targetDimensionSizeArray) -- This function contains a deepCopyTable function(), which will deep copy the tensor object as opposed to tensor value if .tensor is not used instead.
+	local resultTensor = expandDimensionSizes(self.tensor, dimensionSizeArray, targetDimensionSizeArray) -- This function contains a deepCopyTable function(), which will deep copy the tensor object as opposed to tensor value if .tensor is not used instead.
 
 	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
-local function expandNumberOfDimension(tensor, dimensionSizeToAddArray)
+local function expandNumberOfDimensions(tensor, dimensionSizeToAddArray)
 
 	local resultTensor = {}
 
@@ -312,7 +312,7 @@ local function expandNumberOfDimension(tensor, dimensionSizeToAddArray)
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeToAddArray)
 
-		for i = 1, dimensionSizeToAddArray[1], 1 do resultTensor[i] = expandNumberOfDimension(tensor, remainingDimensionSizeArray) end
+		for i = 1, dimensionSizeToAddArray[1], 1 do resultTensor[i] = expandNumberOfDimensions(tensor, remainingDimensionSizeArray) end
 
 	elseif (numberOfDimensionsToAdd == 1) then
 
@@ -328,9 +328,9 @@ local function expandNumberOfDimension(tensor, dimensionSizeToAddArray)
 
 end
 
-function AqwamTensorLibrary:expandNumberOfDimension(dimensionSizeToAddArray)
+function AqwamTensorLibrary:expandNumberOfDimensions(dimensionSizeToAddArray)
 
-	local resultTensor = expandNumberOfDimension(self.tensor, dimensionSizeToAddArray) -- This function contains a deepCopyTable function(), which will deep copy the tensor object as opposed to tensor value if .tensor is not used instead.
+	local resultTensor = expandNumberOfDimensions(self.tensor, dimensionSizeToAddArray) -- This function contains a deepCopyTable function(), which will deep copy the tensor object as opposed to tensor value if .tensor is not used instead.
 
 	return AqwamTensorLibrary.new(resultTensor)
 
@@ -378,7 +378,7 @@ local function broadcast(tensor1, tensor2, deepCopyOriginalTensor)
 
 	local tensorNumberWithLowestNumberOfDimensions
 
-	if (numberOfDimensions1 == numberOfDimensions2) then -- Currently, if the number of dimensions have the same size, the tensor containing dimension with smaller axis will not expandDimensionSize. See case when tensor sizes are (5, 3, 6) and (5, 1, 6). So we need to be explicit in our dimensionSizeArrayWithHighestNumberOfDimensions variable.
+	if (numberOfDimensions1 == numberOfDimensions2) then -- Currently, if the number of dimensions have the same size, the tensor containing dimension with smaller axis will not expandDimensionSizes. See case when tensor sizes are (5, 3, 6) and (5, 1, 6). So we need to be explicit in our dimensionSizeArrayWithHighestNumberOfDimensions variable.
 
 		tensorNumberWithLowestNumberOfDimensions = getTheDimensionSizeArrayWithFewestNumberOfDimensionSizeOf1(dimensionSizeArray1, dimensionSizeArray2)
 
@@ -420,9 +420,9 @@ local function broadcast(tensor1, tensor2, deepCopyOriginalTensor)
 
 	for i = 1, numberOfDimensionDifferences, 1 do table.insert(dimensionSizeToAddArray, dimensionSizeArrayWithHighestNumberOfDimensions[i]) end -- Get the dimension sizes of the left part of dimension size array.
 
-	local expandedTensor = tensorWithLowestNumberOfDimensions:expandNumberOfDimension(dimensionSizeToAddArray)
+	local expandedTensor = tensorWithLowestNumberOfDimensions:expandNumberOfDimensions(dimensionSizeToAddArray)
 
-	expandedTensor = expandedTensor:expandDimensionSize(dimensionSizeArrayWithHighestNumberOfDimensions)
+	expandedTensor = expandedTensor:expandDimensionSizes(dimensionSizeArrayWithHighestNumberOfDimensions)
 
 	if (tensorNumberWithLowestNumberOfDimensions == 1) then
 
@@ -775,7 +775,7 @@ local function sumAlongOneDimension(tensor, dimensionSizeArray, targetDimension,
 		resultTensor = subTensorSumAlongFirstDimension(tensor, dimensionSizeArray) -- This is needed to ensure that the number of dimensions stays the same.
 
 	else
-		
+
 		resultTensor = {}
 
 		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
@@ -1035,11 +1035,11 @@ function AqwamTensorLibrary.createIdentityTensor(dimensionSizeArray)
 	local truncatedDimensionSizeArray, numberOfDimensionsOfSize1 = truncateDimensionSizeArrayIfRequired(dimensionSizeArray)
 
 	--local resultTensor = createIdentityTensor(truncatedDimensionSizeArray, {})
-	
+
 	local truncatedNumberOfDimensions = #truncatedDimensionSizeArray
 
 	local resultTensor = createTensor(truncatedDimensionSizeArray, 0)
-	
+
 	for i = 1, truncatedNumberOfDimensions, 1 do
 
 		local canSetValueToOne = true
@@ -1189,7 +1189,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 	local dimensionSizeToAddArray = table.create(offset, 1)
 
-	local expandedTensor = AqwamTensorLibrary:increaseNumberOfDimensions(tensor, dimensionSizeToAddArray)
+	local expandedTensor = AqwamTensorLibrary:expandNumberOfDimensions(tensor, dimensionSizeToAddArray)
 
 	local targetDimension1 = targetDimensionArray[1] + offset
 	local targetDimension2 = targetDimensionArray[2] + offset
@@ -1499,9 +1499,9 @@ local function transpose(tensor, dimensionSizeArray, currentDimensionIndexArray,
 		end
 
 	else
-		
+
 		for i = 1, dimensionSizeArray[1], 1 do
-			
+
 			local targetDimensionIndexArray = table.clone(currentDimensionIndexArray)
 
 			table.insert(targetDimensionIndexArray, i)
@@ -1515,7 +1515,7 @@ local function transpose(tensor, dimensionSizeArray, currentDimensionIndexArray,
 			targetDimensionIndexArray[dimension2] = targetDimensionIndex1
 
 			setValue(targetTensor, targetTensorDimensionSizeArray, tensor[i], targetDimensionIndexArray)
-			
+
 		end
 
 	end
@@ -1523,7 +1523,7 @@ local function transpose(tensor, dimensionSizeArray, currentDimensionIndexArray,
 end
 
 function AqwamTensorLibrary:transpose(dimensionArray)
-	
+
 	if (type(dimensionArray) ~= "table") then error("The dimension array must be an array.") end
 
 	if (#dimensionArray ~= 2) then error("Dimension array must contain 2 dimensions.") end
@@ -1531,7 +1531,7 @@ function AqwamTensorLibrary:transpose(dimensionArray)
 	local dimensionSizeArray = self:getDimensionSizeArray()
 
 	local numberOfDimensions = #dimensionSizeArray
-	
+
 	local dimension1 = dimensionArray[1]
 
 	local dimension2 = dimensionArray[2]
@@ -2285,7 +2285,7 @@ local function generateTensorString(tensor, dimensionSizeArray, textSpacingArray
 
 			if (i < dimensionSize) then text = text .. "\n" end
 
-			
+
 
 		end
 
@@ -3123,9 +3123,9 @@ local function permute(tensor, dimensionSizeArray, currentDimensionIndexArray, t
 		end
 
 	else
-		
+
 		for i = 1, dimensionSizeArray[1], 1 do
-			
+
 			local currentDimensionIndexArray = table.clone(currentDimensionIndexArray)
 
 			table.insert(currentDimensionIndexArray, i)
@@ -3135,7 +3135,7 @@ local function permute(tensor, dimensionSizeArray, currentDimensionIndexArray, t
 			for j, dimension in ipairs(dimensionArray) do targetDimensionIndexArray[j] = currentDimensionIndexArray[dimension] end
 
 			setValue(targetTensor, targetDimensionSizeArray, tensor[i], targetDimensionIndexArray)
-			
+
 		end
 
 	end	
@@ -3143,7 +3143,7 @@ local function permute(tensor, dimensionSizeArray, currentDimensionIndexArray, t
 end
 
 function AqwamTensorLibrary:permute(dimensionArray)
-	
+
 	if (type(dimensionArray) ~= "table") then error("The dimension array must be an array.") end
 
 	local dimensionSizeArray = self:getDimensionSizeArray()
