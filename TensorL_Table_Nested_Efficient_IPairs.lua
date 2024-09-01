@@ -394,11 +394,11 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 	if (numberOfTensors == 1) then 
 
-		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-
 		if (type(tensor) == "table") then
+			
+			local numberOfDimensions = AqwamTensorLibrary:getNumberOfDimensions(tensor)
 
-			return applyFunctionUsingOneTensor(functionToApply, tensor, dimensionSizeArray, #dimensionSizeArray, 1)
+			return applyFunctionUsingOneTensor(functionToApply, tensor, numberOfDimensions, 1)
 
 		else
 
