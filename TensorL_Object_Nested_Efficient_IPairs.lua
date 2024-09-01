@@ -122,7 +122,7 @@ end
 
 local function getNumberOfDimensions(tensor)
 
-	if (typeof(tensor) ~= "table") then return 0 end
+	if (type(tensor) ~= "table") then return 0 end
 
 	return getNumberOfDimensions(tensor[1]) + 1
 
@@ -2680,18 +2680,18 @@ function AqwamTensorLibrary:zScoreNormalization(dimension)
 
 end
 
-local function findMaximumValue(tensor, dimensionSizeArray, numberOfDimensions, currentDimension)
+local function findMaximumValue(tensor, numberOfDimensions, currentDimension)
 
 	local highestValue = -math.huge
 
 	if (currentDimension < numberOfDimensions) then
-
-		for i = 1, dimensionSizeArray[currentDimension], 1 do 
-
-			local value = AqwamTensorLibrary:findMaximumValue(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1) 
+		
+		for i, subTensor in ipairs(tensor) do
+			
+			local value = AqwamTensorLibrary:findMaximumValue(tensor[i], numberOfDimensions, currentDimension + 1) 
 
 			highestValue = math.max(highestValue, value)
-
+			
 		end
 
 	else
@@ -2706,9 +2706,9 @@ end
 
 function AqwamTensorLibrary:findMaximumValue()
 
-	local dimensionSizeArray = self:getDimensionSizeArray()
+	local numberOfDimensions = self:getNumberOfDimensions()
 
-	return findMaximumValue(self, dimensionSizeArray, #dimensionSizeArray, 1)
+	return findMaximumValue(self, numberOfDimensions, 1)
 
 end
 
@@ -2738,9 +2738,9 @@ end
 
 function AqwamTensorLibrary:findMinimumValue()
 
-	local dimensionSizeArray = self:getDimensionSizeArray()
+	local numberOfDimensions = self:getNumberOfDimensions()
 
-	return findMinimumValue(self, dimensionSizeArray, #dimensionSizeArray, 1)
+	return findMinimumValue(self, numberOfDimensions, 1)
 
 end
 
@@ -2794,9 +2794,9 @@ end
 
 function AqwamTensorLibrary:findMaximumValueDimensionIndexArray()
 
-	local dimensionSizeArray = self:getDimensionSizeArray()
+	local numberOfDimensions = self:getNumberOfDimensions()
 
-	return findMaximumValueDimensionIndexArray(self, dimensionSizeArray, #dimensionSizeArray, 1, {})
+	return findMaximumValueDimensionIndexArray(self, numberOfDimensions, 1, {})
 
 end
 
@@ -2850,9 +2850,9 @@ end
 
 function AqwamTensorLibrary:findMinimumValueDimensionIndexArray()
 
-	local dimensionSizeArray = self:getDimensionSizeArray()
+	local numberOfDimensions = self:getNumberOfDimensions()
 
-	return findMinimumValueDimensionIndexArray(self, dimensionSizeArray, #dimensionSizeArray, 1, {})
+	return findMinimumValueDimensionIndexArray(self, numberOfDimensions, 1, {})
 
 end
 
