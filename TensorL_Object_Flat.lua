@@ -633,7 +633,7 @@ function AqwamTensorLibrary:expandDimensionSizes(targetDimensionSizeArray)
 
 end
 
-function AqwamTensorLibrary:expandNumberOfDimension(dimensionSizeToAddArray)
+function AqwamTensorLibrary:expandNumberOfDimensions(dimensionSizeToAddArray)
 
 	local currentData = self.data
 
