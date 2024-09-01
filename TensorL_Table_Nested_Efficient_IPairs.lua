@@ -2890,29 +2890,27 @@ function AqwamTensorLibrary:power(...)
 
 end
 
-local function containNoFalseBooleanInTensor(booleanTensor, dimensionSizeArray, numberOfDimensions, currentDimension)
-
-	local numberOfValues = dimensionSizeArray[1]
-
-	local containNoFalseBoolean = true
-
-	if (#dimensionSizeArray > 1) then
-
-		for i = 1, numberOfValues, 1 do containNoFalseBoolean = containNoFalseBooleanInTensor(booleanTensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1) end
+local function containNoFalseBooleanInTensor(booleanTensor, numberOfDimensions, currentDimension)
+	
+	if (currentDimension < numberOfDimensions) then
+		
+		for i, subTensor in ipairs(booleanTensor) do
+			
+			if (not containNoFalseBooleanInTensor(subTensor, numberOfDimensions, currentDimension + 1)) then return false end
+			
+		end
 
 	else
-
-		for i = 1, numberOfValues, 1 do 
-
-			containNoFalseBoolean = (containNoFalseBoolean == booleanTensor[i])
-
-			if (not containNoFalseBoolean) then return false end
-
+		
+		for i, value in ipairs(booleanTensor) do
+			
+			if (not value) then return false end
+			
 		end
 
 	end
 
-	return containNoFalseBoolean
+	return true
 
 end
 
@@ -2920,9 +2918,9 @@ function AqwamTensorLibrary:isSameTensor(tensor1, tensor2)
 
 	local booleanTensor = AqwamTensorLibrary:isEqualTo(tensor1, tensor2)
 
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(booleanTensor)
+	local numberOfDimensions = AqwamTensorLibrary:getNumberOfDimensions(booleanTensor)
 
-	return containNoFalseBooleanInTensor(booleanTensor, dimensionSizeArray, #dimensionSizeArray, 1)
+	return containNoFalseBooleanInTensor(booleanTensor, numberOfDimensions, 1)
 
 end
 
