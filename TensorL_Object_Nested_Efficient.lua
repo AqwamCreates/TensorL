@@ -540,7 +540,7 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 		if (type(tensor) == "table") then
 
-			return applyFunctionUsingOneTensor(functionToApply, tensor, dimensionSizeArray)
+			return applyFunctionUsingOneTensor(functionToApply, tensor, dimensionSizeArray, 1)
 
 		else
 
