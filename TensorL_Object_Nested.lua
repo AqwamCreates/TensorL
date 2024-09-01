@@ -3014,25 +3014,27 @@ end
 
 local function containNoFalseBooleanInTensor(booleanTensor, dimensionSizeArray)
 
-	local containNoFalseBoolean = true
-
 	if (#dimensionSizeArray > 1) then
 
-		for i = 1, dimensionSizeArray[1], 1 do containNoFalseBoolean = containNoFalseBooleanInTensor(booleanTensor[i]) end
+		for i = 1, dimensionSizeArray[1], 1 do 
+
+			local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+			if (not containNoFalseBooleanInTensor(booleanTensor[i], remainingDimensionSizeArray)) then return false end
+
+		end
 
 	else
 
 		for i = 1, dimensionSizeArray[1], 1 do 
 
-			containNoFalseBoolean = (containNoFalseBoolean == booleanTensor[i])
-
-			if (not containNoFalseBoolean) then return false end
+			if (not booleanTensor[i]) then return false end
 
 		end
 
 	end
 
-	return containNoFalseBoolean
+	return true
 
 end
 
