@@ -2915,6 +2915,12 @@ local function containNoFalseBooleanInTensor(booleanTensor, numberOfDimensions, 
 end
 
 function AqwamTensorLibrary:isSameTensor(tensor1, tensor2)
+	
+	local tensor1DimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor1)
+	
+	local tensor2DimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor2)
+	
+	if (not checkIfDimensionIndexArraysAreEqual(tensor1DimensionSizeArray, tensor2DimensionSizeArray)) then return false end
 
 	local booleanTensor = AqwamTensorLibrary:isEqualTo(tensor1, tensor2)
 
@@ -2924,33 +2930,33 @@ function AqwamTensorLibrary:isSameTensor(tensor1, tensor2)
 
 end
 
-function AqwamTensorLibrary:isEqualTo(tensor1, tensor2)
+function AqwamTensorLibrary:isEqualTo(...)
 
-	return applyFunctionUsingTwoTensors(function(a, b) return (a == b) end, tensor1, tensor2)
-
-end
-
-function AqwamTensorLibrary:isGreaterThan(tensor1, tensor2)
-
-	return applyFunctionUsingTwoTensors(function(a, b) return (a > b) end, tensor1, tensor2)
+	return applyFunctionOnMultipleTensors(function(a, b) return (a == b) end, ...)
 
 end
 
-function AqwamTensorLibrary:isGreaterOrEqualTo(tensor1, tensor2)
+function AqwamTensorLibrary:isGreaterThan(...)
 
-	return applyFunctionUsingTwoTensors(function(a, b) return (a >= b) end, tensor1, tensor2)
-
-end
-
-function AqwamTensorLibrary:isLessThan(tensor1, tensor2)
-
-	return applyFunctionUsingTwoTensors(function(a, b) return (a < b) end, tensor1, tensor2)
+	return applyFunctionOnMultipleTensors(function(a, b) return (a > b) end, ...)
 
 end
 
-function AqwamTensorLibrary:isLessOrEqualTo(tensor1, tensor2)
+function AqwamTensorLibrary:isGreaterOrEqualTo(...)
 
-	return applyFunctionUsingTwoTensors(function(a, b) return (a <= b) end, tensor1, tensor2)
+	return applyFunctionOnMultipleTensors(function(a, b) return (a >= b) end, ...)
+
+end
+
+function AqwamTensorLibrary:isLessThan(...)
+
+	return applyFunctionOnMultipleTensors(function(a, b) return (a < b) end, ...)
+
+end
+
+function AqwamTensorLibrary:isLessOrEqualTo(...)
+
+	return applyFunctionOnMultipleTensors(function(a, b) return (a <= b) end, ...)
 
 end
 
