@@ -835,36 +835,6 @@ local function outerProduct(tensor1, tensor2)
 
 end
 
-local function eq(booleanTensor)
-
-	local dimensionArray = {}
-
-	getDimensionSizeArray(booleanTensor, dimensionArray)
-
-	local numberOfValues = dimensionArray[1]
-
-	local resultTensor = true
-
-	if (#dimensionArray > 1) then
-
-		for i = 1, numberOfValues do resultTensor = eq(booleanTensor[i]) end
-
-	else
-
-		for i = 1, numberOfValues do 
-
-			resultTensor = (resultTensor == booleanTensor[i])
-
-			if (resultTensor == false) then return false end
-
-		end
-
-	end
-
-	return resultTensor
-
-end
-
 function AqwamTensorLibrary.new(tensor)
 
 	local self = setmetatable({}, AqwamTensorLibrary)
@@ -1476,52 +1446,139 @@ function AqwamTensorLibrary:transpose(dimensionArray)
 
 end
 
+local function containNoFalseBooleanInTensor(booleanTensor, numberOfDimensions, currentDimension)
+
+	if (currentDimension < numberOfDimensions) then
+
+		for i, subTensor in ipairs(booleanTensor) do
+
+			if (not containNoFalseBooleanInTensor(subTensor, numberOfDimensions, currentDimension + 1)) then return false end
+
+		end
+
+	else
+
+		for i, value in ipairs(booleanTensor) do
+
+			if (not value) then return false end
+
+		end
+
+	end
+
+	return true
+
+end
 
 function AqwamTensorLibrary:__eq(other)
+	
+	local tensorDimensionSizeArray = self:getDimensionSizeArray()
 
-	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a == b) end, self, other)
+	local otherDimensionSizeArray = other:getDimensionSizeArray()
 
-	local isEqual = eq(resultTensor)
+	if (not checkIfDimensionIndexArraysAreEqual(tensorDimensionSizeArray, otherDimensionSizeArray)) then return false end
 
-	return isEqual
+	local booleanTensor = self:isEqualTo(other)
+
+	return containNoFalseBooleanInTensor(booleanTensor, #tensorDimensionSizeArray, 1)
 
 end
 
-function AqwamTensorLibrary:isEqualTo(other)
-
-	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a == b) end, self, other)
+function AqwamTensorLibrary:isEqualTo(...)
+	
+	local functionToApply = function(a, b) return (a == b) end
+	
+	local resultTensor
+	
+	if (self.tensor) then
+		
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, self, ...)
+		
+	else
+		
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, ...)
+		
+	end
 
 	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
-function AqwamTensorLibrary:isGreaterThan(other)
+function AqwamTensorLibrary:isGreaterThan(...)
 
-	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a > b) end, self, other)
+	local functionToApply = function(a, b) return (a > b) end
+
+	local resultTensor
+
+	if (self.tensor) then
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, self, ...)
+
+	else
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, ...)
+
+	end
+
+	return AqwamTensorLibrary.new(resultTensor)
+	
+end
+
+function AqwamTensorLibrary:isGreaterOrEqualTo(...)
+
+	local functionToApply = function(a, b) return (a >= b) end
+
+	local resultTensor
+
+	if (self.tensor) then
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, self, ...)
+
+	else
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, ...)
+
+	end
 
 	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
-function AqwamTensorLibrary:isGreaterOrEqualTo(other)
+function AqwamTensorLibrary:isLessThan(...)
+	
+	local functionToApply = function(a, b) return (a < b) end
+	
+	local resultTensor
 
-	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a >= b) end, self, other)
+	if (self.tensor) then
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, self, ...)
+
+	else
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, ...)
+
+	end
 
 	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
-function AqwamTensorLibrary:isLessThan(other)
+function AqwamTensorLibrary:isLessOrEqualTo(...)
 
-	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a < b) end, self, other)
+	local functionToApply = function(a, b) return (a <= b) end
 
-	return AqwamTensorLibrary.new(resultTensor)
+	local resultTensor
 
-end
+	if (self.tensor) then
 
-function AqwamTensorLibrary:isLessOrEqualTo(other)
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, self, ...)
 
-	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a <= b) end, self, other)
+	else
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, ...)
+
+	end
 
 	return AqwamTensorLibrary.new(resultTensor)
 
@@ -2448,26 +2505,20 @@ local function incrementDimensionIndexArray(dimensionIndexArray, dimensionSizeAr
 
 end
 
-local function reshape(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, targetTensor, targetDimensionSizeArray, currentTargetDimensionIndexArray)
-
-	local dimensionSize = dimensionSizeArray[currentDimension]
+local function reshape(tensor, numberOfDimensions, currentDimension, targetTensor, targetDimensionSizeArray, currentTargetDimensionIndexArray)
 
 	if (currentDimension < numberOfDimensions) then
-
-		for i = 1, dimensionSize, 1 do 
-
-			currentTargetDimensionIndexArray = reshape(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetTensor, targetDimensionSizeArray, currentTargetDimensionIndexArray) 
-
-		end
+		
+		for i, subTensor in ipairs(tensor) do currentTargetDimensionIndexArray = reshape(subTensor, numberOfDimensions, currentDimension + 1, targetTensor, targetDimensionSizeArray, currentTargetDimensionIndexArray) end
 
 	else
-
-		for i = 1, dimensionSize, 1 do 
-
-			AqwamTensorLibrary:setValue(targetTensor, tensor[i], currentTargetDimensionIndexArray)
+		
+		for i, value in ipairs(tensor) do
+			
+			AqwamTensorLibrary:setValue(targetTensor, value, currentTargetDimensionIndexArray)
 
 			currentTargetDimensionIndexArray = incrementDimensionIndexArray(currentTargetDimensionIndexArray, targetDimensionSizeArray)
-
+			
 		end
 
 	end
@@ -2496,7 +2547,7 @@ function AqwamTensorLibrary:inefficientReshape(dimensionSizeArray) -- This one r
 
 		local currentTargetDimensionIndexArray = table.create(#dimensionSizeArray, 1)
 
-		reshape(self, tensorDimensionSizeArray, #tensorDimensionSizeArray, 1, resultTensor, dimensionSizeArray, currentTargetDimensionIndexArray)
+		reshape(self, #tensorDimensionSizeArray, 1, resultTensor, dimensionSizeArray, currentTargetDimensionIndexArray)
 
 	else
 
@@ -2508,11 +2559,11 @@ function AqwamTensorLibrary:inefficientReshape(dimensionSizeArray) -- This one r
 
 end
 
-local function flattenTensor(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, targetTensor)
+local function flattenTensor(tensor, numberOfDimensions, currentDimension, targetTensor)
 
 	if (currentDimension < numberOfDimensions) then
-
-		for i = 1, dimensionSizeArray[currentDimension], 1 do flattenTensor(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetTensor) end
+		
+		for i, subTensor in ipairs(tensor) do flattenTensor(subTensor, numberOfDimensions, currentDimension + 1, targetTensor) end
 
 	else
 
@@ -2540,7 +2591,7 @@ function AqwamTensorLibrary:reshape(dimensionSizeArray) -- This one requires low
 
 		flattenedTensor = {}
 
-		flattenTensor(self, tensorDimensionSizeArray, numberOfDimensions, 1, flattenedTensor)
+		flattenTensor(self, numberOfDimensions, 1, flattenedTensor)
 
 	else
 
@@ -2588,7 +2639,7 @@ function AqwamTensorLibrary:truncate(numberOfDimensionsToTruncate)
 
 end
 
-local function squeeze(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, targetDimension)
+local function squeeze(tensor, numberOfDimensions, currentDimension, targetDimension)
 
 	local isAtTargetDimension = (currentDimension == targetDimension)
 
@@ -2600,13 +2651,13 @@ local function squeeze(tensor, dimensionSizeArray, numberOfDimensions, currentDi
 
 		resultTensor = {}
 
-		for i = 1, dimensionSizeArray[currentDimension + 1], 1 do resultTensor[i] = squeeze(tensor[1][i], dimensionSizeArray, numberOfDimensions, currentDimension + 2, targetDimension) end
+		for i, subSubTensor in ipairs(tensor[1]) do resultTensor[i] = squeeze(subSubTensor, numberOfDimensions, currentDimension + 2, targetDimension) end 
 
 	elseif (not isAtTargetDimension) and (isATensor) then
 
 		resultTensor = {}
 
-		for i = 1, dimensionSizeArray[currentDimension], 1 do resultTensor[i] = squeeze(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetDimension) end
+		for i, subTensor in ipairs(tensor) do resultTensor[i] = squeeze(subTensor, numberOfDimensions, currentDimension + 1, targetDimension) end
 
 	elseif (not isATensor) then
 
@@ -2630,7 +2681,7 @@ function AqwamTensorLibrary:squeeze(dimension)
 
 	if (dimensionSizeArray[dimension] ~= 1) then error("The dimension size at dimension " .. dimension .. " is not equal to 1.") end
 
-	local resultTensor = squeeze(self, dimensionSizeArray, #dimensionSizeArray, 1, dimension)
+	local resultTensor = squeeze(self, #dimensionSizeArray, 1, dimension)
 
 	return AqwamTensorLibrary.new(resultTensor)
 
@@ -2685,13 +2736,13 @@ local function findMaximumValue(tensor, numberOfDimensions, currentDimension)
 	local highestValue = -math.huge
 
 	if (currentDimension < numberOfDimensions) then
-		
+
 		for i, subTensor in ipairs(tensor) do
-			
-			local value = AqwamTensorLibrary:findMaximumValue(tensor[i], numberOfDimensions, currentDimension + 1) 
+
+			local value = AqwamTensorLibrary:findMaximumValue(subTensor, numberOfDimensions, currentDimension + 1) 
 
 			highestValue = math.max(highestValue, value)
-			
+
 		end
 
 	else
@@ -2712,15 +2763,15 @@ function AqwamTensorLibrary:findMaximumValue()
 
 end
 
-local function findMinimumValue(tensor, dimensionSizeArray, numberOfDimensions, currentDimension)
+local function findMinimumValue(tensor, numberOfDimensions, currentDimension)
 
 	local lowestValue = math.huge
 
 	if (currentDimension < numberOfDimensions) then
 
-		for i = 1, dimensionSizeArray[currentDimension], 1 do 
+		for i, subTensor in ipairs(tensor) do
 
-			local value = AqwamTensorLibrary:findMinimumValue(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1) 
+			local value = AqwamTensorLibrary:findMinimumValue(subTensor, numberOfDimensions, currentDimension + 1) 
 
 			lowestValue = math.min(lowestValue, value)
 
@@ -2744,7 +2795,7 @@ function AqwamTensorLibrary:findMinimumValue()
 
 end
 
-local function findMaximumValueDimensionIndexArray(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, dimensionIndexArray)
+local function findMaximumValueDimensionIndexArray(tensor, numberOfDimensions, currentDimension, dimensionIndexArray)
 
 	local highestValue = -math.huge
 
@@ -2752,11 +2803,11 @@ local function findMaximumValueDimensionIndexArray(tensor, dimensionSizeArray, n
 
 	if (currentDimension < numberOfDimensions) then
 
-		for i = 1, dimensionSizeArray[currentDimension], 1 do 
+		for i, subTensor in ipairs(tensor) do
 
 			dimensionIndexArray[currentDimension] = i
 
-			local subTensorHighestValueDimensionArray, value = findMaximumValueDimensionIndexArray(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, dimensionIndexArray)
+			local subTensorHighestValueDimensionArray, value = findMaximumValueDimensionIndexArray(subTensor, numberOfDimensions, currentDimension + 1, dimensionIndexArray)
 
 			if (value > highestValue) then
 
@@ -2770,9 +2821,7 @@ local function findMaximumValueDimensionIndexArray(tensor, dimensionSizeArray, n
 
 	else
 
-		for i = 1, dimensionSizeArray[currentDimension], 1 do
-
-			local value = tensor[i]
+		for i, value in ipairs(tensor) do
 
 			if (value > highestValue) then
 
@@ -2800,7 +2849,7 @@ function AqwamTensorLibrary:findMaximumValueDimensionIndexArray()
 
 end
 
-local function findMinimumValueDimensionIndexArray(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, dimensionIndexArray)
+local function findMinimumValueDimensionIndexArray(tensor, numberOfDimensions, currentDimension, dimensionIndexArray)
 
 	local lowestValue = math.huge
 
@@ -2808,11 +2857,11 @@ local function findMinimumValueDimensionIndexArray(tensor, dimensionSizeArray, n
 
 	if (currentDimension < numberOfDimensions) then
 
-		for i = 1, dimensionSizeArray[currentDimension], 1 do 
+		for i, subTensor in ipairs(tensor) do 
 
 			dimensionIndexArray[currentDimension] = i
 
-			local subTensorLowestValueDimensionArray, value = findMinimumValueDimensionIndexArray(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, dimensionIndexArray)
+			local subTensorLowestValueDimensionArray, value = findMinimumValueDimensionIndexArray(subTensor, numberOfDimensions, currentDimension + 1, dimensionIndexArray)
 
 			if (value < lowestValue) then
 
@@ -2826,9 +2875,7 @@ local function findMinimumValueDimensionIndexArray(tensor, dimensionSizeArray, n
 
 	else
 
-		for i = 1, dimensionSizeArray[currentDimension], 1 do
-
-			local value = tensor[i]
+		for i, value in ipairs(tensor) do
 
 			if (value < lowestValue) then
 
@@ -2864,39 +2911,17 @@ function AqwamTensorLibrary:destroy()
 
 end
 
-local function containNoFalseBooleanInTensor(booleanTensor, dimensionSizeArray, numberOfDimensions, currentDimension)
-
-	local numberOfValues = dimensionSizeArray[currentDimension]
-
-	if (#dimensionSizeArray > 1) then
-
-		for i = 1, numberOfValues, 1 do 
-
-			if (not containNoFalseBooleanInTensor(booleanTensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1)) then return false end
-
-		end
-
-	else
-
-		for i = 1, numberOfValues, 1 do 
-
-			if (not booleanTensor[i]) then return false end
-
-		end
-
-	end
-
-	return true
-
-end
-
 function AqwamTensorLibrary:isSameTensor(other)
+	
+	local tensorDimensionSizeArray = self:getDimensionSizeArray()
+
+	local otherDimensionSizeArray = other:getDimensionSizeArray()
+
+	if (not checkIfDimensionIndexArraysAreEqual(tensorDimensionSizeArray, otherDimensionSizeArray)) then return false end
 
 	local booleanTensor = self:isEqualTo(other)
 
-	local dimensionSizeArray = booleanTensor:getDimensionSizeArray()
-
-	return containNoFalseBooleanInTensor(booleanTensor, dimensionSizeArray, #dimensionSizeArray, 1)
+	return containNoFalseBooleanInTensor(booleanTensor, #tensorDimensionSizeArray, 1)
 
 end
 
