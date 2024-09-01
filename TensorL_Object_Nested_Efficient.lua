@@ -2872,7 +2872,7 @@ end
 
 local function containNoFalseBooleanInTensor(booleanTensor, dimensionSizeArray, numberOfDimensions, currentDimension)
 
-	local numberOfValues = dimensionSizeArray[1]
+	local numberOfValues = dimensionSizeArray[currentDimension]
 
 	local containNoFalseBoolean = true
 
