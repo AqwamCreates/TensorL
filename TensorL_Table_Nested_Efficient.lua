@@ -2928,9 +2928,7 @@ function AqwamTensorLibrary:isSameTensor(tensor1, tensor2)
 
 	local booleanTensor = AqwamTensorLibrary:isEqualTo(tensor1, tensor2)
 
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(booleanTensor)
-
-	return containNoFalseBooleanInTensor(booleanTensor, dimensionSizeArray, #dimensionSizeArray, 1)
+	return containNoFalseBooleanInTensor(booleanTensor, tensor1DimensionSizeArray, #tensor1DimensionSizeArray, 1)
 
 end
 
