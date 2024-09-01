@@ -2929,17 +2929,31 @@ function AqwamTensorLibrary:destroy()
 
 end
 
-function AqwamTensorLibrary:isSameTensor(other)
+function AqwamTensorLibrary:isSameTensor(...)
 	
-	local tensorDimensionSizeArray = self:getDimensionSizeArray()
+	local tensorArray = {...}
 
-	local otherDimensionSizeArray = other:getDimensionSizeArray()
+	if (self.tensor) then table.insert(tensorArray, 1, self) end
 
-	if (not checkIfDimensionIndexArraysAreEqual(tensorDimensionSizeArray, otherDimensionSizeArray)) then return false end
+	for i = 1, (#tensorArray - 1) do
 
-	local booleanTensor = self:isEqualTo(other)
+		local tensor1 = tensorArray[i]
 
-	return containNoFalseBooleanInTensor(booleanTensor, tensorDimensionSizeArray, #tensorDimensionSizeArray, 1)
+		local tensor2 = tensorArray[i + 1]
+
+		local tensor1DimensionSizeArray = tensor1:getDimensionSizeArray()
+
+		local tensor2DimensionSizeArray = tensor2:getDimensionSizeArray()
+
+		if (not checkIfDimensionIndexArraysAreEqual(tensor1DimensionSizeArray, tensor2DimensionSizeArray)) then return false end
+
+		local booleanTensor = tensor1:isEqualTo(tensor2)
+
+		if (not containNoFalseBooleanInTensor(booleanTensor, tensor1DimensionSizeArray, #tensor1DimensionSizeArray, 1)) then return false end
+
+	end
+
+	return true
 
 end
 
