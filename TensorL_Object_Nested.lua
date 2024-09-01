@@ -907,36 +907,6 @@ local function outerProduct(tensor1, tensor2)
 
 end
 
-local function eq(booleanTensor)
-
-	local dimensionArray = {}
-
-	getDimensionSizeArray(booleanTensor, dimensionArray)
-
-	local numberOfValues = dimensionArray[1]
-
-	local resultTensor = true
-
-	if (#dimensionArray > 1) then
-
-		for i = 1, numberOfValues do resultTensor = eq(booleanTensor[i]) end
-
-	else
-
-		for i = 1, numberOfValues do 
-
-			resultTensor = (resultTensor == booleanTensor[i])
-
-			if (resultTensor == false) then return false end
-
-		end
-
-	end
-
-	return resultTensor
-
-end
-
 function AqwamTensorLibrary.new(tensor)
 
 	local self = setmetatable({}, AqwamTensorLibrary)
@@ -1566,52 +1536,141 @@ function AqwamTensorLibrary:transpose(dimensionArray)
 
 end
 
+local function containNoFalseBooleanInTensor(booleanTensor, dimensionSizeArray)
+
+	if (#dimensionSizeArray > 1) then
+
+		for i = 1, dimensionSizeArray[1], 1 do 
+
+			local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+			if (not containNoFalseBooleanInTensor(booleanTensor[i], remainingDimensionSizeArray)) then return false end
+
+		end
+
+	else
+
+		for i = 1, dimensionSizeArray[1], 1 do 
+
+			if (not booleanTensor[i]) then return false end
+
+		end
+
+	end
+
+	return true
+
+end
 
 function AqwamTensorLibrary:__eq(other)
+	
+	local tensorDimensionSizeArray = self:getDimensionSizeArray()
 
-	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a == b) end, self, other)
+	local otherDimensionSizeArray = other:getDimensionSizeArray()
 
-	local isEqual = eq(resultTensor)
+	if (not checkIfDimensionIndexArraysAreEqual(tensorDimensionSizeArray, otherDimensionSizeArray)) then return false end
 
-	return isEqual
+	local booleanTensor = self:isEqualTo(other)
+
+	return containNoFalseBooleanInTensor(booleanTensor, tensorDimensionSizeArray)
 
 end
 
-function AqwamTensorLibrary:isEqualTo(other)
+function AqwamTensorLibrary:isEqualTo(...)
 
-	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a == b) end, self, other)
+	local functionToApply = function(a, b) return (a == b) end
+
+	local resultTensor
+
+	if (self.tensor) then
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, self, ...)
+
+	else
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, ...)
+
+	end
 
 	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
-function AqwamTensorLibrary:isGreaterThan(other)
+function AqwamTensorLibrary:isGreaterThan(...)
 
-	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a > b) end, self, other)
+	local functionToApply = function(a, b) return (a > b) end
 
-	return AqwamTensorLibrary.new(resultTensor)
+	local resultTensor
 
-end
+	if (self.tensor) then
 
-function AqwamTensorLibrary:isGreaterOrEqualTo(other)
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, self, ...)
 
-	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a >= b) end, self, other)
+	else
 
-	return AqwamTensorLibrary.new(resultTensor)
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, ...)
 
-end
-
-function AqwamTensorLibrary:isLessThan(other)
-
-	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a < b) end, self, other)
+	end
 
 	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
-function AqwamTensorLibrary:isLessOrEqualTo(other)
+function AqwamTensorLibrary:isGreaterOrEqualTo(...)
 
-	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a <= b) end, self, other)
+	local functionToApply = function(a, b) return (a >= b) end
+
+	local resultTensor
+
+	if (self.tensor) then
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, self, ...)
+
+	else
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, ...)
+
+	end
+
+	return AqwamTensorLibrary.new(resultTensor)
+
+end
+
+function AqwamTensorLibrary:isLessThan(...)
+
+	local functionToApply = function(a, b) return (a < b) end
+
+	local resultTensor
+
+	if (self.tensor) then
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, self, ...)
+
+	else
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, ...)
+
+	end
+
+	return AqwamTensorLibrary.new(resultTensor)
+
+end
+
+function AqwamTensorLibrary:isLessOrEqualTo(...)
+
+	local functionToApply = function(a, b) return (a <= b) end
+
+	local resultTensor
+
+	if (self.tensor) then
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, self, ...)
+
+	else
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, ...)
+
+	end
 
 	return AqwamTensorLibrary.new(resultTensor)
 
@@ -3012,37 +3071,17 @@ function AqwamTensorLibrary:destroy()
 
 end
 
-local function containNoFalseBooleanInTensor(booleanTensor, dimensionSizeArray)
-
-	if (#dimensionSizeArray > 1) then
-
-		for i = 1, dimensionSizeArray[1], 1 do 
-
-			local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-			if (not containNoFalseBooleanInTensor(booleanTensor[i], remainingDimensionSizeArray)) then return false end
-
-		end
-
-	else
-
-		for i = 1, dimensionSizeArray[1], 1 do 
-
-			if (not booleanTensor[i]) then return false end
-
-		end
-
-	end
-
-	return true
-
-end
-
 function AqwamTensorLibrary:isSameTensor(other)
 
-	local booleanTensor = self:isEqualTo(other)
+	local tensorDimensionSizeArray = self:getDimensionSizeArray()
 
-	return containNoFalseBooleanInTensor(booleanTensor)
+	local otherDimensionSizeArray = other:getDimensionSizeArray()
+
+	if (not checkIfDimensionIndexArraysAreEqual(tensorDimensionSizeArray, otherDimensionSizeArray)) then return false end
+
+	local booleanTensor = self:isEqualTo(other)
+	
+	return containNoFalseBooleanInTensor(booleanTensor, tensorDimensionSizeArray)
 
 end
 
