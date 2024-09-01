@@ -662,8 +662,6 @@ local function recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArr
 
 		copiedTargetDimensionIndexArray[1] = 1 -- The target dimension only have a size of 1 for summing.
 
-		print(tensor)
-
 		for i = 1, dimensionSizeArray[currentDimension], 1 do
 
 			copiedTargetDimensionIndexArray[currentDimension] = i
