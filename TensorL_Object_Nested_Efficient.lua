@@ -122,7 +122,7 @@ end
 
 local function getNumberOfDimensions(tensor)
 
-	if (typeof(tensor) ~= "table") then return 0 end
+	if (type(tensor) ~= "table") then return 0 end
 
 	return getNumberOfDimensions(tensor[1]) + 1
 
