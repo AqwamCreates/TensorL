@@ -816,7 +816,7 @@ function AqwamTensorLibrary:squeeze(tensor, dimension)
 
 	local dimensionIndexArrayToEndLoop = table.create(#dimensionSizeArray, 1)
 
-	local resultTensor = AqwamTensorLibrary:createTensor(resultDimensionSizeArray, true)
+	local resultTensor = createTensor(resultDimensionSizeArray, true)
 
 	repeat
 
@@ -1706,7 +1706,7 @@ local function sumAlongOneDimension(tensor, targetDimension)
 	
 	resultDimensionSizeArray[targetDimension] = 1
 
-	local resultTensor = AqwamTensorLibrary:createTensor(resultDimensionSizeArray, 0)
+	local resultTensor = createTensor(resultDimensionSizeArray, 0)
 	
 	local dimensionIndexArray = table.create(numberOfDimensions, 1)
 
