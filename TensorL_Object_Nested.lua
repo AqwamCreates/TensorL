@@ -1159,12 +1159,12 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 	local dimensionSizeToAddArray = table.create(offset, 1)
 
-	local expandedTensor = AqwamTensorLibrary:expandNumberOfDimensions(tensor, dimensionSizeToAddArray)
+	local expandedTensor = tensor:expandNumberOfDimensions(dimensionSizeToAddArray)
 
 	local targetDimension1 = targetDimensionArray[1] + offset
 	local targetDimension2 = targetDimensionArray[2] + offset
 
-	local expandedDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(expandedTensor)
+	local expandedDimensionSizeArray = expandedTensor:getDimensionSizeArray(expandedTensor)
 
 	targetDimensionArray = {targetDimension1, targetDimension2}
 
@@ -1418,7 +1418,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 	end
 
-	return AqwamTensorLibrary:truncate(resultTensor, offset)
+	return resultTensor:truncate(offset)
 
 end
 
