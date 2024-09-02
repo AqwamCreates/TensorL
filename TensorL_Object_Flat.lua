@@ -1436,7 +1436,7 @@ function AqwamTensorLibrary:sum(dimension)
 
 end
 
-local function dotProduct(tensor1, tensor2, index)
+local function dotProduct(tensor1, tensor2)
 
 	local dimensionSizeArray1 =  tensor1:getDimensionSizeArray()
 
@@ -1446,11 +1446,11 @@ local function dotProduct(tensor1, tensor2, index)
 
 	local numberOfDimensionsSubtractedByOne = numberOfDimensions - 1
 
-	if (dimensionSizeArray1[numberOfDimensions] ~= dimensionSizeArray2[numberOfDimensionsSubtractedByOne]) then error("Unable to perform the dot product. The size of second last dimension of tensor " .. (index - 1) .. " does not equal to the size of the last dimension of tensor " .. index .. ".") end
+	if (dimensionSizeArray1[numberOfDimensions] ~= dimensionSizeArray2[numberOfDimensionsSubtractedByOne]) then error("Unable to perform the dot product. The size of second last dimension of first tensor does not equal to the size of the last dimension of second tensor.") end
 
 	for i = 1, (numberOfDimensions - 2), 1  do
 
-		if (dimensionSizeArray1[i] ~= dimensionSizeArray2[i]) then error("Unable to perform the dot product. The size of dimension " .. i .. " of tensor " .. (index - 1) .. " does not equal to the size of dimension " .. i .. " of tensor " .. index .. ".") end
+		if (dimensionSizeArray1[i] ~= dimensionSizeArray2[i]) then error("Unable to perform the dot product. The size of dimension " .. i .. " of first tensor does not equal to the size of dimension " .. i .. " of second tensor.") end
 
 	end
 
@@ -1520,11 +1520,7 @@ function AqwamTensorLibrary:dotProduct(...)
 
 	local tensor = tensorArray[1]
 
-	for i = 2, #tensorArray, 1 do
-
-		tensor = dotProduct(tensor, tensorArray[i], i)
-
-	end
+	for i = 2, #tensorArray, 1 do tensor = dotProduct(tensor, tensorArray[i]) end
 
 	return tensor
 
