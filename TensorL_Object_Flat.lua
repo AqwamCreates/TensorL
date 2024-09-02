@@ -542,8 +542,10 @@ function AqwamTensorLibrary:expandDimensionSizes(targetDimensionSizeArray)
 	local currentDimensionSizeArray = self.dimensionSizeArray
 
 	local mode = self.mode
+	
+	local numberOfDimensions = #currentDimensionSizeArray
 
-	if (#currentDimensionSizeArray ~= #targetDimensionSizeArray) then error("The number of dimensions does not match.") end
+	if (numberOfDimensions ~= #targetDimensionSizeArray) then error("The number of dimensions does not match.") end
 
 	for i, size in ipairs(currentDimensionSizeArray) do
 
@@ -557,9 +559,9 @@ function AqwamTensorLibrary:expandDimensionSizes(targetDimensionSizeArray)
 
 	local oldSubTargetDimensionSizeArray = table.clone(currentDimensionSizeArray)
 
-	local currentDimensionIndexArray = table.create(#currentDimensionSizeArray, 1)
+	local currentDimensionIndexArray = table.create(numberOfDimensions, 1)
 
-	local dimensionIndexArrayToEndLoop = table.create(#currentDimensionSizeArray, 1)
+	local dimensionIndexArrayToEndLoop = table.create(numberOfDimensions, 1)
 
 	local getLinearIndex = getLinearIndexFunctionList[mode]
 
