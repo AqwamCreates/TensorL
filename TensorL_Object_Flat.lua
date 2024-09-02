@@ -1396,11 +1396,11 @@ function AqwamTensorLibrary:sum(dimension)
 
 	throwErrorIfDimensionIsOutOfBounds(dimension, 1, numberOfDimensions)
 
+	local mode = self.mode
+	
 	local targetDimensionSizeArray = table.clone(currentDimensionSizeArray)
 
 	targetDimensionSizeArray[dimension] = 1
-
-	local mode = self.mode
 
 	local getLinearIndex = getLinearIndexFunctionList[mode]
 
@@ -1440,13 +1440,53 @@ function AqwamTensorLibrary:squeeze(dimension)
 
 	if (type(dimension) ~= "number") then error("The dimension must be a number.") end
 
-	local dimensionSizeArray = self:getDimensionSizeArray()
+	local currentDimensionSizeArray = self.dimensionSizeArray
+	
+	local numberOfDimensions = #currentDimensionSizeArray
+	
+	throwErrorIfDimensionIsOutOfBounds(dimension, 1, numberOfDimensions)
 
-	if (dimensionSizeArray[dimension] ~= 1) then error("The dimension size at dimension " .. dimension .. " is not equal to 1.") end
+	if (currentDimensionSizeArray[dimension] ~= 1) then error("The dimension size at dimension " .. dimension .. " is not equal to 1.") end
 
-	local resultTensor = squeeze(self, dimensionSizeArray, dimension, 1)
+	local currentData = self.data
 
-	return AqwamTensorLibrary.new(resultTensor)
+	local mode = self.mode
+
+	local getLinearIndex = getLinearIndexFunctionList[mode]
+	
+	local targetDimensionSizeArray = table.clone(currentDimensionSizeArray)
+
+	table.remove(targetDimensionSizeArray, dimension)
+
+	local currentDimensionIndexArray = table.create(numberOfDimensions, 1)
+
+	local dimensionIndexArrayToEndLoop = table.create(#currentDimensionSizeArray, 1)
+
+	local targetData = createEmptyDataFromDimensionSizeArray(targetDimensionSizeArray)
+
+	repeat
+
+		local targetDimensionIndexArray = table.clone(currentDimensionIndexArray)
+
+		table.remove(targetDimensionIndexArray, dimension)
+
+		local currentLinearIndex = getLinearIndex(currentDimensionIndexArray, currentDimensionSizeArray)
+
+		local targetLinearIndex = getLinearIndex(targetDimensionIndexArray, targetDimensionSizeArray)
+
+		local currentDataIndex, currentSubDataIndex, currentSubSubDataIndex = getDataIndex(currentLinearIndex)
+
+		local targetDataIndex, targetSubDataIndex, targetSubSubDataIndex = getDataIndex(targetLinearIndex)
+
+		local newDataValue = targetData[targetDataIndex][targetSubDataIndex][targetSubSubDataIndex] or 0
+
+		targetData[targetDataIndex][targetSubDataIndex][targetSubSubDataIndex] = currentData[currentDataIndex][currentSubDataIndex][currentSubSubDataIndex]
+
+		currentDimensionIndexArray = incrementDimensionIndexArray(currentDimensionIndexArray, currentDimensionSizeArray)
+
+	until checkIfDimensionIndexArraysAreEqual(currentDimensionIndexArray, dimensionIndexArrayToEndLoop)
+	
+	return AqwamTensorLibrary.construct(targetData, targetDimensionSizeArray, mode)
 
 end
 
