@@ -1614,9 +1614,9 @@ end
 
 local function expandedDotProduct(tensor1, tensor2)
 
-	local dimensionSizeArray1 =  AqwamTensorLibrary:getDimensionSizeArray(tensor1)
+	local dimensionSizeArray1 =  tensor1:getDimensionSizeArray()
 
-	local dimensionSizeArray2 =  AqwamTensorLibrary:getDimensionSizeArray(tensor2)
+	local dimensionSizeArray2 =  tensor2:getDimensionSizeArray()
 
 	local numberOfDimensions1 = #dimensionSizeArray1
 
