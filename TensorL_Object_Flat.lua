@@ -1662,7 +1662,7 @@ function AqwamTensorLibrary:switchMode()
 
 end
 
-function AqwamTensorLibrary:permute(targetDimensionArray)
+function AqwamTensorLibrary:permute(dimensionArray)
 
 	local currentData = self.data
 
@@ -1672,11 +1672,11 @@ function AqwamTensorLibrary:permute(targetDimensionArray)
 
 	local numberOfDimensions = #currentDimensionSizeArray
 
-	if (numberOfDimensions ~= #targetDimensionArray) then error("The number of dimensions does not match.") end
+	if (numberOfDimensions ~= #dimensionArray) then error("The number of dimensions does not match.") end
 
 	local collectedTargetDimensionArray = {}
 
-	for i, dimension in ipairs(targetDimensionArray) do
+	for i, dimension in ipairs(dimensionArray) do
 
 		if (dimension > numberOfDimensions) then error("Value of " .. dimension .. " in the target dimension array exceeds the number of dimensions.") end
 
@@ -1694,7 +1694,7 @@ function AqwamTensorLibrary:permute(targetDimensionArray)
 
 	local targetDimensionSizeArray = {}
 
-	for i, dimension in ipairs(targetDimensionArray) do targetDimensionSizeArray[i] = currentDimensionSizeArray[dimension] end
+	for i, dimension in ipairs(dimensionArray) do targetDimensionSizeArray[i] = currentDimensionSizeArray[dimension] end
 
 	local getLinearIndex = getLinearIndexFunctionList[mode]
 
@@ -1702,7 +1702,7 @@ function AqwamTensorLibrary:permute(targetDimensionArray)
 
 	repeat
 
-		for i, dimension in ipairs(targetDimensionArray) do targetDimensionIndexArray[i] = currentDimensionIndexArray[dimension] end
+		for i, dimension in ipairs(dimensionArray) do targetDimensionIndexArray[i] = currentDimensionIndexArray[dimension] end
 
 		local targetLinearIndex = getLinearIndex(targetDimensionIndexArray, targetDimensionSizeArray)
 
