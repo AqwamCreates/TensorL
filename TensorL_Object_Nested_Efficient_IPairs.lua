@@ -2168,11 +2168,17 @@ local function hardcodedDotProduct(tensor1, tensor2)
 
 end
 
-function AqwamTensorLibrary:dotProduct(other) -- Refer to this article. It was a fucking headache to do this. https://medium.com/@hunter-j-phillips/a-simple-introduction-to-tensors-c4a8321efffc
+function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a fucking headache to do this. https://medium.com/@hunter-j-phillips/a-simple-introduction-to-tensors-c4a8321efffc
+	
+	local tensorArray = {...}
+	
+	if (self.tensor) then table.insert(tensorArray, 1, self) end
 
-	local resultTensor = expandedDotProduct(self, other)
+	local tensor = tensorArray[1]
 
-	return AqwamTensorLibrary.new(resultTensor)
+	for i = 2, #tensorArray, 1 do tensor = expandedDotProduct(tensor, tensorArray[i]) end
+
+	return AqwamTensorLibrary.new(tensor)
 
 end
 
