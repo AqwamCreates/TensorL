@@ -1067,7 +1067,7 @@ end
 
 local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think it is worth the effort to generalize to the rest of dimensions... That being said, to process videos, you need at most 5 dimensions. Don't get confused about the channels! Only number of channels are changed and not the number of dimensions of the tensor!
 
-	local dimensionArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local dimensionArray = tensor:getDimensionSizeArray()
 
 	local numberOfDimensions = #dimensionArray
 
@@ -1075,12 +1075,12 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 	local dimensionSizeToAddArray = table.create(offset, 1)
 
-	local expandedTensor = AqwamTensorLibrary:expandNumberOfDimensions(tensor, dimensionSizeToAddArray)
+	local expandedTensor = tensor:expandNumberOfDimensions(dimensionSizeToAddArray)
 
 	local targetDimension1 = targetDimensionArray[1] + offset
 	local targetDimension2 = targetDimensionArray[2] + offset
 
-	local expandedDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(expandedTensor)
+	local expandedDimensionSizeArray = expandedTensor:getDimensionSizeArray()
 
 	targetDimensionArray = {targetDimension1, targetDimension2}
 
@@ -1334,7 +1334,7 @@ local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think
 
 	end
 
-	return AqwamTensorLibrary:truncate(resultTensor, offset)
+	return resultTensor:truncate(offset)
 
 end
 
