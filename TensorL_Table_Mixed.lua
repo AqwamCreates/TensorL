@@ -1552,7 +1552,7 @@ function AqwamTensorLibrary:transpose(tensor, dimensionArray)
 
 end
 
-local function recursiveExpandedDotProduct(tensor1, tensor2) -- Since both have equal number of dimensions now, we only need to use only one dimension size array.
+local function dotProduct(tensor1, tensor2) -- Since both have equal number of dimensions now, we only need to use only one dimension size array.
 
 	local dimensionSizeArray1 =  AqwamTensorLibrary:getDimensionSizeArray(tensor1)
 
@@ -1662,7 +1662,7 @@ local function expandedDotProduct(tensor1, tensor2)
 
 	end
 
-	return recursiveExpandedDotProduct(expandedTensor1, expandedTensor2)
+	return dotProduct(expandedTensor1, expandedTensor2)
 
 end
 
