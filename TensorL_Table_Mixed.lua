@@ -811,6 +811,8 @@ function AqwamTensorLibrary:squeeze(tensor, dimension)
 		dimensionIndexArray = incrementDimensionIndexArray(dimensionIndexArray, dimensionSizeArray)
 
 	until checkIfDimensionIndexArraysAreEqual(dimensionIndexArray, dimensionIndexArrayToEndLoop)
+	
+	return resultTensor
 
 end
 
