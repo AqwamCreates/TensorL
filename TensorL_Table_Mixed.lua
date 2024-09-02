@@ -128,6 +128,26 @@ local function deepCopyTable(original, copies)
 
 end
 
+local function createTensor(dimensionSizeArray, initialValue) -- Don't put dimension size array truncation here. It is needed for several operations like dot product. 
+
+	local tensor = {}
+
+	if (#dimensionSizeArray >= 2) then
+
+		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = createTensor(remainingDimensionSizeArray, initialValue) end
+
+	else
+
+		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = initialValue end
+
+	end
+
+	return tensor
+
+end
+
 local function getTheDimensionSizeArrayWithFewestNumberOfDimensionSizeOf1(dimensionSizeArray1, dimensionSizeArray2)
 
 	local dimensionSizeOf1Count1 = 0
@@ -326,7 +346,7 @@ local function applyFunctionUsingOneTensor(functionToApply, tensor)
 	
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 	
-	local resultTensor = AqwamTensorLibrary:createTensor(dimensionSizeArray, true)
+	local resultTensor = createTensor(dimensionSizeArray, true)
 	
 	local numberOfDimensions = #dimensionSizeArray
 
@@ -354,7 +374,7 @@ local function applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2)
 	
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor1)
 
-	local resultTensor = AqwamTensorLibrary:createTensor(dimensionSizeArray, true)
+	local resultTensor = createTensor(dimensionSizeArray, true)
 
 	local numberOfDimensions = #dimensionSizeArray
 
@@ -384,7 +404,7 @@ local function applyFunctionWhenTheFirstValueIsAScalar(functionToApply, scalar, 
 	
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
-	local resultTensor = AqwamTensorLibrary:createTensor(dimensionSizeArray, true)
+	local resultTensor = createTensor(dimensionSizeArray, true)
 
 	local numberOfDimensions = #dimensionSizeArray
 
@@ -412,7 +432,7 @@ local function applyFunctionWhenTheSecondValueIsAScalar(functionToApply, tensor,
 	
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
-	local resultTensor = AqwamTensorLibrary:createTensor(dimensionSizeArray, true)
+	local resultTensor = createTensor(dimensionSizeArray, true)
 
 	local numberOfDimensions = #dimensionSizeArray
 
@@ -929,26 +949,6 @@ function AqwamTensorLibrary:expandNumberOfDimensions(tensor, dimensionSizeToAddA
 	until checkIfDimensionIndexArraysAreEqual(resultDimensionIndexArray, resultDimensionIndexArrayToEndLoop)
 	
 	return resultTensor
-
-end
-
-local function createTensor(dimensionSizeArray, initialValue) -- Don't put dimension size array truncation here. It is needed for several operations like dot product. 
-
-	local tensor = {}
-
-	if (#dimensionSizeArray >= 2) then
-
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = createTensor(remainingDimensionSizeArray, initialValue) end
-
-	else
-
-		for i = 1, dimensionSizeArray[1], 1 do tensor[i] = initialValue end
-
-	end
-
-	return tensor
 
 end
 
