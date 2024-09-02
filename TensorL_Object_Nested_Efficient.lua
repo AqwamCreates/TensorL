@@ -1065,280 +1065,49 @@ function AqwamTensorLibrary:print()
 
 end
 
-local function hardcodedTranspose(tensor, targetDimensionArray) -- I don't think it is worth the effort to generalize to the rest of dimensions... That being said, to process videos, you need at most 5 dimensions. Don't get confused about the channels! Only number of channels are changed and not the number of dimensions of the tensor!
+local function truncate(tensor, numberOfDimensionsToTruncate)
 
-	local dimensionArray = tensor:getDimensionSizeArray()
+	numberOfDimensionsToTruncate = numberOfDimensionsToTruncate or math.huge
 
-	local numberOfDimensions = #dimensionArray
+	if (numberOfDimensionsToTruncate ~= math.huge) and (numberOfDimensionsToTruncate ~= nil) then
 
-	local offset = 5 - numberOfDimensions
+		local dimensionSizeArray = getDimensionSizeArray(tensor)
 
-	local dimensionSizeToAddArray = table.create(offset, 1)
+		for dimension = 1, numberOfDimensionsToTruncate, 1 do
 
-	local expandedTensor = tensor:expandNumberOfDimensions(dimensionSizeToAddArray)
+			local size = dimensionSizeArray[dimension]
 
-	local targetDimension1 = targetDimensionArray[1] + offset
-	local targetDimension2 = targetDimensionArray[2] + offset
-
-	local expandedDimensionSizeArray = expandedTensor:getDimensionSizeArray()
-
-	targetDimensionArray = {targetDimension1, targetDimension2}
-
-	expandedDimensionSizeArray[targetDimension1], expandedDimensionSizeArray[targetDimension2] = expandedDimensionSizeArray[targetDimension2], expandedDimensionSizeArray[targetDimension1]
-
-	local resultTensor = createTensor(expandedDimensionSizeArray, true)
-
-	if (table.find(targetDimensionArray, 1)) and (table.find(targetDimensionArray, 2)) then
-
-		for a = 1, expandedDimensionSizeArray[1], 1 do
-
-			for b = 1, expandedDimensionSizeArray[2], 1 do
-
-				for c = 1, expandedDimensionSizeArray[3], 1 do
-
-					for d = 1, expandedDimensionSizeArray[4], 1 do
-
-						for e = 1, expandedDimensionSizeArray[5], 1 do
-
-							resultTensor[a][b][c][d][e] = expandedTensor[b][a][c][d][e]
-
-						end
-
-					end
-
-				end
-
-			end
+			if (size ~= 1) then error("Unable to truncate. Dimension " .. dimension .. " has the size of " .. size .. ".") end
 
 		end
-
-	elseif (table.find(targetDimensionArray, 1)) and (table.find(targetDimensionArray, 3)) then
-
-		for a = 1, expandedDimensionSizeArray[1], 1 do
-
-			for b = 1, expandedDimensionSizeArray[2], 1 do
-
-				for c = 1, expandedDimensionSizeArray[3], 1 do
-
-					for d = 1, expandedDimensionSizeArray[4], 1 do
-
-						for e = 1, expandedDimensionSizeArray[5], 1 do
-
-							resultTensor[a][b][c][d][e] = expandedTensor[c][b][a][d][e]
-
-						end
-
-					end
-
-				end
-
-			end
-
-		end
-
-	elseif (table.find(targetDimensionArray, 2)) and (table.find(targetDimensionArray, 3)) then
-
-		for a = 1, expandedDimensionSizeArray[1], 1 do
-
-			for b = 1, expandedDimensionSizeArray[2], 1 do
-
-				for c = 1, expandedDimensionSizeArray[3], 1 do
-
-					for d = 1, expandedDimensionSizeArray[4], 1 do
-
-						for e = 1, expandedDimensionSizeArray[5], 1 do
-
-							resultTensor[a][b][c][d][e] = expandedTensor[a][c][b][d][e]
-
-						end
-
-					end
-
-				end
-
-			end
-
-		end
-
-	elseif (table.find(targetDimensionArray, 1)) and (table.find(targetDimensionArray, 4)) then
-
-		for a = 1, expandedDimensionSizeArray[1], 1 do
-
-			for b = 1, expandedDimensionSizeArray[2], 1 do
-
-				for c = 1, expandedDimensionSizeArray[3], 1 do
-
-					for d = 1, expandedDimensionSizeArray[4], 1 do
-
-						for e = 1, expandedDimensionSizeArray[5], 1 do
-
-							resultTensor[a][b][c][d][e] = expandedTensor[d][b][c][a][e]
-
-						end
-
-					end
-
-				end
-
-			end
-
-		end
-
-	elseif (table.find(targetDimensionArray, 1)) and (table.find(targetDimensionArray, 5)) then
-
-		for a = 1, expandedDimensionSizeArray[1], 1 do
-
-			for b = 1, expandedDimensionSizeArray[2], 1 do
-
-				for c = 1, expandedDimensionSizeArray[3], 1 do
-
-					for d = 1, expandedDimensionSizeArray[4], 1 do
-
-						for e = 1, expandedDimensionSizeArray[5], 1 do
-
-							resultTensor[a][b][c][d][e] = expandedTensor[e][b][c][d][a]
-
-						end
-
-					end
-
-				end
-
-			end
-
-		end
-
-	elseif (table.find(targetDimensionArray, 2)) and (table.find(targetDimensionArray, 4)) then
-
-		for a = 1, expandedDimensionSizeArray[1], 1 do
-
-			for b = 1, expandedDimensionSizeArray[2], 1 do
-
-				for c = 1, expandedDimensionSizeArray[3], 1 do
-
-					for d = 1, expandedDimensionSizeArray[4], 1 do
-
-						for e = 1, expandedDimensionSizeArray[5], 1 do
-
-							resultTensor[a][b][c][d][e] = expandedTensor[a][d][c][b][e]
-
-						end
-
-					end
-
-				end
-
-			end
-
-		end
-
-	elseif (table.find(targetDimensionArray, 2)) and (table.find(targetDimensionArray, 5)) then
-
-		for a = 1, expandedDimensionSizeArray[1], 1 do
-
-			for b = 1, expandedDimensionSizeArray[2], 1 do
-
-				for c = 1, expandedDimensionSizeArray[3], 1 do
-
-					for d = 1, expandedDimensionSizeArray[4], 1 do
-
-						for e = 1, expandedDimensionSizeArray[5], 1 do
-
-							resultTensor[a][b][c][d][e] = expandedTensor[a][e][c][d][b]
-
-						end
-
-					end
-
-				end
-
-			end
-
-		end
-
-	elseif (table.find(targetDimensionArray, 3)) and (table.find(targetDimensionArray, 4)) then
-
-		for a = 1, expandedDimensionSizeArray[1], 1 do
-
-			for b = 1, expandedDimensionSizeArray[2], 1 do
-
-				for c = 1, expandedDimensionSizeArray[3], 1 do
-
-					for d = 1, expandedDimensionSizeArray[4], 1 do
-
-						for e = 1, expandedDimensionSizeArray[5], 1 do
-
-							resultTensor[a][b][c][d][e] = expandedTensor[a][b][d][c][e]
-
-						end
-
-					end
-
-				end
-
-			end
-
-		end
-
-	elseif (table.find(targetDimensionArray, 3)) and (table.find(targetDimensionArray, 5)) then
-
-		for a = 1, expandedDimensionSizeArray[1], 1 do
-
-			for b = 1, expandedDimensionSizeArray[2], 1 do
-
-				for c = 1, expandedDimensionSizeArray[3], 1 do
-
-					for d = 1, expandedDimensionSizeArray[4], 1 do
-
-						for e = 1, expandedDimensionSizeArray[5], 1 do
-
-							resultTensor[a][b][c][d][e] = expandedTensor[a][b][e][d][c]
-
-						end
-
-					end
-
-				end
-
-			end
-
-		end
-
-	elseif (table.find(targetDimensionArray, 4)) and (table.find(targetDimensionArray, 5)) then
-
-		for a = 1, expandedDimensionSizeArray[1], 1 do
-
-			for b = 1, expandedDimensionSizeArray[2], 1 do
-
-				for c = 1, expandedDimensionSizeArray[3], 1 do
-
-					for d = 1, expandedDimensionSizeArray[4], 1 do
-
-						for e = 1, expandedDimensionSizeArray[5], 1 do
-
-							resultTensor[a][b][c][d][e] = expandedTensor[a][b][c][e][d]
-
-						end
-
-					end
-
-				end
-
-			end
-
-		end
-
-	else
-
-		error("Invalid dimensions!")
 
 	end
 
-	return resultTensor:truncate(offset)
+	local resultTensor = deepCopyTable(tensor.tensor)
+
+	for dimension = 1, numberOfDimensionsToTruncate, 1 do
+
+		if (type(resultTensor) ~= "table") then break end
+
+		if (#resultTensor ~= 1) then break end
+
+		resultTensor = resultTensor[1]
+
+	end
+
+	return resultTensor
 
 end
 
-function AqwamTensorLibrary:hardcodedTranspose(dimensionArray)
+function AqwamTensorLibrary:truncate(numberOfDimensionsToTruncate)
+
+	local resultTensor = truncate(self, numberOfDimensionsToTruncate)
+
+	return AqwamTensorLibrary.new(resultTensor)
+
+end
+
+function AqwamTensorLibrary:hardcodedTranspose(dimensionArray) -- I don't think it is worth the effort to generalize to the rest of dimensions... That being said, to process videos, you need at most 5 dimensions. Don't get confused about the channels! Only number of channels are changed and not the number of dimensions of the tensor!
 
 	if (#dimensionArray ~= 2) then error("Dimension array must contain 2 dimensions.") end
 
@@ -1362,7 +1131,274 @@ function AqwamTensorLibrary:hardcodedTranspose(dimensionArray)
 
 	if (dimension1 == dimension2) then error("The first dimension is equal to the second dimension.") end
 
-	local transposedTensor = hardcodedTranspose(self, dimensionArray)
+	local dimensionArray = self:getDimensionSizeArray()
+
+	local numberOfDimensions = #dimensionArray
+
+	local offset = 5 - numberOfDimensions
+
+	local dimensionSizeToAddArray = table.create(offset, 1)
+
+	local expandedTensor = self:expandNumberOfDimensions(dimensionSizeToAddArray)
+
+	local targetDimension1 = dimensionArray[1] + offset
+	local targetDimension2 = dimensionArray[2] + offset
+
+	local expandedDimensionSizeArray = expandedTensor:getDimensionSizeArray()
+
+	dimensionArray = {targetDimension1, targetDimension2}
+
+	expandedDimensionSizeArray[targetDimension1], expandedDimensionSizeArray[targetDimension2] = expandedDimensionSizeArray[targetDimension2], expandedDimensionSizeArray[targetDimension1]
+
+	local transposedTensor = createTensor(expandedDimensionSizeArray, true)
+
+	if (table.find(dimensionArray, 1)) and (table.find(dimensionArray, 2)) then
+
+		for a = 1, expandedDimensionSizeArray[1], 1 do
+
+			for b = 1, expandedDimensionSizeArray[2], 1 do
+
+				for c = 1, expandedDimensionSizeArray[3], 1 do
+
+					for d = 1, expandedDimensionSizeArray[4], 1 do
+
+						for e = 1, expandedDimensionSizeArray[5], 1 do
+
+							transposedTensor[a][b][c][d][e] = expandedTensor[b][a][c][d][e]
+
+						end
+
+					end
+
+				end
+
+			end
+
+		end
+
+	elseif (table.find(dimensionArray, 1)) and (table.find(dimensionArray, 3)) then
+
+		for a = 1, expandedDimensionSizeArray[1], 1 do
+
+			for b = 1, expandedDimensionSizeArray[2], 1 do
+
+				for c = 1, expandedDimensionSizeArray[3], 1 do
+
+					for d = 1, expandedDimensionSizeArray[4], 1 do
+
+						for e = 1, expandedDimensionSizeArray[5], 1 do
+
+							transposedTensor[a][b][c][d][e] = expandedTensor[c][b][a][d][e]
+
+						end
+
+					end
+
+				end
+
+			end
+
+		end
+
+	elseif (table.find(dimensionArray, 2)) and (table.find(dimensionArray, 3)) then
+
+		for a = 1, expandedDimensionSizeArray[1], 1 do
+
+			for b = 1, expandedDimensionSizeArray[2], 1 do
+
+				for c = 1, expandedDimensionSizeArray[3], 1 do
+
+					for d = 1, expandedDimensionSizeArray[4], 1 do
+
+						for e = 1, expandedDimensionSizeArray[5], 1 do
+
+							transposedTensor[a][b][c][d][e] = expandedTensor[a][c][b][d][e]
+
+						end
+
+					end
+
+				end
+
+			end
+
+		end
+
+	elseif (table.find(dimensionArray, 1)) and (table.find(dimensionArray, 4)) then
+
+		for a = 1, expandedDimensionSizeArray[1], 1 do
+
+			for b = 1, expandedDimensionSizeArray[2], 1 do
+
+				for c = 1, expandedDimensionSizeArray[3], 1 do
+
+					for d = 1, expandedDimensionSizeArray[4], 1 do
+
+						for e = 1, expandedDimensionSizeArray[5], 1 do
+
+							transposedTensor[a][b][c][d][e] = expandedTensor[d][b][c][a][e]
+
+						end
+
+					end
+
+				end
+
+			end
+
+		end
+
+	elseif (table.find(dimensionArray, 1)) and (table.find(dimensionArray, 5)) then
+
+		for a = 1, expandedDimensionSizeArray[1], 1 do
+
+			for b = 1, expandedDimensionSizeArray[2], 1 do
+
+				for c = 1, expandedDimensionSizeArray[3], 1 do
+
+					for d = 1, expandedDimensionSizeArray[4], 1 do
+
+						for e = 1, expandedDimensionSizeArray[5], 1 do
+
+							transposedTensor[a][b][c][d][e] = expandedTensor[e][b][c][d][a]
+
+						end
+
+					end
+
+				end
+
+			end
+
+		end
+
+	elseif (table.find(dimensionArray, 2)) and (table.find(dimensionArray, 4)) then
+
+		for a = 1, expandedDimensionSizeArray[1], 1 do
+
+			for b = 1, expandedDimensionSizeArray[2], 1 do
+
+				for c = 1, expandedDimensionSizeArray[3], 1 do
+
+					for d = 1, expandedDimensionSizeArray[4], 1 do
+
+						for e = 1, expandedDimensionSizeArray[5], 1 do
+
+							transposedTensor[a][b][c][d][e] = expandedTensor[a][d][c][b][e]
+
+						end
+
+					end
+
+				end
+
+			end
+
+		end
+
+	elseif (table.find(dimensionArray, 2)) and (table.find(dimensionArray, 5)) then
+
+		for a = 1, expandedDimensionSizeArray[1], 1 do
+
+			for b = 1, expandedDimensionSizeArray[2], 1 do
+
+				for c = 1, expandedDimensionSizeArray[3], 1 do
+
+					for d = 1, expandedDimensionSizeArray[4], 1 do
+
+						for e = 1, expandedDimensionSizeArray[5], 1 do
+
+							transposedTensor[a][b][c][d][e] = expandedTensor[a][e][c][d][b]
+
+						end
+
+					end
+
+				end
+
+			end
+
+		end
+
+	elseif (table.find(dimensionArray, 3)) and (table.find(dimensionArray, 4)) then
+
+		for a = 1, expandedDimensionSizeArray[1], 1 do
+
+			for b = 1, expandedDimensionSizeArray[2], 1 do
+
+				for c = 1, expandedDimensionSizeArray[3], 1 do
+
+					for d = 1, expandedDimensionSizeArray[4], 1 do
+
+						for e = 1, expandedDimensionSizeArray[5], 1 do
+
+							transposedTensor[a][b][c][d][e] = expandedTensor[a][b][d][c][e]
+
+						end
+
+					end
+
+				end
+
+			end
+
+		end
+
+	elseif (table.find(dimensionArray, 3)) and (table.find(dimensionArray, 5)) then
+
+		for a = 1, expandedDimensionSizeArray[1], 1 do
+
+			for b = 1, expandedDimensionSizeArray[2], 1 do
+
+				for c = 1, expandedDimensionSizeArray[3], 1 do
+
+					for d = 1, expandedDimensionSizeArray[4], 1 do
+
+						for e = 1, expandedDimensionSizeArray[5], 1 do
+
+							transposedTensor[a][b][c][d][e] = expandedTensor[a][b][e][d][c]
+
+						end
+
+					end
+
+				end
+
+			end
+
+		end
+
+	elseif (table.find(dimensionArray, 4)) and (table.find(dimensionArray, 5)) then
+
+		for a = 1, expandedDimensionSizeArray[1], 1 do
+
+			for b = 1, expandedDimensionSizeArray[2], 1 do
+
+				for c = 1, expandedDimensionSizeArray[3], 1 do
+
+					for d = 1, expandedDimensionSizeArray[4], 1 do
+
+						for e = 1, expandedDimensionSizeArray[5], 1 do
+
+							transposedTensor[a][b][c][d][e] = expandedTensor[a][b][c][e][d]
+
+						end
+
+					end
+
+				end
+
+			end
+
+		end
+
+	else
+
+		error("Invalid dimensions!")
+
+	end
+
+	transposedTensor = truncate(transposedTensor, offset)
 
 	return AqwamTensorLibrary.new(transposedTensor)
 
@@ -2620,40 +2656,6 @@ function AqwamTensorLibrary:reshape(dimensionSizeArray) -- This one requires low
 	end
 
 	local resultTensor = reshapeFromFlattenedTensor(flattenedTensor, dimensionSizeArray, #dimensionSizeArray, 1, 1)
-
-	return AqwamTensorLibrary.new(resultTensor)
-
-end
-
-function AqwamTensorLibrary:truncate(numberOfDimensionsToTruncate)
-
-	numberOfDimensionsToTruncate = numberOfDimensionsToTruncate or math.huge
-
-	if (numberOfDimensionsToTruncate ~= math.huge) and (numberOfDimensionsToTruncate ~= nil) then
-
-		local dimensionSizeArray = self:getDimensionSizeArray()
-
-		for dimension = 1, numberOfDimensionsToTruncate, 1 do
-
-			local size = dimensionSizeArray[dimension]
-
-			if (size ~= 1) then error("Unable to truncate. Dimension " .. dimension .. " has the size of " .. size .. ".") end
-
-		end
-
-	end
-
-	local resultTensor = deepCopyTable(self.tensor)
-
-	for dimension = 1, numberOfDimensionsToTruncate, 1 do
-
-		if (type(resultTensor) ~= "table") then break end
-
-		if (#resultTensor ~= 1) then break end
-
-		resultTensor = resultTensor[1]
-
-	end
 
 	return AqwamTensorLibrary.new(resultTensor)
 
