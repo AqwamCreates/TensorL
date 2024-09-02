@@ -1608,6 +1608,58 @@ local function dotProduct(tensor1, tensor2)
 
 end
 
+local function expandedDotProduct(tensor1, tensor2)
+
+	local dimensionSizeArray1 =  AqwamTensorLibrary:getDimensionSizeArray(tensor1)
+
+	local dimensionSizeArray2 =  AqwamTensorLibrary:getDimensionSizeArray(tensor2)
+
+	local numberOfDimensions1 = #dimensionSizeArray1
+
+	local numberOfDimensions2 = #dimensionSizeArray2
+
+	local highestNumberOfDimensions = math.max(numberOfDimensions1, numberOfDimensions2)
+
+	local numberOfDimensionsOffset1 = highestNumberOfDimensions - numberOfDimensions1
+
+	local numberOfDimensionsOffset2 = highestNumberOfDimensions - numberOfDimensions2
+
+	local expandedTensor1
+
+	local expandedTensor2
+
+	if (numberOfDimensionsOffset1 ~= 0) then
+
+		local dimensionSizeToAddArray = {}
+
+		for i = 1, numberOfDimensionsOffset1, 1 do table.insert(dimensionSizeToAddArray, dimensionSizeArray2[i]) end
+
+		expandedTensor1 = tensor1:expandNumberOfDimensions(dimensionSizeToAddArray)
+
+	else
+
+		expandedTensor1 = tensor1
+
+	end
+
+	if (numberOfDimensionsOffset2 ~= 0) then
+
+		local dimensionSizeToAddArray = {}
+
+		for i = 1, numberOfDimensionsOffset2, 1 do table.insert(dimensionSizeToAddArray, dimensionSizeArray1[i]) end
+
+		expandedTensor2 = tensor2:expandNumberOfDimensions(dimensionSizeToAddArray)
+
+	else
+
+		expandedTensor2 = tensor2
+
+	end
+
+	return dotProduct(expandedTensor1, expandedTensor2)
+
+end
+
 function AqwamTensorLibrary:dotProduct(...)
 
 	local tensorArray = {...}
@@ -1616,7 +1668,7 @@ function AqwamTensorLibrary:dotProduct(...)
 
 	local tensor = tensorArray[1]
 
-	for i = 2, #tensorArray, 1 do tensor = dotProduct(tensor, tensorArray[i]) end
+	for i = 2, #tensorArray, 1 do tensor = expandedDotProduct(tensor, tensorArray[i]) end
 
 	return tensor
 
