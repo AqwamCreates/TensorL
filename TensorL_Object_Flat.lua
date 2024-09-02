@@ -1332,7 +1332,7 @@ function AqwamTensorLibrary:transpose(dimensionArray)
 
 	local currentDimensionIndexArray = table.create(numberOfDimensions, 1)
 
-	local dimensionIndexArrayToEndLoop = table.create(#currentDimensionSizeArray, 1)
+	local dimensionIndexArrayToEndLoop = table.create(numberOfDimensions, 1)
 
 	local currentData = self.data
 
