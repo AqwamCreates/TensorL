@@ -2025,13 +2025,7 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 
 	local tensor = tensorArray[1]
 
-	for i = 2, #tensorArray, 1 do
-
-		local otherTensor = tensorArray[i]
-
-		tensor = expandedDotProduct(tensor, otherTensor)
-
-	end
+	for i = 2, #tensorArray, 1 do tensor = expandedDotProduct(tensor, tensorArray[i]) end
 
 	return tensor
 
