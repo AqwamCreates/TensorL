@@ -648,10 +648,12 @@ function AqwamTensorLibrary:expandNumberOfDimensions(dimensionSizeToAddArray)
 	for i, dimensionSize in ipairs(dimensionSizeToAddArray) do table.insert(targetDimensionSizeArray, dimensionSize) end
 
 	for i, dimensionSize in ipairs(currentDimensionSizeArray) do table.insert(targetDimensionSizeArray, dimensionSize) end
+	
+	local targetNumberOfDimensions = #targetDimensionSizeArray
 
-	local targetDimensionIndexArray = table.create(#targetDimensionSizeArray, 1)
+	local targetDimensionIndexArray = table.create(targetNumberOfDimensions, 1)
 
-	local targetDimensionIndexArrayToEndLoop = table.create(#targetDimensionSizeArray, 1)
+	local targetDimensionIndexArrayToEndLoop = table.create(targetNumberOfDimensions, 1)
 
 	local currentDimensionIndexArray = table.create(#currentDimensionSizeArray, 1)
 
