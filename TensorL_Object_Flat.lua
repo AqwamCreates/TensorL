@@ -1436,6 +1436,64 @@ function AqwamTensorLibrary:sum(dimension)
 
 end
 
+function AqwamTensorLibrary:squeeze(dimension)
+
+	if (type(dimension) ~= "number") then error("The dimension must be a number.") end
+
+	local dimensionSizeArray = self:getDimensionSizeArray()
+
+	if (dimensionSizeArray[dimension] ~= 1) then error("The dimension size at dimension " .. dimension .. " is not equal to 1.") end
+
+	local resultTensor = squeeze(self, dimensionSizeArray, dimension, 1)
+
+	return AqwamTensorLibrary.new(resultTensor)
+
+end
+
+function AqwamTensorLibrary:mean(dimension)
+
+	local size = (dimension and self:getDimensionSizeArray()[dimension]) or self:getTotalSize()
+
+	local sumTensor = self:sum(dimension)
+
+	local meanTensor = sumTensor:divide(size)
+
+	return meanTensor
+
+end
+
+function AqwamTensorLibrary:standardDeviation(dimension)
+
+	local size = (dimension and self:getDimensionSizeArray()[dimension]) or self:getTotalSize()
+
+	local meanTensor = self:mean(dimension)
+
+	local subtractedTensor = self:subtract(meanTensor)
+
+	local squaredSubractedTensor = subtractedTensor:power(2)
+
+	local summedSquaredSubtractedTensor = squaredSubractedTensor:sum(dimension)
+
+	local squaredStandardDeviationTensor = summedSquaredSubtractedTensor:divide(size)
+
+	local standardDeviationTensor = squaredStandardDeviationTensor:power(0.5)
+
+	return standardDeviationTensor, meanTensor
+
+end
+
+function AqwamTensorLibrary:zScoreNormalization(dimension)
+
+	local standardDeviationTensor, meanTensor = self:standardDeviation(dimension)
+
+	local subtractedTensor = self:subtract(meanTensor)
+
+	local normalizedTensor = subtractedTensor:divide(standardDeviationTensor)
+
+	return normalizedTensor, standardDeviationTensor, meanTensor
+
+end
+
 local function dotProduct(tensor1, tensor2)
 
 	local dimensionSizeArray1 =  tensor1:getDimensionSizeArray()
