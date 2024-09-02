@@ -2498,8 +2498,6 @@ function AqwamTensorLibrary:permute(tensor, dimensionArray)
 
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
-	local mode = self.mode
-
 	local numberOfDimensions = #dimensionSizeArray
 
 	if (numberOfDimensions ~= #dimensionArray) then error("The number of dimensions does not match.") end
