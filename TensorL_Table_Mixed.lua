@@ -858,7 +858,7 @@ function AqwamTensorLibrary:expandDimensionSizes(tensor, targetDimensionSizeArra
 
 			if (oldDimensionSize == 1) and (newDimensionSize >= 2) then
 
-				local value = AqwamTensorLibrary:getValue(tensor, dimensionIndexArray)
+				local value = AqwamTensorLibrary:getValue(tensor, subDimensionIndexArray)
 
 				for newDimensionIndex = 1, newDimensionSize, 1 do
 
@@ -874,7 +874,7 @@ function AqwamTensorLibrary:expandDimensionSizes(tensor, targetDimensionSizeArra
 
 					subDimensionIndexArray[dimension] = newDimensionIndex
 
-					local value = AqwamTensorLibrary:getValue(tensor, dimensionIndexArray)
+					local value = AqwamTensorLibrary:getValue(tensor, subDimensionIndexArray)
 
 					AqwamTensorLibrary:setValue(resultTensor, value, subDimensionIndexArray)
 
