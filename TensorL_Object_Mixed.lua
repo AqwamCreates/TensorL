@@ -1918,6 +1918,66 @@ function AqwamTensorLibrary:unaryMinus(...)
 
 end
 
+function AqwamTensorLibrary:logarithm(...)
+
+	local functionToApply = math.log
+
+	local resultTensor
+
+	if (self.tensor) then
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, self, ...)
+
+	else
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, ...)
+
+	end
+
+	return AqwamTensorLibrary.new(resultTensor)
+
+end
+
+function AqwamTensorLibrary:exponent(...)
+
+	local functionToApply = math.exp
+
+	local resultTensor
+
+	if (self.tensor) then
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, self, ...)
+
+	else
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, ...)
+
+	end
+
+	return AqwamTensorLibrary.new(resultTensor)
+
+end
+
+function AqwamTensorLibrary:power(...)
+
+	local functionToApply = math.power
+
+	local resultTensor
+
+	if (self.tensor) then
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, self, ...)
+
+	else
+
+		resultTensor = applyFunctionOnMultipleTensors(functionToApply, ...)
+
+	end
+
+	return AqwamTensorLibrary.new(resultTensor)
+
+end
+
 function AqwamTensorLibrary:__tostring()
 
 	return self:generateTensorString()
