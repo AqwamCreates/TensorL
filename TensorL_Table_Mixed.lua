@@ -921,10 +921,10 @@ function AqwamTensorLibrary:expandNumberOfDimensions(tensor, dimensionSizeToAddA
 		local value = AqwamTensorLibrary:getValue(tensor, dimensionIndexArray)
 
 		AqwamTensorLibrary:setValue(resultTensor, value, resultDimensionIndexArray)
-
-		resultDimensionIndexArray = incrementDimensionIndexArray(resultDimensionIndexArray, resultDimensionSizeArray)
-
+		
 		dimensionIndexArray = incrementDimensionIndexArray(dimensionIndexArray, dimensionSizeArray)
+		
+		resultDimensionIndexArray = incrementDimensionIndexArray(resultDimensionIndexArray, resultDimensionSizeArray)
 
 	until checkIfDimensionIndexArraysAreEqual(resultDimensionIndexArray, resultDimensionIndexArrayToEndLoop)
 	
