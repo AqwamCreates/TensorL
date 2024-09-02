@@ -547,7 +547,7 @@ function AqwamTensorLibrary:expandDimensionSizes(targetDimensionSizeArray)
 
 	for i, size in ipairs(currentDimensionSizeArray) do
 
-		if (size ~= targetDimensionSizeArray[i]) and (size ~= 1) then error("Unable to expand.") end
+		if (size ~= targetDimensionSizeArray[i]) and (size ~= 1) then error("Unable to expand at dimension " .. i .. ".") end
 
 	end
 
