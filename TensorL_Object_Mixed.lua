@@ -2024,39 +2024,35 @@ local function getOutOfBoundsIndexArray(array, arrayToBeCheckedForOutOfBounds)
 
 end
 
-local function extract(tensor, dimensionSizeArray, originDimensionIndexArray, targetDimensionIndexArray)
+local function checkIfDimensionIndexArrayIsWithinBounds(dimensionIndexArray, isDimensionIndexArrayDirectionSwappedArray, lowerBoundDimensionIndexArray, upperBoundDimensionIndexArray)
 
-	local numberOfDimensions = #dimensionSizeArray
+	for i = #dimensionIndexArray, 1, -1 do
 
-	local extractedTensor = {}
+		local dimensionIndex = dimensionIndexArray[i]
 
-	local originDimensionIndex = originDimensionIndexArray[1]
+		if (isDimensionIndexArrayDirectionSwappedArray[i]) then
 
-	local targetDimensionIndex = targetDimensionIndexArray[1]
+			if (dimensionIndex > lowerBoundDimensionIndexArray[i]) or (dimensionIndex < upperBoundDimensionIndexArray[i]) then return false end
 
-	if (numberOfDimensions >= 2) then
+		else
 
-		local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
-
-		local remainingOriginDimensionIndexArray = removeFirstValueFromArray(originDimensionIndexArray)
-
-		local remainingTargetDimensionIndexArray = removeFirstValueFromArray(targetDimensionIndexArray)
-
-		for i = originDimensionIndex, targetDimensionIndex do 
-
-			local extractedSubTensor = extract(tensor[i], remainingDimensionSizeArray, remainingOriginDimensionIndexArray, remainingTargetDimensionIndexArray) 
-
-			table.insert(extractedTensor, extractedSubTensor)
+			if (dimensionIndex < lowerBoundDimensionIndexArray[i]) or (dimensionIndex > upperBoundDimensionIndexArray[i]) then return false end
 
 		end
 
-	else
-
-		for i = originDimensionIndex, targetDimensionIndex do table.insert(extractedTensor, tensor[i]) end
-
 	end
 
-	return extractedTensor
+	return true
+
+end
+
+local function islowerBoundValueGreaterThanUpperBoundValueInDimensionIndexArray(lowerBoundDimensionIndexArray, upperBoundDimensionIndexArray)
+
+	local booleanArray = {}
+
+	for i, lowerBoundValue in ipairs(lowerBoundDimensionIndexArray) do booleanArray[i] = (lowerBoundValue > upperBoundDimensionIndexArray[i]) end
+
+	return booleanArray
 
 end
 
@@ -2114,7 +2110,45 @@ function AqwamTensorLibrary:extract(originDimensionIndexArray, targetDimensionIn
 
 	end
 
-	local extractedTensor = extract(self, dimensionSizeArray, originDimensionIndexArray, targetDimensionIndexArray)
+	local isDimensionIndexArrayDirectionSwappedArray = islowerBoundValueGreaterThanUpperBoundValueInDimensionIndexArray(originDimensionIndexArray, targetDimensionIndexArray)
+
+	local dimensionIndexArray = table.create(numberOfDimensions, 1)
+
+	local dimensionIndexArrayToEndLoop = table.create(numberOfDimensions, 1)
+
+	local extractedDimensionIndexArray = table.create(numberOfDimensions, 1)
+
+	local extractedDimensionSizeArray = {}
+
+	for i, targetDimensionIndex in ipairs(targetDimensionIndexArray) do extractedDimensionSizeArray[i] = targetDimensionIndex - originDimensionIndexArray[i] end
+
+	for i, dimensionSize in ipairs(extractedDimensionSizeArray) do extractedDimensionSizeArray[i] = math.abs(dimensionSize) end
+
+	local extractedTensor = createTensor(extractedDimensionSizeArray, true)
+
+	repeat
+
+		if checkIfDimensionIndexArrayIsWithinBounds(dimensionIndexArray, isDimensionIndexArrayDirectionSwappedArray, originDimensionIndexArray, targetDimensionIndexArray) then
+
+			local copiedNewDimensionIndexArray = table.clone(extractedDimensionIndexArray)
+
+			for i, boolean in ipairs(isDimensionIndexArrayDirectionSwappedArray) do
+
+				if (boolean) then copiedNewDimensionIndexArray[i] = (extractedDimensionSizeArray[i] - copiedNewDimensionIndexArray[i]) + 1 end
+
+			end
+
+			local value = self:getValue(dimensionIndexArray)
+
+			setValue(extractedTensor, extractedDimensionSizeArray, value, extractedDimensionIndexArray)
+
+			extractedDimensionIndexArray = incrementDimensionIndexArray(extractedDimensionIndexArray, extractedDimensionSizeArray)
+
+		end
+
+		dimensionIndexArray = incrementDimensionIndexArray(dimensionIndexArray, dimensionSizeArray)
+
+	until checkIfDimensionIndexArraysAreEqual(dimensionIndexArray, dimensionIndexArrayToEndLoop)
 
 	return AqwamTensorLibrary.new(extractedTensor)
 
