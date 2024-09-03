@@ -2793,23 +2793,23 @@ function AqwamTensorLibrary:standardDeviation(dimension)
 
 	local summedSquaredSubtractedTensor = squaredSubractedTensor:sum(dimension)
 
-	local squaredStandardDeviationTensor = summedSquaredSubtractedTensor:divide(size)
+	local varianceTensor = summedSquaredSubtractedTensor:divide(size)
 
-	local standardDeviationTensor = squaredStandardDeviationTensor:power(0.5)
+	local standardDeviationTensor = varianceTensor:power(0.5)
 
-	return standardDeviationTensor, meanTensor
+	return standardDeviationTensor, varianceTensor, meanTensor
 
 end
 
 function AqwamTensorLibrary:zScoreNormalization(dimension)
 
-	local standardDeviationTensor, meanTensor = self:standardDeviation(dimension)
+	local standardDeviationTensor, varianceTensor, meanTensor = self:standardDeviation(dimension)
 
 	local subtractedTensor = self:subtract(meanTensor)
 
 	local normalizedTensor = subtractedTensor:divide(standardDeviationTensor)
 
-	return normalizedTensor, standardDeviationTensor, meanTensor
+	return normalizedTensor, standardDeviationTensor, varianceTensor, meanTensor
 
 end
 
