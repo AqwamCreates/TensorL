@@ -1842,7 +1842,9 @@ end
 
 local function checkIfDimensionIndexArrayIsWithinBounds(dimensionIndexArray, lowerBoundDimensionIndexArray, upperBoundDimensionIndexArray)
 	
-	for i, dimensionIndex in ipairs(dimensionIndexArray) do
+	for i = #dimensionIndexArray, 1, -1 do
+		
+		local dimensionIndex = dimensionIndexArray[i]
 		
 		if (dimensionIndex < lowerBoundDimensionIndexArray[i]) or (dimensionIndex > upperBoundDimensionIndexArray[i]) then return false end
 		
