@@ -1906,15 +1906,15 @@ function AqwamTensorLibrary:extract(originDimensionIndexArray, targetDimensionIn
 
 	local targetDimensionSizeArray = {}
 
-	for i, dimension in ipairs(targetDimensionArray) do targetDimensionSizeArray[i] = currentDimensionSizeArray[dimension] end
+	for i, targetSize in ipairs(targetDimensionIndexArray) do targetDimensionSizeArray[i] = targetSize - originDimensionIndexArray[i] end
 
 	local getLinearIndex = getLinearIndexFunctionList[mode]
 
-	local targetData = createEmptyDataFromDimensionSizeArray(currentDimensionSizeArray)
+	local targetData = createEmptyDataFromDimensionSizeArray(targetDimensionSizeArray)
 
 	repeat
 
-		for i, dimension in ipairs(targetDimensionArray) do targetDimensionIndexArray[i] = currentDimensionIndexArray[dimension] end
+		for i, dimension in ipairs(targetDimensionIndexArray) do targetDimensionIndexArray[i] = currentDimensionIndexArray[dimension] end
 
 		local targetLinearIndex = getLinearIndex(targetDimensionIndexArray, targetDimensionSizeArray)
 
@@ -1929,6 +1929,8 @@ function AqwamTensorLibrary:extract(originDimensionIndexArray, targetDimensionIn
 		currentDimensionIndexArray = incrementDimensionIndexArray(currentDimensionIndexArray, currentDimensionSizeArray)
 
 	until checkIfDimensionIndexArraysAreEqual(currentDimensionIndexArray, dimensionIndexArrayToEndLoop)
+	
+	return AqwamTensorLibrary.construct(targetData, targetDimensionSizeArray, mode)
 
 end
 
