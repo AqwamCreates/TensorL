@@ -2192,13 +2192,13 @@ function AqwamTensorLibrary:extract(tensor, originDimensionIndexArray, targetDim
 
 	local extractedDimensionIndexArray = table.create(numberOfDimensions, 1)
 
-	local newDimensionSizeArray = {}
+	local extractedDimensionSizeArray = {}
 
-	for i, targetDimensionIndex in ipairs(targetDimensionIndexArray) do newDimensionSizeArray[i] = targetDimensionIndex - originDimensionIndexArray[i] end
+	for i, targetDimensionIndex in ipairs(targetDimensionIndexArray) do extractedDimensionSizeArray[i] = targetDimensionIndex - originDimensionIndexArray[i] end
 
-	for i, dimensionSize in ipairs(newDimensionSizeArray) do newDimensionSizeArray[i] = math.abs(dimensionSize) end
+	for i, dimensionSize in ipairs(extractedDimensionSizeArray) do extractedDimensionSizeArray[i] = math.abs(dimensionSize) end
 
-	local extractedTensor = createTensor(newDimensionSizeArray, true)
+	local extractedTensor = createTensor(extractedDimensionSizeArray, true)
 
 	repeat
 
@@ -2208,7 +2208,7 @@ function AqwamTensorLibrary:extract(tensor, originDimensionIndexArray, targetDim
 
 			for i, boolean in ipairs(isDimensionIndexArrayDirectionSwappedArray) do
 
-				if (boolean) then copiedNewDimensionIndexArray[i] = (newDimensionSizeArray[i] - copiedNewDimensionIndexArray[i]) + 1 end
+				if (boolean) then copiedNewDimensionIndexArray[i] = (extractedDimensionSizeArray[i] - copiedNewDimensionIndexArray[i]) + 1 end
 
 			end
 
@@ -2216,7 +2216,7 @@ function AqwamTensorLibrary:extract(tensor, originDimensionIndexArray, targetDim
 			
 			AqwamTensorLibrary:setValue(extractedTensor, value, extractedDimensionIndexArray)
 
-			extractedDimensionIndexArray = incrementDimensionIndexArray(extractedDimensionIndexArray, newDimensionSizeArray)
+			extractedDimensionIndexArray = incrementDimensionIndexArray(extractedDimensionIndexArray, extractedDimensionSizeArray)
 
 		end
 
