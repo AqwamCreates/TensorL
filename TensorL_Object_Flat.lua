@@ -1925,8 +1925,6 @@ function AqwamTensorLibrary:extract(originDimensionIndexArray, targetDimensionIn
 	local targetData = createEmptyDataFromDimensionSizeArray(targetDimensionSizeArray)
 
 	repeat
-
-		for i, dimension in ipairs(targetDimensionIndexArray) do targetDimensionIndexArray[i] = currentDimensionIndexArray[dimension] end
 		
 		if checkIfDimensionIndexArrayIsWithinBounds(currentDimensionIndexArray, originDimensionIndexArray, targetDimensionIndexArray) then
 			
@@ -1940,9 +1938,9 @@ function AqwamTensorLibrary:extract(originDimensionIndexArray, targetDimensionIn
 
 			targetData[targetDataIndex][targetSubDataIndex][targetSubSubDataIndex] = currentData[currentDataIndex][currentSubDataIndex][currentSubSubDataIndex]
 			
+			targetDimensionIndexArray = incrementDimensionIndexArray(targetDimensionIndexArray, targetDimensionSizeArray)
+			
 		end
-
-		targetDimensionIndexArray = incrementDimensionIndexArray(targetDimensionIndexArray, targetDimensionSizeArray)
 
 		currentDimensionIndexArray = incrementDimensionIndexArray(currentDimensionIndexArray, currentDimensionSizeArray)
 
