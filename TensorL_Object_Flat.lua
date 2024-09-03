@@ -1932,6 +1932,126 @@ function AqwamTensorLibrary:extract(originDimensionIndexArray, targetDimensionIn
 
 end
 
+function AqwamTensorLibrary:findMaximumValue()
+	
+	local highestValue = -math.huge
+	
+	for _, subData in ipairs(self.data) do 
+
+		for _, subSubData in ipairs(subData) do 
+
+			for _, value in ipairs(subSubData) do highestValue = math.max(highestValue, value) end
+
+		end
+
+	end
+	
+	return highestValue
+	
+end
+
+function AqwamTensorLibrary:findMinimumValue()
+
+	local lowestValue = math.huge
+
+	for _, subData in ipairs(self.data) do 
+
+		for _, subSubData in ipairs(subData) do 
+
+			for _, value in ipairs(subSubData) do lowestValue = math.min(lowestValue, value) end
+
+		end
+
+	end
+
+	return lowestValue
+
+end
+
+function AqwamTensorLibrary:findMaximumValueDimensionIndexArray()
+
+	local data = self.data
+
+	local dimensionSizeArray = self.dimensionSizeArray
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	local dimensionIndexArray = table.create(numberOfDimensions, 1)
+
+	local dimensionIndexArrayToEndLoop = table.create(numberOfDimensions, 1)
+
+	local highestValueDimensionIndexArray
+
+	local highestValue = -math.huge
+	
+	local getLinearIndex = getLinearIndexFunctionList[self.mode]
+
+	repeat
+
+		local linearIndex = getLinearIndex(dimensionIndexArray, dimensionSizeArray)
+
+		local dataIndex, subDataIndex, subSubDataIndex = getDataIndex(linearIndex)
+
+		local value = data[dataIndex][subDataIndex][subSubDataIndex]
+
+		if (value > highestValue) then
+
+			highestValueDimensionIndexArray = table.clone(dimensionIndexArray)
+
+			highestValue = value
+
+		end
+
+		dimensionIndexArray = incrementDimensionIndexArray(dimensionIndexArray, dimensionSizeArray)
+
+	until checkIfDimensionIndexArraysAreEqual(dimensionIndexArray, dimensionIndexArrayToEndLoop)
+
+	return highestValueDimensionIndexArray, highestValue
+
+end
+
+function AqwamTensorLibrary:findMinimumValueDimensionIndexArray()
+	
+	local data = self.data
+	
+	local dimensionSizeArray = self.dimensionSizeArray
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	local dimensionIndexArray = table.create(numberOfDimensions, 1)
+
+	local dimensionIndexArrayToEndLoop = table.create(numberOfDimensions, 1)
+
+	local lowestValueDimensionIndexArray
+
+	local lowestValue = math.huge
+	
+	local getLinearIndex = getLinearIndexFunctionList[self.mode]
+
+	repeat
+
+		local linearIndex = getLinearIndex(dimensionIndexArray, dimensionSizeArray)
+		
+		local dataIndex, subDataIndex, subSubDataIndex = getDataIndex(linearIndex)
+		
+		local value = data[dataIndex][subDataIndex][subSubDataIndex]
+
+		if (value < lowestValue) then
+
+			lowestValueDimensionIndexArray = table.clone(dimensionIndexArray)
+
+			lowestValue = value
+
+		end
+
+		dimensionIndexArray = incrementDimensionIndexArray(dimensionIndexArray, dimensionSizeArray)
+
+	until checkIfDimensionIndexArraysAreEqual(dimensionIndexArray, dimensionIndexArrayToEndLoop)
+
+	return lowestValueDimensionIndexArray, lowestValue
+
+end
+
 function AqwamTensorLibrary:copy()
 
 	return AqwamTensorLibrary.construct(deepCopyTable(self.data), deepCopyTable(self.dimensionSizeArray), deepCopyTable(self.mode))
