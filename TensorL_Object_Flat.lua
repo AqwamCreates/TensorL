@@ -1840,17 +1840,35 @@ local function getOutOfBoundsIndexArray(array, arrayToBeCheckedForOutOfBounds)
 
 end
 
-local function checkIfDimensionIndexArrayIsWithinBounds(dimensionIndexArray, lowerBoundDimensionIndexArray, upperBoundDimensionIndexArray)
+local function checkIfDimensionIndexArrayIsWithinBounds(dimensionIndexArray, isDimensionIndexArrayDirectionSwappedArray, lowerBoundDimensionIndexArray, upperBoundDimensionIndexArray)
 	
 	for i = #dimensionIndexArray, 1, -1 do
 		
 		local dimensionIndex = dimensionIndexArray[i]
 		
-		if (dimensionIndex < lowerBoundDimensionIndexArray[i]) or (dimensionIndex > upperBoundDimensionIndexArray[i]) then return false end
+		if (isDimensionIndexArrayDirectionSwappedArray[i]) then
+			
+			if (dimensionIndex > lowerBoundDimensionIndexArray[i]) or (dimensionIndex < upperBoundDimensionIndexArray[i]) then return false end
+			
+		else
+			
+			if (dimensionIndex < lowerBoundDimensionIndexArray[i]) or (dimensionIndex > upperBoundDimensionIndexArray[i]) then return false end
+			
+		end
 		
 	end
 	
 	return true
+	
+end
+
+local function islowerBoundValueGreaterThanUpperBoundValueInDimensionIndexArray(lowerBoundDimensionIndexArray, upperBoundDimensionIndexArray)
+	
+	local booleanArray = {}
+	
+	for i, lowerBoundValue in ipairs(lowerBoundDimensionIndexArray) do booleanArray[i] = (lowerBoundValue > upperBoundDimensionIndexArray[i]) end
+	
+	return booleanArray
 	
 end
 
@@ -1911,6 +1929,8 @@ function AqwamTensorLibrary:extract(originDimensionIndexArray, targetDimensionIn
 		error(errorString)
 
 	end
+	
+	local isDimensionIndexArrayDirectionSwappedArray = islowerBoundValueGreaterThanUpperBoundValueInDimensionIndexArray(originDimensionIndexArray, targetDimensionIndexArray)
 
 	local currentDimensionIndexArray = table.create(numberOfDimensions, 1)
 
@@ -1921,6 +1941,8 @@ function AqwamTensorLibrary:extract(originDimensionIndexArray, targetDimensionIn
 	local newDimensionSizeArray = {}
 
 	for i, targetDimensionIndex in ipairs(targetDimensionIndexArray) do newDimensionSizeArray[i] = targetDimensionIndex - originDimensionIndexArray[i] end
+	
+	for i, dimensionSize in ipairs(newDimensionSizeArray) do newDimensionSizeArray[i] = math.abs(dimensionSize) end
 
 	local getLinearIndex = getLinearIndexFunctionList[mode]
 
@@ -1928,9 +1950,17 @@ function AqwamTensorLibrary:extract(originDimensionIndexArray, targetDimensionIn
 
 	repeat
 		
-		if checkIfDimensionIndexArrayIsWithinBounds(currentDimensionIndexArray, originDimensionIndexArray, targetDimensionIndexArray) then
+		if checkIfDimensionIndexArrayIsWithinBounds(currentDimensionIndexArray, isDimensionIndexArrayDirectionSwappedArray, originDimensionIndexArray, targetDimensionIndexArray) then
 			
-			local newLinearIndex = getLinearIndex(newDimensionIndexArray, newDimensionSizeArray)
+			local copiedNewDimensionIndexArray = table.clone(newDimensionIndexArray)
+			
+			for i, boolean in ipairs(isDimensionIndexArrayDirectionSwappedArray) do
+				
+				if (boolean) then copiedNewDimensionIndexArray[i] = (newDimensionSizeArray[i] - copiedNewDimensionIndexArray[i]) + 1 end
+				
+			end
+			
+			local newLinearIndex = getLinearIndex(copiedNewDimensionIndexArray, newDimensionSizeArray)
 
 			local currentLinearIndex = getLinearIndex(currentDimensionIndexArray, currentDimensionSizeArray)
 
