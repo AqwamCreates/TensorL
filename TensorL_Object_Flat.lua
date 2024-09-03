@@ -1898,11 +1898,11 @@ function AqwamTensorLibrary:extract(originDimensionIndexArray, targetDimensionIn
 
 	end
 
-	local currentDimensionIndexArray = table.create(#currentDimensionSizeArray, 1)
+	local currentDimensionIndexArray = table.create(numberOfDimensions, 1)
 
-	local dimensionIndexArrayToEndLoop = table.create(#currentDimensionSizeArray, 1)
+	local dimensionIndexArrayToEndLoop = table.create(numberOfDimensions, 1)
 
-	local targetDimensionIndexArray = {}
+	local targetDimensionIndexArray = table.create(numberOfDimensions, 1)
 
 	local targetDimensionSizeArray = {}
 
@@ -1925,6 +1925,8 @@ function AqwamTensorLibrary:extract(originDimensionIndexArray, targetDimensionIn
 		local currentDataIndex, currentSubDataIndex, currentSubSubDataIndex = getDataIndex(currentLinearIndex)
 
 		targetData[targetDataIndex][targetSubDataIndex][targetSubSubDataIndex] = currentData[currentDataIndex][currentSubDataIndex][currentSubSubDataIndex]
+		
+		targetDimensionIndexArray = incrementDimensionIndexArray(targetDimensionIndexArray, targetDimensionSizeArray)
 
 		currentDimensionIndexArray = incrementDimensionIndexArray(currentDimensionIndexArray, currentDimensionSizeArray)
 
