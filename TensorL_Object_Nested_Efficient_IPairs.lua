@@ -655,23 +655,31 @@ local function recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArr
 			recursiveSubTensorSumAlongFirstDimension(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetTensor, targetDimensionSizeArray, targetDimensionIndexArray)
 
 		end
-
-	else
-
+		
+	elseif (currentDimension == numberOfDimensions) and (numberOfDimensions > 1) then
+		
 		local copiedTargetDimensionIndexArray = table.clone(targetDimensionIndexArray)
 
 		copiedTargetDimensionIndexArray[1] = 1 -- The target dimension only have a size of 1 for summing.
-
-		for i = 1, dimensionSizeArray[currentDimension], 1 do
-
+		
+		for i, value in ipairs(tensor) do
+			
 			copiedTargetDimensionIndexArray[currentDimension] = i
-
+			
 			local targetTensorValue = getValue(targetTensor, targetDimensionSizeArray, #targetDimensionSizeArray, 1, copiedTargetDimensionIndexArray)
 
 			local value = targetTensorValue + tensor[i]
 
 			setValue(targetTensor, targetDimensionSizeArray, #targetDimensionSizeArray, 1, value, copiedTargetDimensionIndexArray)
-
+			
+		end
+		
+	else
+		
+		for i, value in ipairs(tensor) do
+			
+			targetTensor[1] = targetTensor[1] + value
+			
 		end
 
 	end
