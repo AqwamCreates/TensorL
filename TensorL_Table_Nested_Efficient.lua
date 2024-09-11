@@ -2854,6 +2854,12 @@ function AqwamTensorLibrary:concatenate(tensor1, tensor2, dimension)
 
 end
 
+function AqwamTensorLibrary:unaryMinus(...)
+
+	return applyFunctionOnMultipleTensors(function(a) return (-a) end, ...)
+
+end
+
 function AqwamTensorLibrary:add(...)
 
 	return applyFunctionOnMultipleTensors(function(a, b) return (a + b) end, ...)
