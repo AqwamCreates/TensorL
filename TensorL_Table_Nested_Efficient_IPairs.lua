@@ -426,7 +426,7 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 		elseif (not isFirstValueATensor) and (isSecondValueATensor) then
 
-			local numberOfDimensions = AqwamTensorLibrary:getNumberOfDimensions(tensor)
+			local numberOfDimensions = AqwamTensorLibrary:getNumberOfDimensions(otherTensor)
 
 			tensor = applyFunctionWhenTheFirstValueIsAScalar(functionToApply, tensor, otherTensor, numberOfDimensions, 1)
 
