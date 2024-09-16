@@ -1,7 +1,7 @@
 By using or possesing any copies of this library or its assets (including the icons), you agree to our [Terms and Conditions](docs/TermsAndConditions.md).
 
 # Benchmarks
-
+```
 ========== Same Value Tensor Initialization ==========
 
 Object Flat						        : 0.0029510650015436113 seconds
@@ -137,3 +137,4 @@ Table Nested					        : 0.00578366999514401 seconds
 Table Nested Efficient			  : 0.003186068998184055 seconds
 Table Nested Efficient IPairs	: 0.0031632720027118923 seconds
 Table Mixed						        : 0.004666299985256046 seconds
+```
