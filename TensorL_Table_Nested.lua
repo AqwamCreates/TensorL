@@ -3116,7 +3116,7 @@ function AqwamTensorLibrary:applyFunction(functionToApply, ...)
 
 	for i = 1, (#tensorArray - 1), 1 do
 
-		tensorArray[i], tensorArray[i + 1] = AqwamTensorLibrary:broadcast(tensorArray[i], tensorArray[i + 1])
+		tensorArray[i], tensorArray[i + 1] = broadcast(tensorArray[i], tensorArray[i + 1], false)
 
 	end
 
