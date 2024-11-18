@@ -31,7 +31,7 @@ User shall not:
 
 * Use the Library for cheat/exploit development, use, distribution, or any activities falling within that category, unless explicitly approved by the person/company/organization that owns the target computer/server/machine;
 
-* Use the Library for anti-exploit or anti-cheat evasion purposes, or engage in any actions intended to circumvent security measures, unless explicitly approved by the person/company/organization that owns the target computer/server/machine;
+* Use the Library for anti-cheat or anti-exploit evasion purposes, or engage in any actions intended to circumvent security measures, unless explicitly approved by the person/company/organization that owns the target computer/server/machine;
 
 * Use the codes, content, or any part of the Library as a dataset, input for artificial intelligence, or for any similar purpose aiming to derive new data, content, or applications;
 
@@ -65,7 +65,7 @@ The Library is provided "AS IS" and without warranty of any kind. Licensor shall
 
 * Once the Licensor have agreed that the Library have been removed, the User may remove the credits or source information in all publications or presentations that uses the Library.
 
-## Compensatory Damages for Cheating and Exploiting, Cheat and Exploit Distribution, Anti-Cheat and Anti-Cheat Evasion, Anti-Cheat and Anti-Exploit Evasion Distribution
+## Compensatory Damages for Cheating and Exploiting, Cheat and Exploit Distribution, Anti-Cheat and Anti-Exploit Evasion, Anti-Cheat and Anti-Exploit Evasion Distribution
 
 In the event that the User uses the Library for cheating and exploiting, cheat and exploit development, cheat and exploit distribution, anti-cheat and anti-exploit evasion, or anti-cheat and anti-exploit evasion distribution, and such actions result in damages to the Licensor, the User shall be liable for compensatory damages. These damages may include, but are not limited to, the following:
 
