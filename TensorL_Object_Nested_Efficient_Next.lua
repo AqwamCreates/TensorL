@@ -1862,6 +1862,22 @@ function AqwamTensorLibrary:power(...)
 
 end
 
+function AqwamTensorLibrary:__pow(other)
+
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a ^ b) end, self, other)
+
+	return AqwamTensorLibrary.new(resultTensor)
+
+end
+
+function AqwamTensorLibrary:__mod(other)
+
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a % b) end, self, other)
+
+	return AqwamTensorLibrary.new(resultTensor)
+
+end
+
 function AqwamTensorLibrary:__tostring()
 
 	return self:generateTensorString()
