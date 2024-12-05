@@ -1,3 +1,33 @@
+--[[
+
+	--------------------------------------------------------------------
+
+	Version 0.9.0
+
+	Aqwam's Tensor Library (TensorL)
+
+	Author: Aqwam Harish Aiman
+	
+	Email: aqwam.harish.aiman@gmail.com
+	
+	YouTube: https://www.youtube.com/channel/UCUrwoxv5dufEmbGsxyEUPZw
+	
+	LinkedIn: https://www.linkedin.com/in/aqwam-harish-aiman/
+	
+	--------------------------------------------------------------------
+	
+	By using or possesing any copies of this library, you agree to our terms and conditions at:
+	
+	https://github.com/AqwamCreates/TensorL/blob/main/docs/TermsAndConditions.md
+	
+	--------------------------------------------------------------------
+	
+	DO NOT REMOVE THIS TEXT!
+	
+	--------------------------------------------------------------------
+
+--]]
+
 local maximumTableLength = 2 ^ 26
 
 local defaultMode = "Row"
@@ -1303,6 +1333,22 @@ function AqwamTensorLibrary:power(...)
 		return applyFunctionOnMultipleTensors(functionToApply, ...)
 
 	end
+
+end
+
+function AqwamTensorLibrary:__pow(other)
+
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a ^ b) end, self, other)
+
+	return AqwamTensorLibrary.new(resultTensor)
+
+end
+
+function AqwamTensorLibrary:__mod(other)
+
+	local resultTensor = applyFunctionOnMultipleTensors(function(a, b) return (a % b) end, self, other)
+
+	return AqwamTensorLibrary.new(resultTensor)
 
 end
 
