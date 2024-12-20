@@ -2719,12 +2719,12 @@ local function getOutOfBoundsIndexArray(array, arrayToBeCheckedForOutOfBounds)
 end
 
 local function extract(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, originDimensionIndexArray, targetDimensionIndexArray)
-
-	local extractedTensor = {}
-
+	
 	local originDimensionIndex = originDimensionIndexArray[currentDimension]
 
 	local targetDimensionIndex = targetDimensionIndexArray[currentDimension]
+
+	local extractedTensor = {}
 
 	if (currentDimension < numberOfDimensions) then
 
@@ -2969,12 +2969,12 @@ function AqwamTensorLibrary:isLessOrEqualTo(...)
 end
 
 local function applyFunction(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension, ...)
+	
+	local dimensionSize = dimensionSizeArray[currentDimension]
 
 	local tensorArray = {...}
 
 	local resultTensor = {}
-
-	local dimensionSize = dimensionSizeArray[currentDimension]
 
 	if (currentDimension < numberOfDimensions) then
 
