@@ -297,10 +297,10 @@ function AqwamTensorLibrary:broadcast(tensor1, tensor2)
 end
 
 local function applyFunctionUsingOneTensor(functionToApply, tensor, numberOfDimensions, currentDimension) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
-
-	local resultTensor = {}
 	
 	local nextDimension = currentDimension + 1
+
+	local resultTensor = {}
 
 	if (currentDimension < numberOfDimensions) then
 
