@@ -198,7 +198,7 @@ local function createEmptyDataFromDimensionSizeArray(dimensionSizeArray)
 
 	local totalSize = getTotalSizeFromDimensionSizeArray(dimensionSizeArray)
 
-	local squaredMaximumTableLength = math.pow(maximumTableLength, 2)
+	local squaredMaximumTableLength = math.pow(maximumTableLength, 2) -- The maximum table length is squared because of the nested nature of the data.
 
 	local subDataIndex = 1
 
