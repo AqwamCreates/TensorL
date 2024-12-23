@@ -137,10 +137,12 @@ local function getTotalSizeFromDimensionSizeArray(dimensionSizeArray)
 end
 
 local function convertTensorToData(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, targetData, dataTableTableIndex, dataTableIndex, currentLinearIndex)
+	
+	local nextDimension = currentDimension + 1
 
 	if (currentDimension < numberOfDimensions) then
 
-		for i = 1, dimensionSizeArray[currentDimension], 1 do dataTableTableIndex, dataTableIndex, currentLinearIndex = convertTensorToData(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetData, dataTableTableIndex, dataTableIndex, currentLinearIndex) end
+		for i = 1, dimensionSizeArray[currentDimension], 1 do dataTableTableIndex, dataTableIndex, currentLinearIndex = convertTensorToData(tensor[i], dimensionSizeArray, numberOfDimensions, nextDimension, targetData, dataTableTableIndex, dataTableIndex, currentLinearIndex) end
 
 	else
 
@@ -163,10 +165,12 @@ local function convertTensorToData(tensor, dimensionSizeArray, numberOfDimension
 end
 
 local function setValueFromFunctionToData(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension, targetData, dataTableTableIndex, dataTableIndex, currentLinearIndex)
+	
+	local nextDimension = currentDimension + 1
 
 	if (currentDimension < numberOfDimensions) then
 
-		for i = 1, dimensionSizeArray[currentDimension], 1 do dataTableTableIndex, dataTableIndex, currentLinearIndex = setValueFromFunctionToData(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension + 1, targetData, dataTableTableIndex, dataTableIndex, currentLinearIndex) end
+		for i = 1, dimensionSizeArray[currentDimension], 1 do dataTableTableIndex, dataTableIndex, currentLinearIndex = setValueFromFunctionToData(functionToApply, dimensionSizeArray, numberOfDimensions, nextDimension, targetData, dataTableTableIndex, dataTableIndex, currentLinearIndex) end
 
 	else
 
