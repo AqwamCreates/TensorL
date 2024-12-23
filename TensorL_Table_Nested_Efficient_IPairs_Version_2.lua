@@ -321,10 +321,10 @@ local function applyFunctionUsingOneTensor(functionToApply, tensor, numberOfDime
 end
 
 local function applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2, numberOfDimensions, currentDimension) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
-
-	local resultTensor = {}
 	
 	local nextDimension = currentDimension + 1
+	
+	local resultTensor = {}
 
 	if (currentDimension < numberOfDimensions) then
 
@@ -345,10 +345,10 @@ local function applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2, n
 end
 
 local function applyFunctionWhenTheFirstValueIsAScalar(functionToApply, scalar, tensor, numberOfDimensions, currentDimension) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
-
-	local resultTensor = {}
 	
 	local nextDimension = currentDimension + 1
+	
+	local resultTensor = {}
 
 	if (currentDimension < numberOfDimensions) then
 
@@ -369,10 +369,10 @@ local function applyFunctionWhenTheFirstValueIsAScalar(functionToApply, scalar, 
 end
 
 local function applyFunctionWhenTheSecondValueIsAScalar(functionToApply, tensor, scalar, numberOfDimensions, currentDimension) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
-
-	local resultTensor = {}
 	
 	local nextDimension = currentDimension + 1
+	
+	local resultTensor = {}
 
 	if (currentDimension < numberOfDimensions) then
 
