@@ -883,10 +883,10 @@ function AqwamTensorLibrary:expandNumberOfDimensions(tensor, dimensionSizeToAddA
 end
 
 local function createTensor(dimensionSizeArray, numberOfDimensions, currentDimension, initialValue) -- Don't put dimension size array truncation here. It is needed for several operations like dot product. 
-
-	local tensor = {}
 	
 	local nextDimension = currentDimension + 1
+	
+	local tensor = {}
 
 	if (currentDimension < numberOfDimensions) then
 
@@ -951,11 +951,11 @@ function AqwamTensorLibrary:createRandomNormalTensor(dimensionSizeArray, mean, s
 end
 
 local function createRandomUniformTensor(dimensionSizeArray, numberOfDimensions, currentDimension, minimumValue, maximumValue)
-
-	local tensor = {}
 	
 	local nextDimension = currentDimension + 1
 
+	local tensor = {}
+	
 	if (currentDimension < numberOfDimensions) then
 
 		for i = 1, dimensionSizeArray[currentDimension], 1 do tensor[i] = createRandomUniformTensor(dimensionSizeArray, numberOfDimensions, nextDimension, minimumValue, maximumValue) end
