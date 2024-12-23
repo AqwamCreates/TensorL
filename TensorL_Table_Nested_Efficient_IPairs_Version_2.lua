@@ -911,10 +911,10 @@ function AqwamTensorLibrary:createTensor(dimensionSizeArray, initialValue)
 end
 
 local function createRandomNormalTensor(dimensionSizeArray, numberOfDimensions, currentDimension, mean, standardDeviation)
-
-	local tensor = {}
 	
 	local nextDimension = currentDimension + 1
+
+	local tensor = {}
 
 	if (currentDimension < numberOfDimensions) then
 
