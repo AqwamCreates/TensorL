@@ -2337,10 +2337,12 @@ function AqwamTensorLibrary:dotProduct(...) -- Refer to this article. It was a f
 end
 
 local function get2DTensorTextSpacing(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, textSpacingArray) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
+	
+	local nextDimension = currentDimension + 1
 
 	if (currentDimension < numberOfDimensions) then
 
-		for i = 1, dimensionSizeArray[currentDimension], 1 do textSpacingArray = get2DTensorTextSpacing(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, textSpacingArray) end
+		for i = 1, dimensionSizeArray[currentDimension], 1 do textSpacingArray = get2DTensorTextSpacing(tensor[i], dimensionSizeArray, numberOfDimensions, nextDimension, textSpacingArray) end
 
 	else
 
@@ -2369,6 +2371,8 @@ end
 local function generateTensorString(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, textSpacingArray)
 
 	local dimensionSize = dimensionSizeArray[currentDimension]
+	
+	local nextDimension = currentDimension + 1
 
 	local text = " "
 
@@ -2384,7 +2388,7 @@ local function generateTensorString(tensor, dimensionSizeArray, numberOfDimensio
 
 			if (i > 1) then text = text .. spacing end
 
-			text = text .. generateTensorString(subTensor, dimensionSizeArray, numberOfDimensions, currentDimension + 1, textSpacingArray)
+			text = text .. generateTensorString(subTensor, dimensionSizeArray, numberOfDimensions, nextDimension, textSpacingArray)
 
 			if (i < dimensionSize) then text = text .. "\n" end
 
@@ -2431,6 +2435,8 @@ end
 local function generateTensorWithCommaString(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, textSpacingArray)
 
 	local dimensionSize = dimensionSizeArray[currentDimension]
+	
+	local nextDimension = currentDimension + 1
 
 	local text = " "
 
@@ -2446,7 +2452,7 @@ local function generateTensorWithCommaString(tensor, dimensionSizeArray, numberO
 
 			if (i > 1) then text = text .. spacing end
 
-			text = text .. generateTensorWithCommaString(subTensor, dimensionSizeArray, numberOfDimensions, currentDimension + 1, textSpacingArray)
+			text = text .. generateTensorWithCommaString(subTensor, dimensionSizeArray, numberOfDimensions, nextDimension, textSpacingArray)
 
 			if (i < dimensionSize) then text = text .. "\n" end
 
@@ -2493,6 +2499,8 @@ end
 local function generatePortableTensorString(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, textSpacingArray)
 
 	local dimensionSize = dimensionSizeArray[currentDimension]
+	
+	local nextDimension = currentDimension + 1
 
 	local text = " "
 
@@ -2508,7 +2516,7 @@ local function generatePortableTensorString(tensor, dimensionSizeArray, numberOf
 
 			if (i > 1) then text = text .. spacing end
 
-			text = text .. generatePortableTensorString(subTensor, dimensionSizeArray, numberOfDimensions, currentDimension + 1, textSpacingArray)
+			text = text .. generatePortableTensorString(subTensor, dimensionSizeArray, numberOfDimensions, nextDimension, textSpacingArray)
 
 			if (i < dimensionSize) then text = text .. "\n" end
 
@@ -2623,6 +2631,8 @@ function AqwamTensorLibrary:flatten(dimensionArray)
 end
 
 local function reshapeFromFlattenedTensor(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, dimensionIndex)
+	
+	local nextDimension = currentDimension + 1
 
 	local resultTensor = {}
 
@@ -2630,7 +2640,7 @@ local function reshapeFromFlattenedTensor(tensor, dimensionSizeArray, numberOfDi
 
 		for i = 1, dimensionSizeArray[currentDimension], 1 do 
 
-			resultTensor[i], dimensionIndex = reshapeFromFlattenedTensor(tensor, dimensionSizeArray, numberOfDimensions, currentDimension + 1, dimensionIndex) 
+			resultTensor[i], dimensionIndex = reshapeFromFlattenedTensor(tensor, dimensionSizeArray, numberOfDimensions, nextDimension, dimensionIndex) 
 
 		end
 
@@ -2666,10 +2676,12 @@ local function incrementDimensionIndexArray(dimensionIndexArray, dimensionSizeAr
 end
 
 local function reshape(tensor, numberOfDimensions, currentDimension, targetTensor, targetDimensionSizeArray, currentTargetDimensionIndexArray)
+	
+	local nextDimension = currentDimension + 1
 
 	if (currentDimension < numberOfDimensions) then
 
-		for i, subTensor in next, tensor do currentTargetDimensionIndexArray = reshape(subTensor, numberOfDimensions, currentDimension + 1, targetTensor, targetDimensionSizeArray, currentTargetDimensionIndexArray) end
+		for i, subTensor in next, tensor do currentTargetDimensionIndexArray = reshape(subTensor, numberOfDimensions, nextDimension, targetTensor, targetDimensionSizeArray, currentTargetDimensionIndexArray) end
 
 	else
 
@@ -2720,10 +2732,12 @@ function AqwamTensorLibrary:inefficientReshape(dimensionSizeArray) -- This one r
 end
 
 local function flattenTensor(tensor, numberOfDimensions, currentDimension, targetTensor)
+	
+	local nextDimension = currentDimension + 1
 
 	if (currentDimension < numberOfDimensions) then
 
-		for i, subTensor in next, tensor do flattenTensor(subTensor, numberOfDimensions, currentDimension + 1, targetTensor) end
+		for i, subTensor in next, tensor do flattenTensor(subTensor, numberOfDimensions, nextDimension, targetTensor) end
 
 	else
 
@@ -2776,14 +2790,18 @@ local function squeeze(tensor, numberOfDimensions, currentDimension, targetDimen
 	if (isAtTargetDimension) and (isATensor) then
 
 		resultTensor = {}
+		
+		local local nextDimension = currentDimension + 2
 
-		for i, subSubTensor in ipairs(tensor[1]) do resultTensor[i] = squeeze(subSubTensor, numberOfDimensions, currentDimension + 2, targetDimension) end 
+		for i, subSubTensor in ipairs(tensor[1]) do resultTensor[i] = squeeze(subSubTensor, numberOfDimensions, nextDimension, targetDimension) end 
 
 	elseif (not isAtTargetDimension) and (isATensor) then
 
 		resultTensor = {}
+		
+		local nextDimension = currentDimension + 1
 
-		for i, subTensor in next, tensor do resultTensor[i] = squeeze(subTensor, numberOfDimensions, currentDimension + 1, targetDimension) end
+		for i, subTensor in next, tensor do resultTensor[i] = squeeze(subTensor, numberOfDimensions, nextDimension, targetDimension) end
 
 	elseif (not isATensor) then
 
@@ -2858,6 +2876,8 @@ function AqwamTensorLibrary:zScoreNormalization(dimension)
 end
 
 local function findMaximumValue(tensor, numberOfDimensions, currentDimension)
+	
+	local nextDimension = currentDimension + 1
 
 	local highestValue = -math.huge
 
@@ -2865,7 +2885,7 @@ local function findMaximumValue(tensor, numberOfDimensions, currentDimension)
 
 		for i, subTensor in next, tensor do
 
-			local value = AqwamTensorLibrary:findMaximumValue(subTensor, numberOfDimensions, currentDimension + 1) 
+			local value = AqwamTensorLibrary:findMaximumValue(subTensor, numberOfDimensions, nextDimension) 
 
 			highestValue = math.max(highestValue, value)
 
@@ -2890,6 +2910,8 @@ function AqwamTensorLibrary:findMaximumValue()
 end
 
 local function findMinimumValue(tensor, numberOfDimensions, currentDimension)
+	
+	local nextDimension = currentDimension + 1
 
 	local lowestValue = math.huge
 
@@ -2897,7 +2919,7 @@ local function findMinimumValue(tensor, numberOfDimensions, currentDimension)
 
 		for i, subTensor in next, tensor do
 
-			local value = AqwamTensorLibrary:findMinimumValue(subTensor, numberOfDimensions, currentDimension + 1) 
+			local value = AqwamTensorLibrary:findMinimumValue(subTensor, numberOfDimensions, nextDimension) 
 
 			lowestValue = math.min(lowestValue, value)
 
@@ -2922,6 +2944,8 @@ function AqwamTensorLibrary:findMinimumValue()
 end
 
 local function findMaximumValueDimensionIndexArray(tensor, numberOfDimensions, currentDimension, dimensionIndexArray)
+	
+	local nextDimension = currentDimension + 1
 
 	local highestValue = -math.huge
 
@@ -2933,7 +2957,7 @@ local function findMaximumValueDimensionIndexArray(tensor, numberOfDimensions, c
 
 			dimensionIndexArray[currentDimension] = i
 
-			local subTensorHighestValueDimensionArray, value = findMaximumValueDimensionIndexArray(subTensor, numberOfDimensions, currentDimension + 1, dimensionIndexArray)
+			local subTensorHighestValueDimensionArray, value = findMaximumValueDimensionIndexArray(subTensor, numberOfDimensions, nextDimension, dimensionIndexArray)
 
 			if (value > highestValue) then
 
@@ -2976,6 +3000,8 @@ function AqwamTensorLibrary:findMaximumValueDimensionIndexArray()
 end
 
 local function findMinimumValueDimensionIndexArray(tensor, numberOfDimensions, currentDimension, dimensionIndexArray)
+	
+	local nextDimension = currentDimension + 1
 
 	local lowestValue = math.huge
 
@@ -2987,7 +3013,7 @@ local function findMinimumValueDimensionIndexArray(tensor, numberOfDimensions, c
 
 			dimensionIndexArray[currentDimension] = i
 
-			local subTensorLowestValueDimensionArray, value = findMinimumValueDimensionIndexArray(subTensor, numberOfDimensions, currentDimension + 1, dimensionIndexArray)
+			local subTensorLowestValueDimensionArray, value = findMinimumValueDimensionIndexArray(subTensor, numberOfDimensions, nextDimension, dimensionIndexArray)
 
 			if (value < lowestValue) then
 
@@ -3068,6 +3094,8 @@ end
 local function applyFunction(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension, ...)
 	
 	local dimensionSize = dimensionSizeArray[currentDimension]
+	
+	local nextDimension = currentDimension + 1
 
 	local tensorArray = {...}
 
@@ -3081,7 +3109,7 @@ local function applyFunction(functionToApply, dimensionSizeArray, numberOfDimens
 
 			for _, tensor in next, tensorArray do table.insert(subTensorArray, tensor[i]) end
 
-			resultTensor[i] = applyFunction(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension + 1, table.unpack(subTensorArray)) 
+			resultTensor[i] = applyFunction(functionToApply, dimensionSizeArray, numberOfDimensions, nextDimension, table.unpack(subTensorArray)) 
 
 		end
 
@@ -3126,6 +3154,8 @@ function AqwamTensorLibrary:applyFunction(functionToApply, ...)
 end
 
 local function permute(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, currentDimensionIndexArray, targetTensor, targetDimensionSizeArray, dimensionArray)
+	
+	local nextDimension = currentDimension + 1
 
 	if (currentDimension < numberOfDimensions) then
 
@@ -3133,7 +3163,7 @@ local function permute(tensor, dimensionSizeArray, numberOfDimensions, currentDi
 
 			currentDimensionIndexArray[currentDimension] = i
 
-			permute(tensor[i], dimensionSizeArray, numberOfDimensions, currentDimension + 1, currentDimensionIndexArray, targetTensor, dimensionArray)
+			permute(tensor[i], dimensionSizeArray, numberOfDimensions, nextDimension, currentDimensionIndexArray, targetTensor, dimensionArray)
 
 		end
 
