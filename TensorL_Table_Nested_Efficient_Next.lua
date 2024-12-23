@@ -2,7 +2,7 @@
 
 	--------------------------------------------------------------------
 
-	Version 0.9.0
+	Version 0.8.0
 
 	Aqwam's Tensor Library (TensorL)
 
@@ -2984,7 +2984,7 @@ local function applyFunction(functionToApply, dimensionSizeArray, numberOfDimens
 
 			for _, tensor in next, tensorArray do table.insert(subTensorArray, tensor[i]) end
 
-			resultTensor[i] = applyFunction(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension + 1,  table.unpack(subTensorArray)) 
+			resultTensor[i] = applyFunction(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension + 1, table.unpack(subTensorArray)) 
 
 		end
 
