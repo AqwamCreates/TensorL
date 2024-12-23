@@ -2973,12 +2973,12 @@ function AqwamTensorLibrary:isLessOrEqualTo(...)
 end
 
 local function applyFunction(functionToApply, dimensionSizeArray, numberOfDimensions, currentDimension, ...)
+	
+	local dimensionSize = dimensionSizeArray[currentDimension]
 
 	local tensorArray = {...}
 
 	local resultTensor = {}
-
-	local dimensionSize = dimensionSizeArray[currentDimension]
 
 	if (currentDimension < numberOfDimensions) then
 
