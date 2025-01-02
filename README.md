@@ -1,4 +1,4 @@
-# Tensor L
+# TensorL
 
 ![TensorL Icon](icons/TensorLIcon.png)
 
