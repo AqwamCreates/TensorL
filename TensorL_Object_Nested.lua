@@ -456,7 +456,7 @@ end
 
 --]]
 
-local function broadcast(tensor1, tensor2, deepCopyOriginalTensor) -- Single tensor broadcast.
+local function broadcast(tensor1, tensor2, deepCopyOriginalTensor) -- Dual tensor broadcast.
 
 	local dimensionSizeArray1 = getDimensionSizeArray(tensor1)
 
