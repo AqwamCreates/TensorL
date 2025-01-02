@@ -400,19 +400,19 @@ local function broadcast(tensor1, tensor2, deepCopyOriginalTensor) -- Dual tenso
 
 	for i = 1, lowestNumberOfDimensions, 1 do targetDimensionSizeArray[i + numberOfDimensionDifferences] = math.max(truncatedDimensionSizeArrayWithHighestNumberOfDimensions[i], dimensionSizeArrayWithLowestNumberOfDimensions[i]) end
 
-	local expandedTensorForLowestNumberOfDimensions = AqwamTensorLibrary:expandNumberOfDimensions(tensorWithLowestNumberOfDimensions, dimensionSizeToAddArray)
+	local expandedTensorForTheTensorWithLowestNumberOfDimensions = AqwamTensorLibrary:expandNumberOfDimensions(tensorWithLowestNumberOfDimensions, dimensionSizeToAddArray)
 
-	expandedTensorForLowestNumberOfDimensions = AqwamTensorLibrary:expandDimensionSizes(expandedTensorForLowestNumberOfDimensions, targetDimensionSizeArray)
+	expandedTensorForTheTensorWithLowestNumberOfDimensions = AqwamTensorLibrary:expandDimensionSizes(expandedTensorForTheTensorWithLowestNumberOfDimensions, targetDimensionSizeArray)
 
-	local expandedTensorForHighestNumberOfDimensions = AqwamTensorLibrary:expandDimensionSizes(tensorWithHighestNumberOfDimensions, targetDimensionSizeArray)
+	local expandedTensorForTheTensorWithHighestNumberOfDimensions = AqwamTensorLibrary:expandDimensionSizes(tensorWithHighestNumberOfDimensions, targetDimensionSizeArray)
 
 	if (tensorNumberWithLowestNumberOfDimensions == 1) then
 
-		return expandedTensorForLowestNumberOfDimensions, expandedTensorForHighestNumberOfDimensions
+		return expandedTensorForTheTensorWithLowestNumberOfDimensions, expandedTensorForTheTensorWithHighestNumberOfDimensions
 
 	else
 
-		return expandedTensorForHighestNumberOfDimensions, expandedTensorForLowestNumberOfDimensions
+		return expandedTensorForTheTensorWithHighestNumberOfDimensions, expandedTensorForTheTensorWithLowestNumberOfDimensions
 
 	end
 
