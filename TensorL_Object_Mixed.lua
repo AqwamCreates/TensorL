@@ -3339,9 +3339,9 @@ function AqwamTensorLibrary:applyFunction(functionToApply, ...)
 
 			local tensor2 = tensorArray[i + 1]
 
-			local dimensionSizeArray1 = tensor1:getDimensionSizeArray(tensor1)
+			local dimensionSizeArray1 = tensor1:getDimensionSizeArray()
 
-			local dimensionSizeArray2 = tensor2:getDimensionSizeArray(tensor2)
+			local dimensionSizeArray2 = tensor2:getDimensionSizeArray()
 
 			if (not checkIfDimensionIndexArraysAreEqual(dimensionSizeArray1, dimensionSizeArray2)) then doAllTensorsHaveTheSameDimensionSizeArray = false end
 
