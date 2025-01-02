@@ -380,9 +380,11 @@ local function broadcast(tensor1, tensor2, deepCopyOriginalTensor) -- Dual tenso
 
 	end
 
-	for i, dimensionSize in ipairs(dimensionSizeArrayWithLowestNumberOfDimensions) do -- Check if the endings are equal so that we can broadcast one of the tensor. If the dimension size are not equal and neither have dimension size of 1, then we can't broadcast the tensor with the lowest number of dimensions.
+	for i, dimensionSize1 in ipairs(dimensionSizeArrayWithLowestNumberOfDimensions) do -- Check if the endings are equal so that we can broadcast one of the tensor. If the dimension size are not equal and neither have dimension size of 1, then we can't broadcast the tensor with the lowest number of dimensions.
 
-		if (dimensionSize ~= truncatedDimensionSizeArrayWithHighestNumberOfDimensions[i]) and (dimensionSize ~= 1) and (truncatedDimensionSizeArrayWithHighestNumberOfDimensions[i] ~= 1) then onBroadcastError(dimensionSizeArray1, dimensionSizeArray2) end
+		local dimensionSize2 = truncatedDimensionSizeArrayWithHighestNumberOfDimensions[i]
+
+		if (dimensionSize1 ~= dimensionSize2) and (dimensionSize1 ~= 1) and (dimensionSize2 ~= 1) then onBroadcastError(dimensionSizeArray1, dimensionSizeArray2) end
 
 	end
 
