@@ -3196,6 +3196,8 @@ function AqwamTensorLibrary:destroy()
 	self.tensor = nil
 
 	setmetatable(self, nil)
+	
+	self = nil
 
 end
 

@@ -3237,6 +3237,8 @@ function AqwamTensorLibrary:destroy()
 
 	setmetatable(self, nil)
 
+	self = nil
+
 end
 
 function AqwamTensorLibrary:isSameTensor(...)

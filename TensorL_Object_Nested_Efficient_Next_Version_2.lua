@@ -2911,7 +2911,7 @@ local function squeeze(tensor, numberOfDimensions, currentDimension, targetDimen
 
 		resultTensor = {}
 		
-		local local nextDimension = currentDimension + 2
+		local nextDimension = currentDimension + 2
 
 		for i, subSubTensor in ipairs(tensor[1]) do resultTensor[i] = squeeze(subSubTensor, numberOfDimensions, nextDimension, targetDimension) end 
 
@@ -3180,6 +3180,8 @@ function AqwamTensorLibrary:destroy()
 	self.tensor = nil
 
 	setmetatable(self, nil)
+
+	self = nil
 
 end
 
