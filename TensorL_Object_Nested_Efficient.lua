@@ -316,7 +316,9 @@ function AqwamTensorLibrary:expandNumberOfDimensions(dimensionSizeToAddArray)
 
 end
 
-local function broadcast(tensor1, tensor2, deepCopyOriginalTensor)
+--[[
+
+local function broadcast(tensor1, tensor2, deepCopyOriginalTensor) -- Single tensor broadcast.
 
 	local dimensionSizeArray1 = getDimensionSizeArray(tensor1)
 
@@ -427,6 +429,124 @@ local function broadcast(tensor1, tensor2, deepCopyOriginalTensor)
 			return tensor1, expandedTensor
 
 		end
+
+	end
+
+end
+
+--]]
+
+local function broadcast(tensor1, tensor2, deepCopyOriginalTensor) -- Single tensor broadcast.
+
+	local dimensionSizeArray1 = getDimensionSizeArray(tensor1)
+
+	local dimensionSizeArray2 = getDimensionSizeArray(tensor2)
+
+	if checkIfDimensionIndexArraysAreEqual(dimensionSizeArray1, dimensionSizeArray2) then 
+
+		if (deepCopyOriginalTensor) then
+
+			return deepCopyTable(tensor1), deepCopyTable(tensor2)
+
+		else
+
+			return tensor1, tensor2 
+
+		end
+
+	end
+
+	if (type(tensor1) ~= "table") then 
+
+		tensor1 = AqwamTensorLibrary.new({tensor1})
+
+		dimensionSizeArray1[1] = 1
+
+	end
+
+	if (type(tensor2) ~= "table") then 
+
+		tensor2 = AqwamTensorLibrary.new({tensor2})
+
+		dimensionSizeArray2[1] = 1
+
+	end
+
+	local numberOfDimensions1 = #dimensionSizeArray1 
+
+	local numberOfDimensions2 = #dimensionSizeArray2
+
+	local tensorNumberWithLowestNumberOfDimensions
+
+	if (numberOfDimensions1 == numberOfDimensions2) then -- Currently, if the number of dimensions have the same size, the tensor containing dimension with smaller axis will not expandDimensionSizes. See case when tensor sizes are (5, 3, 6) and (5, 1, 6). So we need to be explicit in our dimensionSizeArrayWithHighestNumberOfDimensions variable.
+
+		tensorNumberWithLowestNumberOfDimensions = getTheDimensionSizeArrayWithFewestNumberOfDimensionSizeOf1(dimensionSizeArray1, dimensionSizeArray2)
+
+	else
+
+		tensorNumberWithLowestNumberOfDimensions = ((numberOfDimensions1 < numberOfDimensions2) and 1) or 2
+
+	end
+
+	local isTensor1HaveLessNumberOfDimensions = (tensorNumberWithLowestNumberOfDimensions == 1)
+
+	local tensorWithLowestNumberOfDimensions = (isTensor1HaveLessNumberOfDimensions and tensor1) or tensor2
+
+	local tensorWithHighestNumberOfDimensions = (not isTensor1HaveLessNumberOfDimensions and tensor1) or tensor2
+
+	local dimensionSizeArrayWithLowestNumberOfDimensions = (isTensor1HaveLessNumberOfDimensions and dimensionSizeArray1) or dimensionSizeArray2
+
+	local dimensionSizeArrayWithHighestNumberOfDimensions = ((not isTensor1HaveLessNumberOfDimensions) and dimensionSizeArray1) or dimensionSizeArray2
+
+	local lowestNumberOfDimensions = #dimensionSizeArrayWithLowestNumberOfDimensions
+
+	local highestNumberOfDimensions = #dimensionSizeArrayWithHighestNumberOfDimensions
+
+	local numberOfDimensionDifferences = highestNumberOfDimensions - lowestNumberOfDimensions
+
+	local truncatedDimensionSizeArrayWithHighestNumberOfDimensions = table.clone(dimensionSizeArrayWithHighestNumberOfDimensions)
+
+	for i = 1, numberOfDimensionDifferences, 1 do -- We need to remove the extra dimensions from tensor with highest number of dimensions. The values are removed starting from the first so that we can compare the endings.
+
+		table.remove(truncatedDimensionSizeArrayWithHighestNumberOfDimensions, 1)
+
+	end
+
+	for i, dimensionSize1 in ipairs(dimensionSizeArrayWithLowestNumberOfDimensions) do -- Check if the endings are equal so that we can broadcast one of the tensor. If the dimension size are not equal and neither have dimension size of 1, then we can't broadcast the tensor with the lowest number of dimensions.
+
+		local dimensionSize2 = truncatedDimensionSizeArrayWithHighestNumberOfDimensions[i]
+
+		if (dimensionSize1 ~= dimensionSize2) and (dimensionSize1 ~= 1) and (dimensionSize2 ~= 1) then onBroadcastError(dimensionSizeArray1, dimensionSizeArray2) end
+
+	end
+
+	local dimensionSizeToAddArray = {}
+
+	for i = 1, numberOfDimensionDifferences, 1 do table.insert(dimensionSizeToAddArray, dimensionSizeArrayWithHighestNumberOfDimensions[i]) end -- Get the dimension sizes of the left part of dimension size array.
+
+	local expandedDimensionSizeArrayForLowestNumberOfDimensions = table.clone(dimensionSizeToAddArray)
+
+	for i = 1, lowestNumberOfDimensions, 1 do table.insert(expandedDimensionSizeArrayForLowestNumberOfDimensions, dimensionSizeArrayWithLowestNumberOfDimensions[i]) end
+
+	local targetDimensionSizeArray = {}
+
+	for i = 1, numberOfDimensionDifferences, 1 do table.insert(targetDimensionSizeArray, dimensionSizeArrayWithHighestNumberOfDimensions[i]) end
+
+	for i = 1, lowestNumberOfDimensions, 1 do targetDimensionSizeArray[i + numberOfDimensionDifferences] = math.max(truncatedDimensionSizeArrayWithHighestNumberOfDimensions[i], dimensionSizeArrayWithLowestNumberOfDimensions[i]) end
+
+	local expandedTensorForTheTensorWithLowestNumberOfDimensions = tensorWithLowestNumberOfDimensions:expandNumberOfDimensions(dimensionSizeToAddArray)
+
+	expandedTensorForTheTensorWithLowestNumberOfDimensions = expandedTensorForTheTensorWithLowestNumberOfDimensions:expandDimensionSizes(targetDimensionSizeArray)
+
+	local expandedTensorForTheTensorWithHighestNumberOfDimensions = tensorWithHighestNumberOfDimensions:expandDimensionSizes(targetDimensionSizeArray)
+
+	if (tensorNumberWithLowestNumberOfDimensions == 1) then
+
+		return expandedTensorForTheTensorWithLowestNumberOfDimensions, expandedTensorForTheTensorWithHighestNumberOfDimensions
+
+	else
+
+		return expandedTensorForTheTensorWithHighestNumberOfDimensions, expandedTensorForTheTensorWithLowestNumberOfDimensions
 
 	end
 
@@ -3093,13 +3213,43 @@ function AqwamTensorLibrary:applyFunction(functionToApply, ...)
 
 	if (self.tensor) then table.insert(tensorArray, 1, self) end
 
-	local numberOfTensors = #tensorArray
+	local doAllTensorsHaveTheSameDimensionSizeArray
 
-	if (numberOfTensors >= 2) then
+	--[[
+		
+		A single sweep is not enough to make sure that all tensors have the same dimension size arrays. So, we need to do it multiple times.
+		
+		Here's an example where the tensors' dimension size array will not match the others in a single sweep: {2, 3, 1}, {1,3}, {5, 1, 1, 1}. 
+		
+		The first dimension size array needs to match with the third dimension size array, but can only look at the second dimension size array. 
+		
+		So, we need to propagate the third dimension size array to the nearby dimension size array so that it reaches the first dimension size array. 
+		
+		In this case, it would be the second dimension size array.
+		
+	--]]
 
-		for i = 1, (numberOfTensors - 1), 1 do tensorArray[i], tensorArray[i + 1] = broadcast(tensorArray[i], tensorArray[i + 1], false) end
+	repeat 
 
-	end
+		doAllTensorsHaveTheSameDimensionSizeArray = true
+
+		for i = 1, (#tensorArray - 1), 1 do
+
+			local tensor1 = tensorArray[i]
+
+			local tensor2 = tensorArray[i + 1]
+
+			local dimensionSizeArray1 = tensor1:getDimensionSizeArray(tensor1)
+
+			local dimensionSizeArray2 = tensor2:getDimensionSizeArray(tensor2)
+
+			if (not checkIfDimensionIndexArraysAreEqual(dimensionSizeArray1, dimensionSizeArray2)) then doAllTensorsHaveTheSameDimensionSizeArray = false end
+
+			tensorArray[i], tensorArray[i + 1] = broadcast(tensor1, tensor2, false)
+
+		end
+
+	until (doAllTensorsHaveTheSameDimensionSizeArray)
 
 	local dimensionSizeArray = tensorArray[1]:getDimensionSizeArray()
 
