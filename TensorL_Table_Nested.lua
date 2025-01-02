@@ -392,7 +392,7 @@ local function broadcast(tensor1, tensor2, deepCopyOriginalTensor) -- Dual tenso
 
 	local expandedDimensionSizeArrayForLowestNumberOfDimensions = table.clone(dimensionSizeToAddArray)
 
-	for i = 1, lowestNumberOfDimensions, 1 do table.insert(expandedDimensionSizeArrayForLowestNumberOfDimensions, dimensionSizeArrayWithLowestNumberOfDimensions[i]) end -- Get the dimension sizes of the left part of dimension size array.
+	for i = 1, lowestNumberOfDimensions, 1 do table.insert(expandedDimensionSizeArrayForLowestNumberOfDimensions, dimensionSizeArrayWithLowestNumberOfDimensions[i]) end
 
 	local targetDimensionSizeArray = {}
 
