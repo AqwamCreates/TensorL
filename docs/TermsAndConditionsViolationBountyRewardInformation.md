@@ -52,7 +52,7 @@ If you suspect that any license violations, including those involving your own c
   
   * If an individual within a company/group is unaware of the violation and reports it accurately, they are still eligible for the reward, but personal liability will not be imposed on them for simply reporting the issue.
 
-## False Accusations, Defamation, and Criminal Liability
+## False Accusations, Defamation, And Criminal Liability
 
 * Any individual or entity making false accusations or engaging in defamation against a company/group or individual under this License will be subject to criminal prosecution under applicable criminal law, including but not limited to laws surrounding defamation, libel, and slander.
 
