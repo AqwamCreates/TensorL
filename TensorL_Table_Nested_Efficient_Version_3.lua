@@ -490,7 +490,7 @@ local function applyFunctionUsingTwoTensors(functionToApply, tensor1, tensor2, d
 
 		value1 = AqwamTensorLibrary:getValue(tensor1, dimensionIndexArray)
 		
-		value2 = AqwamTensorLibrary:getValue(tensor1, dimensionIndexArray)
+		value2 = AqwamTensorLibrary:getValue(tensor2, dimensionIndexArray)
 
 		newValue = functionToApply(value1, value2)
 
@@ -3417,7 +3417,7 @@ function AqwamTensorLibrary:setValue(tensor, value, dimensionIndexArray)
 	
 	for i = 1, (numberOfIndices - 1), 1 do subTensor = subTensor[dimensionIndexArray[i]] end
 	
-	subTensor[numberOfIndices] = value
+	subTensor[dimensionIndexArray[numberOfIndices]] = value
 
 end
 
