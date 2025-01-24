@@ -1355,8 +1355,6 @@ function AqwamTensorLibrary:createIdentityTensor(dimensionSizeArray)
 	local truncatedNumberOfDimensions = #truncatedDimensionSizeArray
 
 	local resultTensor = AqwamTensorLibrary:createTensor(truncatedDimensionSizeArray, 0)
-	
-	print(resultTensor)
 
 	for i = 1, truncatedNumberOfDimensions, 1 do
 
