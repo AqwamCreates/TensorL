@@ -1157,42 +1157,6 @@ function AqwamTensorLibrary:createRandomNormalTensor(dimensionSizeArray, mean, s
 
 end
 
-local function createRandomUniformTensor(dimensionSizeArray, numberOfDimensions, currentDimension, minimumValue, maximumValue)
-	
-	local nextDimension = currentDimension + 1
-
-	local tensor = {}
-
-	if (currentDimension < numberOfDimensions) then
-
-		for i = 1, dimensionSizeArray[currentDimension], 1 do tensor[i] = createRandomUniformTensor(dimensionSizeArray, numberOfDimensions, nextDimension, minimumValue, maximumValue) end
-
-	elseif (currentDimension == numberOfDimensions) and (minimumValue) and (maximumValue) then
-
-		for i = 1, dimensionSizeArray[currentDimension], 1 do tensor[i] = math.random(minimumValue, maximumValue) end
-
-	elseif (currentDimension == numberOfDimensions) and (minimumValue) and (not maximumValue) then
-
-		for i = 1, dimensionSizeArray[currentDimension], 1 do tensor[i] = math.random(minimumValue) end
-
-	elseif (currentDimension == numberOfDimensions) and (not minimumValue) and (not maximumValue) then
-
-		for i = 1, dimensionSizeArray[currentDimension], 1 do tensor[i] = math.random() end
-
-	elseif (currentDimension == numberOfDimensions) and (not minimumValue) and (maximumValue) then
-
-		error("Invalid minimum value.")
-
-	else
-
-		error("An unknown error has occured when creating the random uniform tensor.")
-
-	end
-
-	return tensor
-
-end
-
 function AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue)
 
 	local numberOfDimensions = #dimensionSizeArray
