@@ -1137,6 +1137,8 @@ function AqwamTensorLibrary:createRandomNormalTensor(dimensionSizeArray, mean, s
 
 		end
 		
+		local subSubTensor = previousSubTensor[dimensionIndexArray[numberOfDimensionsMinusOne]]
+		
 		for i = 1, finalDimensionSize, 1 do 
 
 			randomNumber1 = math.random()
@@ -1145,7 +1147,7 @@ function AqwamTensorLibrary:createRandomNormalTensor(dimensionSizeArray, mean, s
 
 			zScore = math.sqrt(-2 * math.log(randomNumber1)) * math.cos(2 * math.pi * randomNumber2) -- Box–Muller transform formula.
 
-			previousSubTensor[i] = (zScore * standardDeviation) + mean
+			subSubTensor[i] = (zScore * standardDeviation) + mean
 
 		end
 
@@ -1235,17 +1237,19 @@ function AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray, minimu
 
 		end
 		
+		local subSubTensor = previousSubTensor[dimensionIndexArray[numberOfDimensionsMinusOne]]
+		
 		if (minimumValue) and (maximumValue) then 
 			
-			for i = 1, finalDimensionSize, 1 do previousSubTensor[i] =  math.random(minimumValue, maximumValue) end
+			for i = 1, finalDimensionSize, 1 do subSubTensor[i] =  math.random(minimumValue, maximumValue) end
 			
 		elseif (minimumValue) and (not maximumValue) then
 			
-			for i = 1, finalDimensionSize, 1 do previousSubTensor[i] =  math.random(minimumValue) end
+			for i = 1, finalDimensionSize, 1 do subSubTensor[i] =  math.random(minimumValue) end
 			
 		elseif (not minimumValue) and (not maximumValue) then
 			
-			for i = 1, finalDimensionSize, 1 do previousSubTensor[i] =  math.random() end
+			for i = 1, finalDimensionSize, 1 do subSubTensor[i] =  math.random() end
 			
 		elseif (not minimumValue) and (maximumValue) then
 
