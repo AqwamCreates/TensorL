@@ -3244,53 +3244,21 @@ function AqwamTensorLibrary:applyFunction(functionToApply, ...)
 
 end
 
-local function setValue(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, value, dimensionIndexArray)
-
-	local dimensionIndex = dimensionIndexArray[currentDimension]
-
-	if (currentDimension < numberOfDimensions) then
-
-		throwErrorIfDimensionIndexIsOutOfBounds(dimensionIndex, 1, dimensionSizeArray[currentDimension])
-
-		setValue(tensor[dimensionIndex], dimensionSizeArray, numberOfDimensions, currentDimension + 1, value, dimensionIndexArray)
-
-	else
-
-		tensor[dimensionIndex] = value
-
-	end
-
-end
-
 function AqwamTensorLibrary:setValue(tensor, value, dimensionIndexArray)
 
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
-	local numberOfDimensions = #dimensionIndexArray
+	local numberOfIndices = #dimensionIndexArray
 
-	if (#dimensionIndexArray > numberOfDimensions) then error("The number of indices exceeds the tensor's number of dimensions.") end
+	if (numberOfIndices ~= #dimensionSizeArray) then error("The number of indices exceeds the tensor's number of dimensions.") end
 
-	setValue(tensor, dimensionSizeArray, numberOfDimensions, 1, value, dimensionIndexArray)
+	local subTensor = tensor
 
-end
+	local previousValue
 
-local function getValue(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, dimensionIndexArray)
+	for i = 1, (numberOfIndices - 1), 1 do subTensor = subTensor[dimensionIndexArray[i]] end
 
-	local dimensionIndex = dimensionIndexArray[currentDimension]
-	
-	local nextDimension = currentDimension + 1
-
-	if (currentDimension < numberOfDimensions) then
-
-		throwErrorIfDimensionIndexIsOutOfBounds(dimensionIndex, 1, dimensionSizeArray[currentDimension])
-
-		return getValue(tensor[dimensionIndex], dimensionSizeArray, numberOfDimensions, nextDimension, dimensionIndexArray)
-
-	else
-
-		return tensor[dimensionIndex]
-
-	end
+	subTensor[dimensionIndexArray[numberOfIndices]] = value
 
 end
 
@@ -3298,11 +3266,13 @@ function AqwamTensorLibrary:getValue(tensor, dimensionIndexArray)
 
 	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
-	local numberOfDimensions = #dimensionIndexArray
+	if (#dimensionIndexArray ~= #dimensionSizeArray) then error("The number of indices exceeds the tensor's number of dimensions.") end
 
-	if (#dimensionIndexArray > numberOfDimensions) then error("The number of indices exceeds the tensor's number of dimensions.") end
+	local value = tensor
 
-	return getValue(tensor, dimensionSizeArray, numberOfDimensions, 1, dimensionIndexArray)
+	for _, index in ipairs(dimensionIndexArray) do value = value[index] end
+
+	return value
 
 end
 
