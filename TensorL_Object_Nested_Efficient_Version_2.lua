@@ -722,43 +722,29 @@ local function applyFunctionOnMultipleTensors(functionToApply, ...)
 
 end
 
-local function setValue(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, value, dimensionIndexArray)
+local function setValue(tensor, dimensionSizeArray, value, dimensionIndexArray)
 
-	local dimensionIndex = dimensionIndexArray[currentDimension]
-	
-	local nextDimension = currentDimension + 1
+	local numberOfIndices = #dimensionIndexArray
 
-	if (currentDimension < numberOfDimensions) then
+	if (numberOfIndices ~= #dimensionSizeArray) then error("The number of indices exceeds the tensor's number of dimensions.") end
 
-		throwErrorIfDimensionIndexIsOutOfBounds(dimensionIndex, 1, dimensionSizeArray[currentDimension])
+	local subTensor = tensor
 
-		setValue(tensor[dimensionIndex], dimensionSizeArray, numberOfDimensions, nextDimension, value, dimensionIndexArray)
+	for i = 1, (numberOfIndices - 1), 1 do subTensor = subTensor[dimensionIndexArray[i]] end
 
-	else
-
-		tensor[dimensionIndex] = value
-
-	end
+	subTensor[dimensionIndexArray[numberOfIndices]] = value
 
 end
 
-local function getValue(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, dimensionIndexArray)
+local function getValue(tensor, dimensionSizeArray, dimensionIndexArray)
 
-	local dimensionIndex = dimensionIndexArray[currentDimension]
-	
-	local nextDimension = currentDimension + 1
+	if (#dimensionIndexArray ~= #dimensionSizeArray) then error("The number of indices exceeds the tensor's number of dimensions.") end
 
-	if (currentDimension < numberOfDimensions) then
+	local value = tensor
 
-		throwErrorIfDimensionIndexIsOutOfBounds(dimensionIndex, 1, dimensionSizeArray[currentDimension])
+	for _, index in ipairs(dimensionIndexArray) do value = value[index] end
 
-		return getValue(tensor[dimensionIndex], dimensionSizeArray, numberOfDimensions, nextDimension, dimensionIndexArray)
-
-	else
-
-		return tensor[dimensionIndex]
-
-	end
+	return value
 
 end
 
@@ -806,11 +792,11 @@ local function recursiveSubTensorSumAlongFirstDimension(tensor, dimensionSizeArr
 
 			copiedTargetDimensionIndexArray[currentDimension] = i
 
-			local targetTensorValue = getValue(targetTensor, targetDimensionSizeArray, #targetDimensionSizeArray, 1, copiedTargetDimensionIndexArray)
+			local targetTensorValue = getValue(targetTensor, targetDimensionSizeArray, copiedTargetDimensionIndexArray)
 
 			local value = targetTensorValue + tensor[i]
 
-			setValue(targetTensor, targetDimensionSizeArray, #targetDimensionSizeArray, 1, value, copiedTargetDimensionIndexArray)
+			setValue(targetTensor, targetDimensionSizeArray, value, copiedTargetDimensionIndexArray)
 
 		end
 		
@@ -1590,7 +1576,7 @@ local function transpose(tensor, dimensionSizeArray, numberOfDimensions, current
 
 			targetDimensionIndexArray[dimension2] = targetDimensionIndex1
 
-			setValue(targetTensor, targetTensorDimensionSizeArray, #targetTensorDimensionSizeArray, 1, tensor[i], targetDimensionIndexArray)
+			setValue(targetTensor, targetTensorDimensionSizeArray, tensor[i], targetDimensionIndexArray)
 
 		end
 
@@ -3347,7 +3333,7 @@ local function permute(tensor, dimensionSizeArray, numberOfDimensions, currentDi
 
 			for j = 1, numberOfDimensions, 1 do targetDimensionIndexArray[j] = currentDimensionIndexArray[dimensionArray[j]] end
 
-			setValue(targetTensor, targetDimensionSizeArray, numberOfDimensions, 1, tensor[i], targetDimensionIndexArray)
+			setValue(targetTensor, targetDimensionSizeArray, tensor[i], targetDimensionIndexArray)
 
 		end
 
