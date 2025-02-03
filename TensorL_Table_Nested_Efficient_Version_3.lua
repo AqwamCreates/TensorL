@@ -1062,6 +1062,8 @@ function AqwamTensorLibrary:createTensor(dimensionSizeArray, initialValue)
 	local previousSubTensor
 	
 	local subTensor
+	
+	if (numberOfDimensions == 1) then return table.create(finalDimensionSize, initialValue) end
 
 	while (not checkIfDimensionIndexArraysAreEqual(newDimensionSizeArray, dimensionIndexArray)) do
 
@@ -1118,6 +1120,24 @@ function AqwamTensorLibrary:createRandomNormalTensor(dimensionSizeArray, mean, s
 	local randomNumber2
 	
 	local zScore
+	
+	if (numberOfDimensions == 1) then
+		
+		for i = 1, finalDimensionSize, 1 do 
+
+			randomNumber1 = math.random()
+
+			randomNumber2 = math.random()
+
+			zScore = math.sqrt(-2 * math.log(randomNumber1)) * math.cos(2 * math.pi * randomNumber2) -- Box–Muller transform formula.
+
+			tensor[i] = (zScore * standardDeviation) + mean
+
+		end
+		
+		return tensor
+		
+	end
 
 	while (not checkIfDimensionIndexArraysAreEqual(newDimensionSizeArray, dimensionIndexArray)) do
 
@@ -1182,6 +1202,34 @@ function AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray, minimu
 	local randomNumber2
 
 	local zScore
+	
+	if (numberOfDimensions == 1) then
+
+		if (minimumValue) and (maximumValue) then 
+
+			for i = 1, finalDimensionSize, 1 do tensor[i] =  math.random(minimumValue, maximumValue) end
+
+		elseif (minimumValue) and (not maximumValue) then
+
+			for i = 1, finalDimensionSize, 1 do tensor[i] =  math.random(minimumValue) end
+
+		elseif (not minimumValue) and (not maximumValue) then
+
+			for i = 1, finalDimensionSize, 1 do tensor[i] =  math.random() end
+
+		elseif (not minimumValue) and (maximumValue) then
+
+			error("Invalid minimum value.")
+
+		else
+
+			error("An unknown error has occured when creating the random uniform tensor.")
+
+		end
+
+		return tensor
+
+	end
 
 	while (not checkIfDimensionIndexArraysAreEqual(newDimensionSizeArray, dimensionIndexArray)) do
 
@@ -3380,8 +3428,6 @@ function AqwamTensorLibrary:setValue(tensor, value, dimensionIndexArray)
 	if (numberOfIndices ~= #dimensionSizeArray) then error("The number of indices exceeds the tensor's number of dimensions.") end
 	
 	local subTensor = tensor
-	
-	local previousValue
 	
 	for i = 1, (numberOfIndices - 1), 1 do subTensor = subTensor[dimensionIndexArray[i]] end
 	
