@@ -3254,8 +3254,6 @@ function AqwamTensorLibrary:setValue(tensor, value, dimensionIndexArray)
 
 	local subTensor = tensor
 
-	local previousValue
-
 	for i = 1, (numberOfIndices - 1), 1 do subTensor = subTensor[dimensionIndexArray[i]] end
 
 	subTensor[dimensionIndexArray[numberOfIndices]] = value
