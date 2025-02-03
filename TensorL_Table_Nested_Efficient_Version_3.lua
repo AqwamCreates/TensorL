@@ -549,7 +549,7 @@ local function applyFunctionWhenTheSecondValueIsAScalar(functionToApply, tensor,
 
 		newValue = functionToApply(value, scalar)
 
-		AqwamTensorLibrary:setValue(resultTensor, dimensionIndexArray, value)
+		AqwamTensorLibrary:setValue(resultTensor, value, dimensionIndexArray)
 
 	end
 
