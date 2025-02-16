@@ -1,4 +1,5 @@
-  ========== Same Value Tensor Initialization ==========
+```
+========== Same Value Tensor Initialization ==========
 
 Object Flat						: 0.0007300040003610775 seconds
 Table Nested					: 0.00031923299829941245 seconds
@@ -150,3 +151,5 @@ Table Nested Efficient V2		: 0.000565564997959882 seconds
 Table Nested Efficient V3		: 0.0005509739997796714 seconds
 Table Nested Efficient IPairs V2: 0.0005722299986518919 seconds
 Table Mixed						: 0.0009392689977539703 seconds
+
+```
