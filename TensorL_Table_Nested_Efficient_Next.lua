@@ -1044,13 +1044,11 @@ end
 
 local function createRandomUniformTensor(dimensionSizeArray, numberOfDimensions, currentDimension, minimumValue, maximumValue)
 
-	local nextDimension = currentDimension + 1
-
 	local tensor = {}
 
 	if (currentDimension < numberOfDimensions) then
 
-		for i = 1, dimensionSizeArray[currentDimension], 1 do tensor[i] = createRandomUniformTensor(dimensionSizeArray, numberOfDimensions, nextDimension, minimumValue, maximumValue) end
+		for i = 1, dimensionSizeArray[currentDimension], 1 do tensor[i] = createRandomUniformTensor(dimensionSizeArray, numberOfDimensions, currentDimension + 1, minimumValue, maximumValue) end
 
 	elseif (currentDimension == numberOfDimensions) and (minimumValue) and (maximumValue) then
 
