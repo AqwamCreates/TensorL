@@ -1160,7 +1160,7 @@ function AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray, minimu
 	
 	if (minimumValue) and (maximumValue) then
 
-		if (minimumValue >= maximumValue) then error("The minimum value cannot exceed the maximum value.") end
+		if (minimumValue >= maximumValue) then error("The minimum value cannot be greater than or equal to the maximum value.") end
 
 	elseif (not minimumValue) and (maximumValue) then
 
