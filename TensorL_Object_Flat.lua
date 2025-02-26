@@ -419,6 +419,20 @@ function AqwamTensorLibrary.createRandomNormalTensor(dimensionSizeArray, mean, s
 end
 
 function AqwamTensorLibrary.createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue, mode)
+	
+	if (minimumValue) and (maximumValue) then
+
+		if (minimumValue >= maximumValue) then error("The minimum value cannot be greater than or equal to the maximum value.") end
+
+	elseif (not minimumValue) and (maximumValue) then
+
+		if (maximumValue <= 0) then error("The maximum value cannot be less than or equal to zero.") end
+
+	elseif (minimumValue) and (not maximumValue) then
+
+		if (minimumValue >= 0) then error("The minimum value cannot be greater than or equal to zero.") end
+
+	end
 
 	local self = setmetatable({}, AqwamTensorLibrary)
 
@@ -428,23 +442,19 @@ function AqwamTensorLibrary.createRandomUniformTensor(dimensionSizeArray, minimu
 
 		if (minimumValue) and (maximumValue) then
 
-			return math.random(minimumValue, maximumValue)
+			return minimumValue + (math.random() * (maximumValue - minimumValue))
+			
+		elseif (not minimumValue) and (maximumValue) then
+
+			return math.random() * maximumValue
 
 		elseif (minimumValue) and (not maximumValue) then
 
-			return math.random(minimumValue)
+			return math.random() * minimumValue
 
 		elseif (not minimumValue) and (not maximumValue) then
 
-			return math.random()
-
-		elseif (not minimumValue) and (maximumValue) then
-
-			error("Invalid minimum value.")
-
-		else
-
-			error("An unknown error has occured when creating the random uniform tensor.")
+			return (math.random() * 2) - 1
 
 		end
 
