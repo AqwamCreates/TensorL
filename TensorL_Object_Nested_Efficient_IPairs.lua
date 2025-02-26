@@ -1147,23 +1147,21 @@ local function createRandomUniformTensor(dimensionSizeArray, numberOfDimensions,
 
 	elseif (currentDimension == numberOfDimensions) and (minimumValue) and (maximumValue) then
 
-		for i = 1, dimensionSizeArray[currentDimension], 1 do tensor[i] = math.random(minimumValue, maximumValue) end
+		local rangeValue = (maximumValue - minimumValue)
 
-	elseif (currentDimension == numberOfDimensions) and (minimumValue) and (not maximumValue) then
-
-		for i = 1, dimensionSizeArray[currentDimension], 1 do tensor[i] = math.random(minimumValue) end
-
-	elseif (currentDimension == numberOfDimensions) and (not minimumValue) and (not maximumValue) then
-
-		for i = 1, dimensionSizeArray[currentDimension], 1 do tensor[i] = math.random() end
+		for i = 1, dimensionSizeArray[currentDimension], 1 do tensor[i] = minimumValue + (math.random() * rangeValue) end
 
 	elseif (currentDimension == numberOfDimensions) and (not minimumValue) and (maximumValue) then
 
-		error("Invalid minimum value.")
+		for i = 1, dimensionSizeArray[currentDimension], 1 do tensor[i] = math.random() * maximumValue end
 
-	else
+	elseif (currentDimension == numberOfDimensions) and (minimumValue) and (not maximumValue) then
 
-		error("An unknown error has occured when creating the random uniform tensor.")
+		for i = 1, dimensionSizeArray[currentDimension], 1 do tensor[i] = math.random() * minimumValue end
+
+	elseif (currentDimension == numberOfDimensions) and (not minimumValue) and (not maximumValue) then
+
+		for i = 1, dimensionSizeArray[currentDimension], 1 do tensor[i] = (math.random() * 2) - 1 end
 
 	end
 
