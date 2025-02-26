@@ -1172,6 +1172,20 @@ local function createRandomUniformTensor(dimensionSizeArray, numberOfDimensions,
 end
 
 function AqwamTensorLibrary.createRandomUniformTensor(dimensionSizeArray, minimumValue, maximumValue)
+	
+	if (minimumValue) and (maximumValue) then
+
+		if (minimumValue >= maximumValue) then error("The minimum value cannot be greater than or equal to the maximum value.") end
+
+	elseif (not minimumValue) and (maximumValue) then
+
+		if (maximumValue <= 0) then error("The maximum value cannot be less than or equal to zero.") end
+
+	elseif (minimumValue) and (not maximumValue) then
+
+		if (minimumValue >= 0) then error("The minimum value cannot be greater than or equal to zero.") end
+
+	end
 
 	local self = setmetatable({}, AqwamTensorLibrary)
 
