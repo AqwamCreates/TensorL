@@ -3355,26 +3355,26 @@ function AqwamTensorLibrary:permute(tensor, dimensionArray)
 end
 
 local function flip(tensor,  dimensionSizeArray, numberOfDimensions, currentDimension, dimension)
+	
+	local nextDimension = currentDimension + 1
 
 	local resultTensor = {}
 
-	local nextDimension = currentDimension + 1
-
-	local currentDimensionSize = dimensionSizeArray[currentDimension]
-
 	if (currentDimension < numberOfDimensions) and (currentDimension == dimension) then
 
-		for i, value in next, tensor do
+		for i, subTensor in next, tensor do
 
-			resultTensor[i] = flip(tensor[(currentDimensionSize - i) + 1],  dimensionSizeArray, numberOfDimensions, nextDimension, dimension)
+			local resultSubTensor = flip(subTensor,  dimensionSizeArray, numberOfDimensions, nextDimension, dimension)
+
+			table.insert(resultTensor, 1, resultSubTensor)
 
 		end
 
 	elseif (currentDimension < numberOfDimensions) and (currentDimension ~= dimension) then
 
-		for i, value in next, tensor do
+		for i, subTensor in next, tensor do
 
-			resultTensor[i] = flip(tensor[i],  dimensionSizeArray, numberOfDimensions, nextDimension, dimension)
+			resultTensor[i] = flip(subTensor,  dimensionSizeArray, numberOfDimensions, nextDimension, dimension)
 
 		end
 
@@ -3382,7 +3382,7 @@ local function flip(tensor,  dimensionSizeArray, numberOfDimensions, currentDime
 
 		for i, value in next, tensor do
 
-			resultTensor[i] = tensor[(currentDimensionSize - i) + 1]
+			table.insert(resultTensor, 1, value)
 
 		end
 
@@ -3390,7 +3390,7 @@ local function flip(tensor,  dimensionSizeArray, numberOfDimensions, currentDime
 
 		for i, value in next, tensor do
 
-			resultTensor[i] = tensor[i]
+			resultTensor[i] = value
 
 		end
 
