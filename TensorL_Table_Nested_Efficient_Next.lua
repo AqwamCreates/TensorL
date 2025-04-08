@@ -3324,21 +3324,21 @@ local function flip(tensor,  dimensionSizeArray, numberOfDimensions, currentDime
 
 	local resultTensor = {}
 
-	local currentDimensionSize = dimensionSizeArray[currentDimension]
-
 	if (currentDimension < numberOfDimensions) and (currentDimension == dimension) then
 
-		for i, value in next, tensor do
+		for i, subTensor in next, tensor do
 
-			resultTensor[i] = flip(tensor[(currentDimensionSize - i) + 1],  dimensionSizeArray, numberOfDimensions, currentDimension + 1, dimension)
+			local resultSubTensor = flip(subTensor,  dimensionSizeArray, numberOfDimensions, currentDimension + 1, dimension)
+
+			table.insert(resultTensor, 1, resultSubTensor)
 
 		end
 
 	elseif (currentDimension < numberOfDimensions) and (currentDimension ~= dimension) then
 
-		for i, value in next, tensor do
+		for i, subTensor in next, tensor do
 
-			resultTensor[i] = flip(tensor[i],  dimensionSizeArray, numberOfDimensions, currentDimension + 1, dimension)
+			resultTensor[i] = flip(subTensor,  dimensionSizeArray, numberOfDimensions, currentDimension + 1, dimension)
 
 		end
 
@@ -3346,7 +3346,7 @@ local function flip(tensor,  dimensionSizeArray, numberOfDimensions, currentDime
 
 		for i, value in next, tensor do
 
-			resultTensor[i] = tensor[(currentDimensionSize - i) + 1]
+			table.insert(resultTensor, 1, value)
 
 		end
 
@@ -3354,7 +3354,7 @@ local function flip(tensor,  dimensionSizeArray, numberOfDimensions, currentDime
 
 		for i, value in next, tensor do
 
-			resultTensor[i] = tensor[i]
+			resultTensor[i] = value
 
 		end
 
