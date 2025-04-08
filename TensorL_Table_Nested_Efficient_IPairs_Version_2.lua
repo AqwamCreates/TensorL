@@ -3356,12 +3356,12 @@ function AqwamTensorLibrary:permute(tensor, dimensionArray)
 end
 
 local function flip(tensor,  dimensionSizeArray, numberOfDimensions, currentDimension, dimension)
-
-	local resultTensor = {}
-
+	
+	local currentDimensionSize = dimensionSizeArray[currentDimension]
+	
 	local nextDimension = currentDimension + 1
 
-	local currentDimensionSize = dimensionSizeArray[currentDimension]
+	local resultTensor = {}
 
 	if (currentDimension < numberOfDimensions) and (currentDimension == dimension) then
 		
