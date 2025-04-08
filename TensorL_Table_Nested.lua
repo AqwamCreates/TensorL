@@ -3453,12 +3453,12 @@ function AqwamTensorLibrary:copy(tensor)
 end
 
 local function flip(tensor, dimensionSizeArray, dimension)
-
-	local resultTensor = {}
-
-	local numberOfDimensions = #dimensionSizeArray
 	
 	local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+	
+	local numberOfDimensions = #dimensionSizeArray
+
+	local resultTensor = {}
 
 	if (numberOfDimensions >= 2) and (numberOfDimensions == dimension) then
 
