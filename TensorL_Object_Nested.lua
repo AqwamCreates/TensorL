@@ -3750,4 +3750,70 @@ function AqwamTensorLibrary:permute(dimensionArray)
 
 end
 
+local function flip(tensor, dimensionSizeArray, dimension)
+
+	local remainingDimensionSizeArray = removeFirstValueFromArray(dimensionSizeArray)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	local resultTensor = {}
+
+	if (numberOfDimensions >= 2) and (numberOfDimensions == dimension) then
+
+		for i = 1, dimensionSizeArray[1], 1 do
+
+			local resultSubTensor = flip(tensor[i], remainingDimensionSizeArray, dimension)
+
+			table.insert(resultTensor, 1, resultSubTensor)
+
+		end
+
+	elseif (numberOfDimensions >= 2) and (numberOfDimensions ~= dimension) then
+
+		for i = 1,  dimensionSizeArray[1], 1 do
+
+			resultTensor[i] = flip(tensor[i],  remainingDimensionSizeArray, dimension)
+
+		end
+
+	elseif (numberOfDimensions == 1) and (numberOfDimensions == dimension) then
+
+		for i = 1,  dimensionSizeArray[1], 1 do
+
+			table.insert(resultTensor, 1, tensor[i])
+
+		end
+
+	elseif (numberOfDimensions == 1) and (numberOfDimensions ~= dimension) then
+
+		for i = 1,  dimensionSizeArray[1], 1 do
+
+			resultTensor[i] = tensor[i]
+
+		end
+
+	end
+
+	return resultTensor
+
+end
+
+function AqwamTensorLibrary:flip(tensor, dimension)
+
+	if (type(dimension) ~= "number") then error("Invalid dimension.") end
+
+	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	if (dimension <= 0) then error("The dimension cannot be less than or equal to zero.") end
+
+	if (dimension > numberOfDimensions) then error("The dimension is greater than the tensor's number of dimensions.") end
+	
+	local resultTensor = flip(tensor, dimensionSizeArray, dimension)
+
+	return AqwamTensorLibrary.new(resultTensor)
+
+end
+
 return AqwamTensorLibrary
