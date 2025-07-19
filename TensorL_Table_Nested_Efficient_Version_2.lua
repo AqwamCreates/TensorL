@@ -3046,7 +3046,7 @@ function AqwamTensorLibrary:concatenate(tensor1, tensor2, dimension)
 	
 	if (bothTensorsAreVectors) then 
 		
-		for _, value in ipairs(tensor2) do table.insert(targetTensor, value)end
+		for _, value in ipairs(tensor2) do table.insert(targetTensor, value) end
 		
 		return targetTensor
 		
