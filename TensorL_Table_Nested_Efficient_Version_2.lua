@@ -3035,10 +3035,22 @@ function AqwamTensorLibrary:concatenate(tensor1, tensor2, dimension)
 	local numberOfDimensions1 = #dimensionSizeArray1
 
 	local numberOfDimensions2 = #dimensionSizeArray2
+	
+	local bothTensorsAreVectors = (numberOfDimensions1 == 1) and (numberOfDimensions2 == 1)
 
 	if (numberOfDimensions1 ~= numberOfDimensions2) then error("The tensors do not have equal number of dimensions.") end
 
 	if (numberOfDimensions1 <= 0) or (dimension > numberOfDimensions1) then error("The selected dimension is out of bounds.") end
+	
+	local targetTensor = deepCopyTable(tensor1)
+	
+	if (bothTensorsAreVectors) then 
+		
+		for _, value in ipairs(tensor2) do table.insert(targetTensor, value)end
+		
+		return targetTensor
+		
+	end
 
 	for dimensionIndex = 1, numberOfDimensions1, 1 do
 
@@ -3047,8 +3059,6 @@ function AqwamTensorLibrary:concatenate(tensor1, tensor2, dimension)
 		if (dimensionSizeArray1[dimensionIndex] ~= dimensionSizeArray2[dimensionIndex]) then error("The tensors do not contain equal dimension values at dimension " .. dimensionIndex .. ".") end
 
 	end
-
-	local targetTensor = deepCopyTable(tensor1)
 
 	return concatenate(targetTensor, tensor2, dimensionSizeArray1, dimension, 1)
 
