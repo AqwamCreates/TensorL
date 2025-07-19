@@ -1,155 +1,202 @@
 ```
 ========== Same Value Tensor Initialization ==========
 
-Object Flat						: 0.0007300040003610775 seconds
-Table Nested					: 0.00031923299829941245 seconds
-Table Nested Efficient V2		: 0.0003277989983325824 seconds
-Table Nested Efficient V3		: 0.0001726919983047992 seconds
-Table Nested Efficient IPairs V2: 0.00031967599934432653 seconds
-Table Mixed						: 0.00031875200220383705 seconds
+Object Flat						: 0.0009412359993439168 seconds
+Table Nested					: 0.0004853599990019575 seconds
+Table Nested Efficient V2		: 0.00048447800101712344 seconds
+Table Nested Efficient V3		: 0.0005001880007330328 seconds
+Table Nested Efficient IPairs V2: 0.0004896520025795325 seconds
+Table Mixed						: 0.0005104450043290854 seconds
+
+
+  
 
 ========== Identity Tensor Initialization ==========
 
-Object Flat						: 0.000823261997429654 seconds
-Table Nested					: 0.00031959600048139694 seconds
-Table Nested Efficient V2		: 0.00030446999997366217 seconds
-Table Nested Efficient V3		: 0.00018443199980538338 seconds
-Table Nested Efficient IPairs V2: 0.0003205989964772016 seconds
-Table Mixed						: 0.00033451799245085565 seconds
+Object Flat						: 0.000932074001757428 seconds
+Table Nested					: 0.0004956050013424829 seconds
+Table Nested Efficient V2		: 0.0004919029987649992 seconds
+Table Nested Efficient V3		: 0.0004929360025562345 seconds
+Table Nested Efficient IPairs V2: 0.0005113700008951128 seconds
+Table Mixed						: 0.0005161100003169849 seconds
+
+
+  
 
 ========== Random Normal Tensor Initialization - Dimension Size From Smallest to Largest ==========
 
-Object Flat						: 0.001877543002483435 seconds
-Table Nested					: 0.001498212000587955 seconds
-Table Nested Efficient V2		: 0.0014760129962814973 seconds
-Table Nested Efficient V3		: 0.0015662100043846293 seconds
-Table Nested Efficient IPairs V2: 0.0014857530017616228 seconds
-Table Mixed						: 0.0015316889982204885 seconds
+Object Flat						: 0.0018339639966143296 seconds
+Table Nested					: 0.0015600010025082155 seconds
+Table Nested Efficient V2		: 0.001558479002560489 seconds
+Table Nested Efficient V3		: 0.001551844998029992 seconds
+Table Nested Efficient IPairs V2: 0.0015145299973664806 seconds
+Table Mixed						: 0.0015287530003115534 seconds
+
+
+  
 
 ========== Random Normal Tensor Initialization - Dimension Size From Largest to Smallest ==========
 
-Object Flat						: 0.0019569829996908083 seconds
-Table Nested					: 0.0018238040001597256 seconds
-Table Nested Efficient V2		: 0.001825392001774162 seconds
-Table Nested Efficient V3		: 0.0020421830005943773 seconds
-Table Nested Efficient IPairs V2: 0.0018396839965134858 seconds
-Table Mixed						: 0.0018453860026784242 seconds
+Object Flat						: 0.0019439730030717329 seconds
+Table Nested					: 0.001678370000445284 seconds
+Table Nested Efficient V2		: 0.0016688349982723594 seconds
+Table Nested Efficient V3		: 0.0016696279984898866 seconds
+Table Nested Efficient IPairs V2: 0.0017039850016590209 seconds
+Table Mixed						: 0.001729651999194175 seconds
+
+
+  
 
 ========== Addition With Same Sized Tensor ==========
 
-Object Flat						: 0.0006140400032745674 seconds
-Table Nested					: 0.0009720319980988279 seconds
-Table Nested Efficient V2		: 0.0009642749989870936 seconds
-Table Nested Efficient V3		: 0.014397518000914716 seconds
-Table Nested Efficient IPairs V2: 0.0009755119984038174 seconds
-Table Mixed						: 0.03754498800262809 seconds
+Object Flat						: 0.0008095980004873127 seconds
+Table Nested					: 0.0008207590004894882 seconds
+Table Nested Efficient V2		: 0.0008876479999162256 seconds
+Table Nested Efficient V3		: 0.0008459979982580989 seconds
+Table Nested Efficient IPairs V2: 0.0009548350021941587 seconds
+Table Mixed						: 0.04015134999994188 seconds
+
+
+  
 
 ========== Addition With Scalar ==========
 
-Object Flat						: 0.0005717230029404164 seconds
-Table Nested					: 0.0008995510020758956 seconds
-Table Nested Efficient V2		: 0.0009634379961062223 seconds
-Table Nested Efficient V3		: 0.010346639001509174 seconds
-Table Nested Efficient IPairs V2: 0.0009547939943149686 seconds
-Table Mixed						: 0.026498909002402798 seconds
+Object Flat						: 0.0007873489987105132 seconds
+Table Nested					: 0.000872719002654776 seconds
+Table Nested Efficient V2		: 0.0008979549974901602 seconds
+Table Nested Efficient V3		: 0.0009049559995764866 seconds
+Table Nested Efficient IPairs V2: 0.0009444179950514808 seconds
+Table Mixed						: 0.028736629999475554 seconds
+
+
+  
 
 ========== Full Sum ==========
 
-Object Flat						: 0.00008812000160105527 seconds
-Table Nested					: 0.0002135190018452704 seconds
-Table Nested Efficient V2		: 0.0002027849986916408 seconds
-Table Nested Efficient V3		: 0.00019603199965786188 seconds
-Table Nested Efficient IPairs V2: 0.00019376899814233184 seconds
-Table Mixed						: 0.01318658999807667 seconds
+Object Flat						: 0.00007412000501062721 seconds
+Table Nested					: 0.00019734299858100712 seconds
+Table Nested Efficient V2		: 0.00019577200117055327 seconds
+Table Nested Efficient V3		: 0.00020236099779140205 seconds
+Table Nested Efficient IPairs V2: 0.00020394000166561453 seconds
+Table Mixed						: 0.01303481100301724 seconds
+
+
+  
 
 ========== Dimension Sum ==========
 
-Object Flat						: 0.007394106999272481 seconds
-Table Nested					: 0.025281976996921002 seconds
-Table Nested Efficient V2		: 0.008850317997857928 seconds
-Table Nested Efficient V3		: 0.008923121001571417 seconds
-Table Nested Efficient IPairs V2: 0.008855921003269032 seconds
-Table Mixed						: 0.03704834999574814 seconds
+Object Flat						: 0.006764181002508849 seconds
+Table Nested					: 0.026700223000952972 seconds
+Table Nested Efficient V2		: 0.008712220997549593 seconds
+Table Nested Efficient V3		: 0.008531819999334403 seconds
+Table Nested Efficient IPairs V2: 0.008568800999200902 seconds
+Table Mixed						: 0.03913595799705945 seconds
+
+
+  
 
 ========== Transpose ==========
 
-Object Flat						: 0.007173846000805497 seconds
-Table Nested					: 0.014665363997337408 seconds
-Table Nested Efficient V2		: 0.0065449230017839 seconds
-Table Nested Efficient V3		: 0.0064543009974295275 seconds
-Table Nested Efficient IPairs V2: 0.006540375998010859 seconds
-Table Mixed						: 0.027212323002750054 seconds
+Object Flat						: 0.007009361998643726 seconds
+Table Nested					: 0.014509541001752951 seconds
+Table Nested Efficient V2		: 0.00609644400596153 seconds
+Table Nested Efficient V3		: 0.006109193999436684 seconds
+Table Nested Efficient IPairs V2: 0.00611298099742271 seconds
+Table Mixed						: 0.027180114003713243 seconds
+
+
+  
 
 ========== Set Value By Function ==========
 
-Object Flat						: 0.000008332998841069638 seconds
-Table Nested					: 0.00001094299543183297 seconds
-Table Nested Efficient V2		: 0.000007718999986536801 seconds
-Table Nested Efficient V3		: 0.000007847000379115343 seconds
-Table Nested Efficient IPairs V2: 0.00000786100048571825 seconds
-Table Mixed						: 0.000012159000616520644 seconds
+Object Flat						: 0.000007034000591374934 seconds
+Table Nested					: 0.000008941998821683228 seconds
+Table Nested Efficient V2		: 0.000006638001650571823 seconds
+Table Nested Efficient V3		: 0.000006402998114936054 seconds
+Table Nested Efficient IPairs V2: 0.0000056590052554383875 seconds
+Table Mixed						: 0.000008273001294583081 seconds
+
+
+  
 
 ========== Set Value By Index (Not Applicable To Object Flat) ==========
 
-Object Flat						: 0.000009215001482516527 seconds
-Table Nested					: 0.000002050000475719571 seconds
-Table Nested Efficient V2		: 0.000002114002127200365 seconds
-Table Nested Efficient V3		: 0.000002030999748967588 seconds
-Table Nested Efficient IPairs V2: 0.0000020439981017261745 seconds
-Table Mixed						: 0.0000020150002092123033 seconds
+Object Flat						: 0.000007421999471262097 seconds
+Table Nested					: 0.0000016250013140961529 seconds
+Table Nested Efficient V2		: 0.0000016330007929354907 seconds
+Table Nested Efficient V3		: 0.0000017849943833425642 seconds
+Table Nested Efficient IPairs V2: 0.0000016069988487288355 seconds
+Table Mixed						: 0.0000016759964637458325 seconds
+
+
+  
 
 ========== Get Value By Function ==========
 
-Object Flat						: 0.000008339002379216254 seconds
-Table Nested					: 0.000010505997925065459 seconds
-Table Nested Efficient V2		: 0.00000819999841041863 seconds
-Table Nested Efficient V3		: 0.000007930999854579568 seconds
-Table Nested Efficient IPairs V2: 0.000008298998000100256 seconds
-Table Mixed						: 0.000011172998929396272 seconds
+Object Flat						: 0.0000074010016396641734 seconds
+Table Nested					: 0.000008659997256472707 seconds
+Table Nested Efficient V2		: 0.000006457999697886407 seconds
+Table Nested Efficient V3		: 0.0000065880018519237634 seconds
+Table Nested Efficient IPairs V2: 0.0000064169970573857426 seconds
+Table Mixed						: 0.000008955997764132917 seconds
+
+
+  
 
 ========== Get Value By Index (Not Applicable To Object Flat) ==========
 
-Object Flat						: 0.000009004005114547909 seconds
-Table Nested					: 0.000002039005048573017 seconds
-Table Nested Efficient V2		: 0.000002182009629905224 seconds
-Table Nested Efficient V3		: 0.0000021089951042085887 seconds
-Table Nested Efficient IPairs V2: 0.000002234001294709742 seconds
-Table Mixed						: 0.0000020809948910027743 seconds
+Object Flat						: 0.000007181999390013516 seconds
+Table Nested					: 0.0000018009991617873311 seconds
+Table Nested Efficient V2		: 0.000001691001234576106 seconds
+Table Nested Efficient V3		: 0.0000017499958630651236 seconds
+Table Nested Efficient IPairs V2: 0.000001593001070432365 seconds
+Table Mixed						: 0.0000017519976245239377 seconds
+
+
+  
 
 ========== Dot Product With Transposed Same Sized Tensor ==========
 
-Object Flat						: 0.000042288001277484 seconds
-Table Nested					: 0.000014479003148153425 seconds
-Table Nested Efficient V2		: 0.00001559899828862399 seconds
-Table Nested Efficient V3		: 0.00001451200048904866 seconds
-Table Nested Efficient IPairs V2: 0.000014279004535637796 seconds
-Table Mixed						: 0.000050466000684536996 seconds
+Object Flat						: 0.00003522999759297818 seconds
+Table Nested					: 0.000011314001167193055 seconds
+Table Nested Efficient V2		: 0.000011886002030223608 seconds
+Table Nested Efficient V3		: 0.000011031999019905924 seconds
+Table Nested Efficient IPairs V2: 0.000011212993995286524 seconds
+Table Mixed						: 0.00003987699863500893 seconds
+
+
+  
 
 ========== Tensor Dimension Size Expansion ==========
 
-Object Flat						: 0.004712819001288154 seconds
-Table Nested					: 0.00016568100138101728 seconds
-Table Nested Efficient V2		: 0.00016946499759797008 seconds
-Table Nested Efficient V3		: 0.0001628379983594641 seconds
-Table Nested Efficient IPairs V2: 0.00016639299923554063 seconds
-Table Mixed						: 0.02070227299758699 seconds
+Object Flat						: 0.004322347000706941 seconds
+Table Nested					: 0.0001700460020219907 seconds
+Table Nested Efficient V2		: 0.0001697560033062473 seconds
+Table Nested Efficient V3		: 0.0001712799962842837 seconds
+Table Nested Efficient IPairs V2: 0.00016957199899479746 seconds
+Table Mixed						: 0.021021343000466004 seconds
+
+
+  
 
 ========== Tensor Number Of Dimension Expansion ==========
 
-Object Flat						: 0.006651390001643449 seconds
-Table Nested					: 0.0016912169987335802 seconds
-Table Nested Efficient V2		: 0.0016796800022711978 seconds
-Table Nested Efficient V3		: 0.0016954930050997064 seconds
-Table Nested Efficient IPairs V2: 0.0016929749975679441 seconds
-Table Mixed						: 0.038985579002182934 seconds
+Object Flat						: 0.006415374999050982 seconds
+Table Nested					: 0.0015656769968336447 seconds
+Table Nested Efficient V2		: 0.001549846000270918 seconds
+Table Nested Efficient V3		: 0.0015581789996940642 seconds
+Table Nested Efficient IPairs V2: 0.0015433379990281537 seconds
+Table Mixed						: 0.039810928999795575 seconds
+
+
+  
 
 ========== Permutation ==========
 
-Object Flat						: 0.000603434998774901 seconds
-Table Nested					: 0.0011668320000171662 seconds
-Table Nested Efficient V2		: 0.000565564997959882 seconds
-Table Nested Efficient V3		: 0.0005509739997796714 seconds
-Table Nested Efficient IPairs V2: 0.0005722299986518919 seconds
-Table Mixed						: 0.0009392689977539703 seconds
-
+Object Flat						: 0.0005740830034483224 seconds
+Table Nested					: 0.0010898070002440363 seconds
+Table Nested Efficient V2		: 0.0005120789969805628 seconds
+Table Nested Efficient V3		: 0.0005357959977118299 seconds
+Table Nested Efficient IPairs V2: 0.0005227719969116151 seconds
+Table Mixed						: 0.0008658949995879084 seconds
 ```
