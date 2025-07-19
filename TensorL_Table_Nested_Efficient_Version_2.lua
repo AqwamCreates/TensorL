@@ -2491,7 +2491,7 @@ end
 
 function AqwamTensorLibrary:standardDeviation(tensor, dimension)
 	
-	if (type(tensor) == "number") then return 0 end
+	if (type(tensor) == "number") then return 0, 0, tensor end
 
 	local size = (dimension and AqwamTensorLibrary:getDimensionSizeArray(tensor)[dimension]) or AqwamTensorLibrary:getTotalSize(tensor)
 
