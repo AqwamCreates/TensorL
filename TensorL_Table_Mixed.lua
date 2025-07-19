@@ -1867,6 +1867,8 @@ local function sumAlongOneDimension(tensor, targetDimension)
 end
 
 function AqwamTensorLibrary:sum(tensor, dimension)
+	
+	if (type(tensor) == "number") then return tensor end
 
 	if (not dimension) then return sumFromAllDimensions(tensor) end
 
@@ -1877,6 +1879,8 @@ function AqwamTensorLibrary:sum(tensor, dimension)
 end
 
 function AqwamTensorLibrary:mean(tensor, dimension)
+	
+	if (type(tensor) == "number") then return tensor end
 
 	local size = (dimension and AqwamTensorLibrary:getDimensionSizeArray(tensor)[dimension]) or AqwamTensorLibrary:getTotalSize(tensor)
 
@@ -1889,6 +1893,8 @@ function AqwamTensorLibrary:mean(tensor, dimension)
 end
 
 function AqwamTensorLibrary:standardDeviation(tensor, dimension)
+	
+	if (type(tensor) == "number") then return 0, 0, tensor end
 
 	local size = (dimension and AqwamTensorLibrary:getDimensionSizeArray(tensor)[dimension]) or AqwamTensorLibrary:getTotalSize(tensor)
 
@@ -2546,7 +2552,7 @@ local function applyFunction(functionToApply, dimensionSizeArray, ...)
 
 		end
 
-	else
+	elseif (#dimensionSizeArray == 1) then
 
 		for i = 1, dimensionSizeArray[1], 1 do 
 
@@ -2557,6 +2563,10 @@ local function applyFunction(functionToApply, dimensionSizeArray, ...)
 			resultTensor[i] = functionToApply(table.unpack(subTensorArray)) 
 
 		end
+		
+	else
+		
+		resultTensor = functionToApply(table.unpack(tensorArray))
 
 	end
 
