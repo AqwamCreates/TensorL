@@ -3,15 +3,13 @@
 ## License
 These terms and conditions (“Agreement”) are a legal agreement between you (or company or organization) recognized as “User” and Aqwam Harish Aiman recognised as “Licensor” for the use of TensorL Library (“Library”) within this terms and conditions. By using or possessing the Library, User, agrees to be bound by the terms of this Agreement.
 
-## Commercial Use Conditions
-
-* The Library can be utilized for both internal and external commercial purposes under the condition that all source codes, data, arts, models, videos, audios, music, or any other assets that interact with the Library, whether directly or indirectly, must be released and distributed to the public under the MIT license for all versions permanently and immediately. Such assets must also be placed in areas that are approved by the Licensor. While waiting for approval from the Licensor, the User must place them in areas that are commonly viewed by the general public.
+## Definitions
 
 * For the purposes of this Agreement, "interaction" shall include, but is not limited to:
 
   * Direct Usage: Any instance where the Library is explicitly called, linked, imported, compiled, or otherwise included as part of another program, application, system, or project.
 
-  * Indirect Usage: Any scenario where the Library’s functionality, outputs, or capabilities are utilized, whether or not the Library is directly linked or embedded in the project.This includes intermediate layers, middleware, or third-party tools that rely on the Library to perform tasks or produce results.
+  * Indirect Usage: Any scenario where the Library’s functionality, outputs, or capabilities are utilized, whether or not the Library is directly linked or embedded in the project. This includes intermediate layers, middleware, or third-party tools that rely on the Library to perform tasks or produce results.
     
   * Dependency Relationships: Any project, software, or system that lists the Library as a dependency, either explicitly or implicitly, through build systems, package managers, or runtime requirements.
     
@@ -31,9 +29,15 @@ These terms and conditions (“Agreement”) are a legal agreement between you (
 
   * Supportive or Auxiliary Use: Any usage of the Library to aid in the development, testing, debugging, or execution of other projects, systems, or applications.
 
-* The User is not allowed to remove distributed codes released under the MIT license due to the commercial usage of this Library from the public without the Licensor's permission.
+## Commercial Use Conditions
 
 * The term "commercial use" encompasses all forms of utilization and application, including integration, storing, and hosting from another computer, server, or machine. This applies to companies (or individuals, if none) whose combined revenue (including from subsidiaries or related entities) exceeds $3,000 within 365 days (not per 365 days) or those engaged in business-to-business activities.
+
+* The Library can be utilized for both internal and external commercial purposes under the condition that all source codes, data, arts, models, videos, audios, music, or any other assets that interact with the Library, whether directly or indirectly, must be released and distributed to the public under the MIT license for all versions permanently and immediately. Such assets must also be placed in areas that are approved by the Licensor. While waiting for approval from the Licensor, the User must place them in areas that are commonly viewed by the general public.
+
+* If User initially does not meet "commercial use" definition but then meet to "commercial use" definition in the future, the User have a grace period of 30 days to release all the interacting source codes, data, arts, models, videos, audios, music, or any other assets under MIT license. However, the Licensor reserves the right to revoke this requirement at any given time in writing.
+
+* The User is not allowed to remove distributed codes released under the MIT license due to the commercial usage of this Library from the public without the Licensor's permission.
 
 * Failure to comply with these conditions will make the User liable for damages due to non-compliance, and the User must pay monetary compensation. No other forms of compensation will be accepted.
 
