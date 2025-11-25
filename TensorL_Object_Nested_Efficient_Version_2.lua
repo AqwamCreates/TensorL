@@ -3433,21 +3433,89 @@ local function flip(tensor,  dimensionSizeArray, numberOfDimensions, currentDime
 
 end
 
-function AqwamTensorLibrary:flip(tensor, dimension)
+function AqwamTensorLibrary:flip(dimension)
 
 	if (type(dimension) ~= "number") then error("Invalid dimension.") end
 
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local dimensionSizeArray = self:getDimensionSizeArray()
 
 	local numberOfDimensions = #dimensionSizeArray
 
 	if (dimension <= 0) then error("The dimension cannot be less than or equal to zero.") end
 
 	if (dimension > numberOfDimensions) then error("The dimension is greater than the tensor's number of dimensions.") end
-	
-	local resultTensor = flip(tensor,  dimensionSizeArray, numberOfDimensions, 1, dimension)
+
+	local resultTensor = flip(self, dimensionSizeArray, dimension)
 
 	return AqwamTensorLibrary.new(resultTensor)
+
+end
+
+function AqwamTensorLibrary:sample(dimension)
+
+	if (type(dimension) ~= "number") then error("Invalid dimension.") end
+
+	if (dimension <= 0) then error("The dimension cannot be less than or equal to zero.") end
+
+	local dimensionSizeArray = self:getDimensionSizeArray()
+
+	local numberOfDimensions = #dimensionSizeArray
+
+	if (dimension > numberOfDimensions) then error("The dimension cannot be greater than the tensor's number of dimensions.") end
+
+	local absoluteTensor = AqwamTensorLibrary:applyFunction(math.abs, self)
+
+	local sumAbsoluteTensor = AqwamTensorLibrary:sum(absoluteTensor, dimension)
+
+	local probabilityTensor = AqwamTensorLibrary:divide(absoluteTensor, sumAbsoluteTensor)
+
+	local newDimensionSizeArray = table.clone(dimensionSizeArray)
+
+	newDimensionSizeArray[dimension] = 1
+
+	local cumulativeProbabilityTensor = AqwamTensorLibrary:createTensor(newDimensionSizeArray)
+
+	local randomProbabilityTensor = AqwamTensorLibrary:createRandomUniformTensor(newDimensionSizeArray)
+
+	local indexTensor = AqwamTensorLibrary:createTensor(newDimensionSizeArray)
+
+	local subProbabilityTensor
+
+	local originDimensionSizeArray
+
+	local targetDimensionSizeArray
+
+	local indexFunction
+
+	for i = 1, dimensionSizeArray[dimension], 1 do
+
+		originDimensionSizeArray = table.create(numberOfDimensions, 1)
+
+		targetDimensionSizeArray = table.clone(dimensionSizeArray)
+
+		originDimensionSizeArray[dimension] = i
+
+		targetDimensionSizeArray[dimension] = i
+
+		subProbabilityTensor = AqwamTensorLibrary:extract(probabilityTensor, originDimensionSizeArray, targetDimensionSizeArray)
+
+		cumulativeProbabilityTensor = AqwamTensorLibrary:add(cumulativeProbabilityTensor, subProbabilityTensor)
+
+		indexFunction = function(index, cumulativeProbabilityValue, randomProbabilityValue)
+
+			if (index ~= 0) then return index end
+
+			if (cumulativeProbabilityValue >= randomProbabilityValue) then return i end
+
+			return 0
+
+		end
+
+		indexTensor = AqwamTensorLibrary:applyFunction(indexFunction, indexTensor, cumulativeProbabilityTensor, randomProbabilityTensor)
+
+	end
+
+	return AqwamTensorLibrary.new(indexTensor)
 
 end
 
