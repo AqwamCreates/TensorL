@@ -3560,11 +3560,11 @@ function AqwamTensorLibrary:sample(tensor, dimension)
 
 	newDimensionSizeArray[dimension] = 1
 
+	local indexTensor = AqwamTensorLibrary:createTensor(newDimensionSizeArray)
+
 	local cumulativeProbabilityTensor = AqwamTensorLibrary:createTensor(newDimensionSizeArray)
 
-	local randomProbabilityTensor = AqwamTensorLibrary:createRandomUniformTensor(newDimensionSizeArray)
-
-	local indexTensor = AqwamTensorLibrary:createTensor(newDimensionSizeArray)
+	local randomProbabilityTensor = AqwamTensorLibrary:createRandomUniformTensor(newDimensionSizeArray, 0, 1)
 
 	local subProbabilityTensor
 
