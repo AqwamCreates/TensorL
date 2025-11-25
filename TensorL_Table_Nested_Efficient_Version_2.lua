@@ -3446,9 +3446,11 @@ end
 
 function AqwamTensorLibrary:sample(tensor, dimension)
 
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	if (type(dimension) ~= "number") then error("Invalid dimension.") end
 
 	if (dimension <= 0) then error("The dimension cannot be less than or equal to zero.") end
+
+	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local numberOfDimensions = #dimensionSizeArray
 
